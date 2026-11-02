@@ -1,0 +1,47 @@
+/*
+  Design tokens: the only file in the frontend allowed to hold raw colours.
+  The values were sampled from docs/design/overview-mockup.png.
+  Components use these through Tailwind, for example `bg-surface` or `text-muted`.
+*/
+:root {
+  /* Page and cards */
+  --token-page: #fafbfb;
+  --token-surface: #ffffff;
+  --token-surface-subtle: #f6f7f7;
+  --token-border: #f0f1f3;
+  --token-foreground: #14201e;
+  --token-muted: #55625f;
+
+  /* Sidebar */
+  --token-sidebar: #172c2a;
+  --token-sidebar-wave: #223c34;
+  --token-sidebar-foreground: #ffffff;
+  --token-sidebar-active-from: #c4ecbc;
+  --token-sidebar-active-to: #95cf8d;
+  --token-sidebar-active-foreground: #172c2a;
+
+  /* Brand green */
+  --token-brand: #296a30;
+  --token-brand-foreground: #ffffff;
+  --token-brand-tint: #eff6ef;
+  --token-brand-border: #c0ddc2;
+  --token-avatar: #d5efd1;
+
+  /* Charts */
+  --token-chart-line: #3d8740;
+  --token-chart-area: #f1f6f0;
+  --token-chart-track: #edeef0;
+
+  /* Meaning */
+  --token-success: #0e7310;
+  --token-danger: #e41219;
+  --token-danger-tint: #fee7e6;
+
+  /* Shape */
+  --token-radius-card: 1rem;
+  --token-radius-control: 0.75rem;
+  --token-shadow-card: 0 1px 2px color-mix(in srgb, var(--token-foreground) 5%, transparent);
+
+  /* Layout */
+  --token-sidebar-width: 16rem;
+}

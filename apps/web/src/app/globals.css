@@ -1,0 +1,41 @@
+@import "tailwindcss";
+@import "../styles/tokens.css";
+
+/* Connects the design tokens to Tailwind names, such as `bg-surface`. */
+@theme inline {
+  --color-*: initial;
+  --color-page: var(--token-page);
+  --color-surface: var(--token-surface);
+  --color-surface-subtle: var(--token-surface-subtle);
+  --color-border: var(--token-border);
+  --color-foreground: var(--token-foreground);
+  --color-muted: var(--token-muted);
+  --color-sidebar: var(--token-sidebar);
+  --color-sidebar-wave: var(--token-sidebar-wave);
+  --color-sidebar-foreground: var(--token-sidebar-foreground);
+  --color-sidebar-active-from: var(--token-sidebar-active-from);
+  --color-sidebar-active-to: var(--token-sidebar-active-to);
+  --color-sidebar-active-foreground: var(--token-sidebar-active-foreground);
+  --color-brand: var(--token-brand);
+  --color-brand-foreground: var(--token-brand-foreground);
+  --color-brand-tint: var(--token-brand-tint);
+  --color-brand-border: var(--token-brand-border);
+  --color-avatar: var(--token-avatar);
+  --color-chart-line: var(--token-chart-line);
+  --color-chart-area: var(--token-chart-area);
+  --color-chart-track: var(--token-chart-track);
+  --color-success: var(--token-success);
+  --color-danger: var(--token-danger);
+  --color-danger-tint: var(--token-danger-tint);
+  --font-sans: var(--font-inter);
+  --radius-card: var(--token-radius-card);
+  --radius-control: var(--token-radius-control);
+  --shadow-card: var(--token-shadow-card);
+  --spacing-sidebar: var(--token-sidebar-width);
+}
+
+body {
+  background: var(--color-page);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+}
