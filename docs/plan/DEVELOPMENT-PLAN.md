@@ -247,7 +247,7 @@ Every phase ends with the same steps:
 - [x] `samples/`: a generator for made-up bills (real bills are never committed)
 
 **Automatic checks**
-- [ ] GitHub Actions: Ruff, Bandit, Pytest, ESLint, Vitest, Gitleaks, Trivy, Docker builds
+- [x] GitHub Actions: Ruff, Bandit, Pytest, ESLint, Vitest, Gitleaks, Trivy, Docker builds
 - [x] `import-linter` for clean architecture
 - [x] `scripts/check_no_hardcoded.py`, which fails on raw colours and URLs outside allowed files
 

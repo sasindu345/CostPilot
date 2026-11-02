@@ -24,7 +24,7 @@
 - [x] `samples/`: a generator for made-up bills (real bills are never committed)
 
 **Automatic checks**
-- [ ] GitHub Actions: Ruff, Bandit, Pytest, ESLint, Vitest, Gitleaks, Trivy, Docker builds
+- [x] GitHub Actions: Ruff, Bandit, Pytest, ESLint, Vitest, Gitleaks, Trivy, Docker builds
 - [x] `import-linter` for clean architecture
 - [x] `scripts/check_no_hardcoded.py`, which fails on raw colours and URLs outside allowed files
 
@@ -40,7 +40,7 @@
 
 ## Finish this phase
 
-- [ ] All items above are ticked, or the change is explained (waiting on the first GitHub Actions run)
+- [x] All items above are ticked, or the change is explained
 - [x] `docs/plan/ROADMAP.md` is updated
 - [x] `docs/logs/BUILD-LOG.md` has a dated entry
 - [x] `make check` passes

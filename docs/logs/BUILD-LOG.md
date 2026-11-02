@@ -2,6 +2,12 @@
 
 A dated record of what was built. Newest entries go at the top.
 
+## 2 Nov 2026: First GitHub Actions results
+
+- `phase-1-login`: all 4 jobs passed (project rules, backend, frontend, Docker images). This branch holds all of Phase 0 as well, so Phase 0 is now closed.
+- `phase-0-baseline`: the image scan failed, because the `npm` security fix is only on `phase-1-login`. No fix is needed on that branch.
+- `main` was pushed earlier at an older commit. Its run failed at the Docker images step, and it has not been updated.
+
 ## 2 Nov 2026: Phase 1, login and app shell
 
 **Built**
