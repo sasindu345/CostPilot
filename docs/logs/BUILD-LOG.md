@@ -2,7 +2,7 @@
 
 A dated record of what was built. Newest entries go at the top.
 
-## 2 Nov 2026: Phase 5, documentation search (waiting for a Gemini key)
+## 2 Nov 2026: Phase 5, documentation search
 
 **Built**
 
@@ -23,10 +23,17 @@ A dated record of what was built. Newest entries go at the top.
 - All 18 live AWS pages loaded, and the real Qdrant container stored and found data
 - `langchain-google-genai` works on Python 3.13, which closes an open item from the plan
 
+- With real Gemini embeddings, `make reindex` indexed all 18 pages, and a second run changed nothing
+- `make eval-search` found an expected source for 10 of 10 questions
+- One embedding call failed during indexing, and the automatic retry fixed it
+
 **Not yet tested**
 
-- Real Gemini embeddings, `make reindex` and `make eval-search`, because there is no key yet.
 - The keep-awake job, until there is a Qdrant Cloud cluster.
+
+**Known limits**
+
+- The test questions were written by us, so they are an easy test. Phase 10 adds a harder one.
 
 ## 2 Nov 2026: Phase 4, dashboard and analytics (waiting for browser check)
 

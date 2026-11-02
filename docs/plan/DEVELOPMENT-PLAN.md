@@ -303,8 +303,8 @@ Every phase ends with the same steps:
 ### Phase 5 – Documentation search (RAG)
 **You will see:** a test search returns the right AWS advice.
 - [x] `knowledge/sources.yaml`: the list of trusted documents
-- [ ] Load, split, create embeddings, save to Qdrant, tagged by provider
-- [ ] `make reindex`, safe to run repeatedly
+- [x] Load, split, create embeddings, save to Qdrant, tagged by provider
+- [x] `make reindex`, safe to run repeatedly
 - [x] Search with a relevance check
 - [x] Starter set of test questions, to measure search quality
 - [x] Weekly job to keep the free Qdrant cluster awake
