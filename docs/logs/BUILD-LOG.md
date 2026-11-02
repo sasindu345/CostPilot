@@ -20,6 +20,17 @@ A dated record of what was built. Newest entries go at the top.
 - **Trivy runs from its Docker image** at a fixed version, not through a GitHub action.
 - **Module boundaries** are checked by a small test, because it can allow `contracts.py` imports exactly.
 
+- **Containers run on Colima**, not Docker Desktop. It is free and was already set up.
+- **Removed `pip` and Python's test files from the API image.** Trivy found 5 high-severity problems, all inside these unused files, not in our own packages.
+
+**Tested on 2 Nov 2026**
+
+- All 6 services started with `make up`, and all 5 pages and `/api/health` answered
+- API requests through the web app reached FastAPI
+- Each guard was broken on purpose and caught the problem: secrets, AI co-author lines, hardcoded colours, layer rules, module borders and feature borders
+- All 8 Mermaid diagrams are valid
+- Keycloak used 1.05 GB of memory, which matches its official sizing
+
 **Moved to a later phase**
 
 - shadcn/ui, Recharts, TanStack Query and the other screen libraries are installed in the phase that first uses them, to keep the baseline small.

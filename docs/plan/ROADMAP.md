@@ -30,5 +30,6 @@ This is the one place to see what is done and what remains. Update it at the end
 
 ## Open items
 
+- Phase 0 stays in progress until GitHub Actions runs green on the first push.
 - Phase 9 starts by confirming `t3.small` is free on your AWS account. A micro-only account cannot run Keycloak.
 - Add `wijewardanasj.23@uom.lk` to your GitHub account so commits count on your profile.
