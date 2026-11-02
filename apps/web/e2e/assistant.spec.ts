@@ -2,6 +2,9 @@ import { expect, test } from "@playwright/test";
 
 import { signUp } from "./helpers";
 
+// This must be a real answer. The "not available" message does not count as a pass.
+const ANSWER = /248\.60 USD|1,245\.60 USD/;
+
 test("the assistant answers with real numbers, and a chat stays private", async ({
   browser,
   page,
@@ -20,16 +23,14 @@ test("the assistant answers with real numbers, and a chat stays private", async 
 
   await test.step("the answer uses the true figure from the bill", async () => {
     await page.getByRole("button", { name: "Summarize my cloud spending" }).click();
-    await expect(page.getByText(/248\.60 USD|1,245\.60 USD/).first()).toBeVisible({
-      timeout: 60_000,
-    });
+    await expect(page.getByText(ANSWER).first()).toBeVisible({ timeout: 90_000 });
     await expect(page.getByText("{{F")).toHaveCount(0);
   });
 
   await test.step("the chat is saved", async () => {
     await page.reload();
     await expect(page.getByText("Summarize my cloud spending")).toBeVisible();
-    await expect(page.getByText(/248\.60 USD|1,245\.60 USD/).first()).toBeVisible();
+    await expect(page.getByText(ANSWER).first()).toBeVisible();
   });
 
   await test.step("another user cannot read it", async () => {

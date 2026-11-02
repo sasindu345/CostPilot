@@ -15,7 +15,7 @@ from costpilot.modules.assistant.domain.models import (
 
 
 class ChatModel(Protocol):
-    async def choose_route(self, question: str) -> Route: ...
+    async def choose_routes(self, question: str) -> list[Route]: ...
 
     def stream_answer(
         self, system: str, history: Sequence[tuple[str, str]], prompt: str
@@ -24,7 +24,7 @@ class ChatModel(Protocol):
 
 class EvidenceWorkflow(Protocol):
     async def gather(self, question: str, tools: WorkspaceTools) -> Evidence:
-        """Run the supervisor and one specialist, and return what they found."""
+        """Run the supervisor and its chosen specialists, and return what they found."""
 
 
 class ConversationStore(Protocol):

@@ -4,7 +4,8 @@ from collections.abc import Sequence
 
 from costpilot.modules.assistant.domain.models import Evidence, Message
 
-ROUTER_INSTRUCTIONS = """You sort questions for a cloud cost assistant. Choose one route.
+ROUTER_INSTRUCTIONS = """You sort questions for a cloud cost assistant.
+Choose every route a question needs. A question with two parts can need two routes.
 - cost: what the user spent, totals, top services, trends, comparing months.
 - anomaly: why a cost rose, unusual increases, sudden changes.
 - optimization: how to save money, cloud pricing options, cost best practice.

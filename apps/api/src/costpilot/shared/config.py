@@ -50,7 +50,7 @@ class Settings(BaseSettings):
     gemini_answer_model: str
     gemini_router_model: str
     gemini_tier: Literal["free", "paid"] = "free"
-    gemini_timeout_seconds: float = 60
+    gemini_timeout_seconds: float = 30
     gemini_retries: int = 2
     assistant_daily_limit: int = 50
     assistant_max_question_length: int = 1000

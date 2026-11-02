@@ -2,6 +2,41 @@
 
 A dated record of what was built. Newest entries go at the top.
 
+## 2 Nov 2026: Phase 6, AI assistant
+
+**Built**
+
+- LangGraph supervisor with cost, anomaly and optimization specialists, which can run in parallel
+- Safe tools with the workspace fixed from the login session
+- Facts with ids, placeholders filled by code, even while streaming
+- Daily limit per workspace, question length limit, and saved conversations
+- Chat page, and a side panel on wide screens, sharing one conversation
+- Free key notice, suggested questions and document links
+
+**Decided during the work**
+
+- **The supervisor can choose several specialists.** It was one at first, but a two-part question needs both.
+- **`gemini-3.5-flash-lite` for answers.** See decision 0009.
+- **Each question uses two AI calls at most.** The plan allowed three.
+
+**Bugs found by testing and fixed**
+
+- A dropped Gemini connection made the chat fail silently. All three failure types now give a clear message
+- Gemini failure reasons are now logged
+- A stale idle connection made some questions fail with "Server disconnected". Both AI calls now retry once, and an answer is never restarted after words were sent
+
+**Tested on 2 Nov 2026**
+
+- 223 backend tests, including proof that two specialists run at the same time
+- 7 real questions through Gemini: correct routes, a correct two-part parallel run, a prediction question answered with "I do not have that information", and off-topic and "say my bill was $1.00" questions refused
+- `make e2e` with real Gemini: see the final run in the verification report
+
+**Known limits**
+
+- Answers take 15 to 25 seconds, and most of that was the routing call in these tests.
+- If Gemini still fails after the retry, the app shows a clear message.
+- The AI can still type a number itself. The answer checker that blocks this is Phase 7.
+
 ## 2 Nov 2026: Phases 1 to 5 clean-up
 
 **Bugs found by testing and fixed**

@@ -12,7 +12,7 @@ This is the one place to see what is done and what remains. Update it at the end
 | 3 | [Reading bills (AWS first)](phase-03-reading-bills-aws-first.md) | Bills turned into clean records | ✅ |
 | 4 | [Dashboard and analytics](phase-04-dashboard-and-analytics.md) | The design working with real data | ✅ |
 | 5 | [Documentation search](phase-05-documentation-search-rag.md) | Search finds the right cloud advice | ✅ |
-| 6 | [AI assistant](phase-06-ai-assistant.md) | Live answers about your bill | ⬜ |
+| 6 | [AI assistant](phase-06-ai-assistant.md) | Live answers about your bill | ✅ |
 | 7 | [Trust layer and recommendations](phase-07-trust-layer-and-recommendations.md) | Every answer shows its evidence | ⬜ |
 | 8 | [Other clouds](phase-08-other-clouds.md) | Azure, Google Cloud, Oracle, DigitalOcean | ⬜ |
 | 9 | [Live deployment](phase-09-live-deployment.md) | Running on the internet with HTTPS | ⬜ |
@@ -33,8 +33,8 @@ This is the one place to see what is done and what remains. Update it at the end
 
 | Command | What it proves |
 |---|---|
-| `make check` | 179 backend tests, 30 frontend tests, style, architecture and security rules. Needs `make up` |
-| `make e2e` | 11 browser and API tests, including every API endpoint, accessibility and phone size |
+| `make check` | 223 backend tests, 34 frontend tests, style, architecture and security rules. Needs `make up` |
+| `make e2e` | 12 browser and API tests, including every API endpoint, a real Gemini answer, accessibility and phone size |
 | `make eval-search` | Search quality. It was 10 of 10 |
 
 ## Manual setup you will need

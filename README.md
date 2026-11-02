@@ -4,7 +4,7 @@
 
 ![CostPilot overview design](docs/design/overview-mockup.png)
 
-> **Status:** Phases 0 to 5 are built: login, document upload, reading AWS bills, the dashboard and documentation search. The AI assistant comes next. The design above is the target, not the current app. See the [roadmap](docs/plan/ROADMAP.md) for what is built and what remains.
+> **Status:** Phases 0 to 6 are built, including the AI assistant. The trust layer and recommendations come next. The design above is the target, not the current app. See the [roadmap](docs/plan/ROADMAP.md) for what is built and what remains.
 
 ## The problem
 
@@ -194,4 +194,5 @@ scripts/      Project checks and setup
 - [Documentation index](docs/README.md)
 - [Roadmap and progress](docs/plan/ROADMAP.md)
 - [Build log](docs/logs/BUILD-LOG.md)
+- [Technical verification](docs/architecture/technical-verification.md)
 - [Project rules](AGENTS.md)

@@ -34,7 +34,7 @@ class WorkspaceTools:
     async def cost_evidence(self) -> Evidence:
         facts = FactList()
         limitations = await self._add_costs(facts)
-        return Evidence(Route.COST, facts.facts, limitations=limitations)
+        return Evidence((Route.COST,), facts.facts, limitations=limitations)
 
     async def anomaly_evidence(self) -> Evidence:
         facts = FactList()
@@ -51,7 +51,7 @@ class WorkspaceTools:
             facts.add_comparison(rows, first, overview.latest_month, overview.currency)
             if not await self._analytics.has_line_items(self._workspace_id):
                 limitations.append(SUMMARY_ONLY)
-        return Evidence(Route.ANOMALY, facts.facts, limitations=limitations)
+        return Evidence((Route.ANOMALY,), facts.facts, limitations=limitations)
 
     async def optimization_evidence(self, question: str) -> Evidence:
         facts = FactList()
@@ -68,7 +68,7 @@ class WorkspaceTools:
         passages = [
             DocumentPassage(passage.title, passage.url, passage.text) for passage in result.passages
         ]
-        return Evidence(Route.OPTIMIZATION, facts.facts, passages, limitations)
+        return Evidence((Route.OPTIMIZATION,), facts.facts, passages, limitations)
 
     async def _add_costs(self, facts: FactList) -> list[str]:
         overview = await self._analytics.overview(

@@ -134,12 +134,12 @@ class AssistantService:
         tools = WorkspaceTools(workspace_id, self._analytics, self._knowledge)
         text = ""
         sources: list[SourceLink] = []
-        route = None
+        routes: tuple[Route, ...] = ()
         try:
             evidence = await self._workflow.gather(question, tools)
-            route = evidence.route
+            routes = evidence.routes
             sources = self._unique_sources(evidence)
-            if route is Route.OUT_OF_SCOPE:
+            if routes == (Route.OUT_OF_SCOPE,):
                 text = OUT_OF_SCOPE_ANSWER
                 yield ChatEvent("text", text)
             else:
@@ -168,7 +168,7 @@ class AssistantService:
             user_id=user.user_id,
             details={
                 "conversation_id": str(conversation_id),
-                "route": route.value if route else "unavailable",
+                "routes": [route.value for route in routes],
                 "sources": [source.url for source in sources],
             },
         )

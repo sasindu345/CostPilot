@@ -42,7 +42,7 @@ class DocumentPassage:
 
 @dataclass(frozen=True)
 class Evidence:
-    route: Route
+    routes: tuple[Route, ...]
     facts: list[Fact] = field(default_factory=list)
     passages: list[DocumentPassage] = field(default_factory=list)
     limitations: list[str] = field(default_factory=list)

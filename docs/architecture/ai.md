@@ -32,7 +32,7 @@ flowchart LR
     template --> done
 ```
 
-The supervisor and specialists are real LangGraph agents, but most steps are plain code. The aim is **at most 3 AI calls per question**, because free Gemini keys allow very few requests per minute.
+The supervisor makes one AI call and can choose several specialists. LangGraph runs those specialists in parallel, and code joins their evidence and gives each fact a new id. Specialists are plain code, so a question uses **two AI calls at most**: one to choose routes, and one to write the answer.
 
 ## How the AI is kept honest
 
