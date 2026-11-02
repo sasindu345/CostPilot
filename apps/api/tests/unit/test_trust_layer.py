@@ -230,6 +230,14 @@ def test_grades_follow_the_evidence(evidence, template, detail, expected):
     assert grade_answer(evidence, used_template=template, has_line_detail=detail) is expected
 
 
+async def test_an_answer_that_used_no_evidence_gets_the_lowest_grade():
+    store = FakeStore()
+
+    await run(service(FakeModel(chunks=("I do not have that information.",)), store=store))
+
+    assert store.last_grade == "D"
+
+
 def test_template_uses_only_true_figures():
     text = template_answer(Evidence((Route.COST,), FACTS, limitations=["Partial month"]))
 

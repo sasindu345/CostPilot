@@ -16,9 +16,11 @@ def needs_documents(evidence: Evidence) -> bool:
     return Route.OPTIMIZATION in evidence.routes
 
 
-def grade_answer(evidence: Evidence, *, used_template: bool, has_line_detail: bool) -> Grade:
+def grade_answer(
+    evidence: Evidence, *, used_template: bool, has_line_detail: bool, used_evidence: bool = True
+) -> Grade:
     """A: full evidence. B: a small gap. C: limited evidence. D: not enough to answer."""
-    if not evidence.facts and not evidence.passages:
+    if not used_evidence or (not evidence.facts and not evidence.passages):
         return Grade.D
     needs_detail = Route.ANOMALY in evidence.routes
     if used_template or (needs_detail and not has_line_detail):

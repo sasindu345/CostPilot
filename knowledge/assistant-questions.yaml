@@ -18,7 +18,7 @@ questions:
     routes: [anomaly]
     include: ["S3"]
   - question: "Was anything unusual in my latest bill?"
-    routes: [anomaly]
+    routes: [cost, anomaly]
     include: ["S3"]
   - question: "How can I save money on S3 storage?"
     routes: [optimization]

@@ -94,14 +94,16 @@ class GeminiChatModel:
 
         for attempt in range(1, ATTEMPTS + 1):
             has_started = False
-            last_chunk = None
+            input_tokens = output_tokens = 0
             try:
                 async for chunk in self._answers.astream(messages):
-                    last_chunk = chunk
+                    usage = chunk.usage_metadata or {}
+                    input_tokens += usage.get("input_tokens", 0)
+                    output_tokens += usage.get("output_tokens", 0)
                     if text := chunk.text:
                         has_started = True
                         yield text
-                self._record_usage(meter, last_chunk)
+                meter.add_ai_call(input_tokens, output_tokens)
                 return
             except MODEL_FAILURES as error:
                 self._log_failure("answer", attempt, error)

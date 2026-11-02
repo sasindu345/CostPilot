@@ -64,6 +64,17 @@ async def test_embedding_failures_become_one_clear_error(failure):
         await embedder.embed_query("question")
 
 
+class AnswersWithUsage:
+    async def astream(self, messages):
+        yield SimpleNamespace(
+            text="Hello", usage_metadata={"input_tokens": 500, "output_tokens": 2}
+        )
+        yield SimpleNamespace(
+            text=" there", usage_metadata={"input_tokens": 0, "output_tokens": 18}
+        )
+        yield SimpleNamespace(text="", usage_metadata=None)
+
+
 class FlakyAnswers:
     """Fails once, then works, like a stale connection."""
 
@@ -74,7 +85,7 @@ class FlakyAnswers:
         self.calls += 1
         if self.calls == 1:
             raise httpx.RemoteProtocolError("Server disconnected")
-        yield SimpleNamespace(text="Hello")
+        yield SimpleNamespace(text="Hello", usage_metadata=None)
 
 
 class FailsAfterFirstWord:
@@ -83,8 +94,18 @@ class FailsAfterFirstWord:
 
     async def astream(self, messages):
         self.calls += 1
-        yield SimpleNamespace(text="Hello")
+        yield SimpleNamespace(text="Hello", usage_metadata=None)
         raise httpx.ReadTimeout("slow")
+
+
+async def test_answer_tokens_are_added_up_across_chunks():
+    model = chat_model()
+    model._answers = AnswersWithUsage()
+    meter = AnswerMeter()
+
+    [chunk async for chunk in model.stream_answer("system", [], "prompt", meter)]
+
+    assert (meter.ai_calls, meter.input_tokens, meter.output_tokens) == (1, 500, 20)
 
 
 async def test_a_stale_connection_is_retried_once():

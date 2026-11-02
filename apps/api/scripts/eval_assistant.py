@@ -32,7 +32,7 @@ from costpilot.shared.database import Database
 SAMPLE_BILL = Path("src/costpilot/modules/documents/infrastructure/sample-aws-bill.csv")
 QUESTIONS = Path("../../knowledge/assistant-questions.yaml")
 BASELINE = Path("../../knowledge/assistant-baseline.json")
-PAUSE_SECONDS = 4
+PAUSE_SECONDS = 6
 MAX_BILL_BYTES = 10_000_000
 
 
@@ -114,6 +114,7 @@ async def main() -> int:
         results.append(
             {
                 "question": item["question"],
+                "answer": answer,
                 "passed": passed,
                 "failed": failed,
                 "grade": messages[-1].grade,
