@@ -1,0 +1,64 @@
+# Getting started
+
+## 1. Install the tools
+
+On a Mac with [Homebrew](https://brew.sh):
+
+```bash
+brew install uv gitleaks pre-commit
+```
+
+Also install:
+
+- **Docker Desktop**, and make sure it is running
+- **Node**, using nvm: run `nvm install` in the project folder. It reads the version from `.nvmrc`
+- **pnpm**: run `npm install -g pnpm`
+
+## 2. Set up the project
+
+```bash
+make setup
+```
+
+This installs all packages, sets up the Git checks, and creates a `.env` file with new random passwords. The `.env` file holds your secrets and is never committed.
+
+## 3. Start everything
+
+```bash
+make up
+```
+
+| Service | Address |
+|---|---|
+| Web app | http://localhost:3010 |
+| API docs | http://localhost:8010/api/docs |
+| Keycloak admin | http://localhost:8090 |
+| Test email inbox | http://localhost:8025 |
+| Qdrant dashboard | http://localhost:6333/dashboard |
+
+Your Keycloak admin password is `KEYCLOAK_ADMIN_PASSWORD` in `.env`.
+
+## 4. Everyday commands
+
+| Command | What it does |
+|---|---|
+| `make dev-api` | Runs the API with live reload |
+| `make dev-web` | Runs the web app with live reload |
+| `make check` | Runs all tests and checks. Do this before committing |
+| `make sample` | Creates a made-up bill |
+| `make down` | Stops everything |
+
+## Gemini keys and real bills
+
+From Phase 5 you will need a [Gemini API key](https://aistudio.google.com/apikey).
+
+**Do not use a free key with real bills.** Google's terms say not to send sensitive or confidential information to the free service, and that human reviewers may read it. Use made-up sample bills with a free key. Before using real bills, turn on billing for your key and set `GEMINI_TIER=paid`.
+
+## If something goes wrong
+
+| Problem | Fix |
+|---|---|
+| `set in .env` error | Run `make setup`, or fill in the empty value in `.env` |
+| A port is already in use | Change the port in `.env` |
+| Commit is rejected | Read the message. A check found a secret, a hardcoded value or an AI co-author line |
+| Keycloak is slow to start | This is normal. It can take up to a minute |
