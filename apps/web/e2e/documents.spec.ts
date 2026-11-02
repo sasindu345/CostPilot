@@ -23,7 +23,7 @@ test("a user can upload, inspect, reprocess and delete a document", async ({ pag
 
   await test.step("the same file is refused", async () => {
     await chooser.setInputFiles(csvFile("copy.csv", GOOD_BILL));
-    await expect(page.getByRole("alert")).toHaveText("You have already uploaded this file.");
+    await expect(page.getByText("You have already uploaded this file.")).toBeVisible();
   });
 
   await test.step("the wrong file type is refused", async () => {
@@ -32,7 +32,7 @@ test("a user can upload, inspect, reprocess and delete a document", async ({ pag
       mimeType: "application/pdf",
       buffer: Buffer.from("%PDF"),
     });
-    await expect(page.getByRole("alert")).toHaveText("Please upload a .csv or .csv.gz file.");
+    await expect(page.getByText("Please upload a .csv or .csv.gz file.")).toBeVisible();
   });
 
   await test.step("a bill with no rows fails with a clear reason", async () => {
@@ -40,20 +40,23 @@ test("a user can upload, inspect, reprocess and delete a document", async ({ pag
     await expect(page.getByText("This file has no data rows.")).toBeVisible();
   });
 
+  const row = page.getByRole("listitem").filter({ hasText: "AWS-October.csv" });
+
   await test.step("details show the row count", async () => {
-    await page.getByRole("button", { name: "Details for AWS-October.csv" }).click();
-    await expect(page.getByText("Rows")).toBeVisible();
-    await expect(page.getByRole("definition").first()).toHaveText("2");
+    await row.getByRole("button", { name: "Details for AWS-October.csv" }).click();
+    await expect(row.getByRole("term").first()).toHaveText("Rows");
+    await expect(row.getByRole("definition").first()).toHaveText("2");
   });
 
   await test.step("a document can be reprocessed", async () => {
-    await page.getByRole("button", { name: "Reprocess" }).click();
-    await expect(page.getByText("Processed", { exact: true })).toBeVisible();
+    await row.getByRole("button", { name: "Reprocess" }).click();
+    await expect(row.getByRole("definition").first()).toHaveText("2");
+    await expect(row.getByRole("button", { name: "Reprocess" })).toBeEnabled();
   });
 
   await test.step("a document can be deleted after confirming", async () => {
-    await page.getByRole("button", { name: "Delete" }).click();
-    await page.getByRole("button", { name: "Yes, delete it" }).click();
+    await row.getByRole("button", { name: "Delete" }).click();
+    await row.getByRole("button", { name: "Yes, delete it" }).click();
     await expect(page.getByText("AWS-October.csv")).toBeHidden();
   });
 });

@@ -2,6 +2,38 @@
 
 A dated record of what was built. Newest entries go at the top.
 
+## 2 Nov 2026: Phase 2, document upload
+
+**Built**
+
+- Upload with type, size and fingerprint checks, plus safe file names
+- Local folder and S3 storage behind one interface
+- Background job table in PostgreSQL and a separate worker
+- Documents page: upload, list, status, details, delete and reprocess
+- API types generated into the frontend with `make types`
+- Sample AWS bills: Cost Explorer, CUR 2.0 and compressed CUR
+
+**Decided during the work**
+
+- **The `jobs` table has no Row-Level Security,** as the worker must see every workspace. It only holds IDs and error class names.
+- **`composition.py` connects the modules,** because the API and the worker both need it.
+- **`JobRunner.process` knows nothing about the queue,** which keeps the Lambda option in decision 0007 open.
+- **`make e2e` runs one test at a time,** as Chrome timed out starting several at once on this machine.
+
+**Tested on 2 Nov 2026**
+
+- `make e2e`: upload, processing, duplicate refused, wrong type refused, empty bill fails with a reason, details, reprocess, delete, and one user cannot see or delete another user's document
+- S3 storage with a fake S3 service (moto), not real AWS yet
+
+**Moved to a later phase**
+
+- Cleaning formula tricks from bill cells moved to Phase 3, where the cells are first read. File names are cleaned now.
+
+**Known limits**
+
+- If deleting a stored file fails after its record is deleted, the file stays and only a log line records it.
+- The local disk and Docker network were both tight during this work. See the Roadmap.
+
 ## 2 Nov 2026: First GitHub Actions results
 
 - `phase-1-login`: all 4 jobs passed (project rules, backend, frontend, Docker images). This branch holds all of Phase 0 as well, so Phase 0 is now closed.

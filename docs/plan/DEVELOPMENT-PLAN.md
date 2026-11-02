@@ -275,11 +275,11 @@ Every phase ends with the same steps:
 
 ### Phase 2 – Document upload
 **You will see:** upload a file and watch its status change.
-- [ ] Storage interface, with a local folder and S3 versions
-- [ ] Background job table in PostgreSQL (no Redis needed) and a small worker
-- [ ] File checks: type, size, fingerprint, safe names
-- [ ] Documents page: upload, list, status, details, delete, reprocess
-- [ ] Sample bill generator working for AWS
+- [x] Storage interface, with a local folder and S3 versions
+- [x] Background job table in PostgreSQL (no Redis needed) and a small worker
+- [x] File checks: type, size, fingerprint, safe names
+- [x] Documents page: upload, list, status, details, delete, reprocess
+- [x] Sample bill generator working for AWS
 
 ### Phase 3 – Reading bills (AWS first)
 **You will see:** an uploaded bill turned into clean records.
