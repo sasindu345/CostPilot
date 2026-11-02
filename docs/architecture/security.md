@@ -20,7 +20,16 @@
 
 ## Row-Level Security in simple words
 
-Each database request first tells PostgreSQL which workspace it is for. PostgreSQL then hides all rows from other workspaces, even if our code has a bug. The app's database user has no power to turn this off, and a test in the pipeline proves it works.
+Each database request first tells PostgreSQL which workspace it is for. PostgreSQL then hides all rows from other workspaces, even if our code has a bug. The app's database user has no power to turn this off, and tests in `tests/integration/test_row_level_security.py` prove it works.
+
+The app runs as `costpilot_app`, a low-power user. Only migrations use the admin user.
+
+## Sessions
+
+- The browser only holds a random ticket, in an `HttpOnly` cookie that page scripts cannot read.
+- The database stores a hash of the ticket, so a stolen backup cannot be used to log in.
+- A session ends after `SESSION_LIFETIME_HOURS`, or at once on sign-out.
+- **Known limit:** turning off a user in Keycloak does not end their current session. It ends when the session expires.
 
 ## This is not end-to-end encryption
 

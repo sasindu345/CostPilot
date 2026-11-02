@@ -38,6 +38,10 @@ make up
 
 Your Keycloak admin password is `KEYCLOAK_ADMIN_PASSWORD` in `.env`.
 
+Open http://localhost:3010 and click **Register**. The verification email appears in the test inbox at http://localhost:8025.
+
+`make check` needs the database, so run `make up` first.
+
 ## 4. Everyday commands
 
 | Command | What it does |
@@ -45,6 +49,8 @@ Your Keycloak admin password is `KEYCLOAK_ADMIN_PASSWORD` in `.env`.
 | `make dev-api` | Runs the API with live reload |
 | `make dev-web` | Runs the web app with live reload |
 | `make check` | Runs all tests and checks. Do this before committing |
+| `make migrate` | Updates your database to the latest version |
+| `make e2e` | Tests the full user journey in Chrome |
 | `make sample` | Creates a made-up bill |
 | `make down` | Stops everything |
 

@@ -2,6 +2,39 @@
 
 A dated record of what was built. Newest entries go at the top.
 
+## 2 Nov 2026: Phase 1, login and app shell
+
+**Built**
+
+- Keycloak realm and green login page, both saved as files
+- Sign-up, email verification, sign-in, sign-out and password reset
+- Sessions in PostgreSQL, using a random ticket in a secure cookie
+- Users, workspaces, memberships and audit events, with one workspace made for each new user
+- Row-Level Security, plus a low-power database user for the app
+- Database migrations with Alembic, run automatically by `make up`
+- Top bar, user menu, login check and Settings page
+
+**Decided during the work**
+
+- **Small JWT library:** we use PyJWT and a short login file, not Authlib. It is easier to read.
+- **Password after email check:** Keycloak 26.8 asks for the password after the email is verified. We kept this, as it is safer.
+- **Only the ID token is stored,** because sign-out needs it. Nothing else needs Keycloak tokens.
+- **Login page colours** come from the web app's `tokens.css`, so there is still one source of colours.
+- **`make e2e` uses your installed Chrome.** Playwright's own browser download stalled here.
+
+**Tested on 2 Nov 2026**
+
+- `make e2e`: sign up, verify email, choose a password, reach the app, see Settings, sign out, sign in, and request a password reset email
+- 24 backend tests, including 6 against real PostgreSQL that try to cross between workspaces
+- 7 frontend tests
+
+**Known limits**
+
+- The bell in the top bar does nothing yet. Notifications arrive with later features.
+- The reset test confirms the email is sent. It does not follow the link.
+- Turning off a user in Keycloak does not end their current session until it expires.
+- `make e2e` is not in GitHub Actions yet, to save free minutes.
+
 ## 2 Nov 2026: Phase 0, project baseline
 
 **Built**
@@ -34,9 +67,7 @@ A dated record of what was built. Newest entries go at the top.
 **Moved to a later phase**
 
 - shadcn/ui, Recharts, TanStack Query and the other screen libraries are installed in the phase that first uses them, to keep the baseline small.
-- SQLAlchemy and Alembic arrive in Phase 1, with the first tables.
 - TypeScript types generated from the API start in Phase 2, with the first real endpoints.
-- Playwright starts in Phase 1, with the first real user journey.
 - `samples/` covers a Cost Explorer style bill for now. Other formats arrive in Phase 2 and 3.
 
 **Known limits**

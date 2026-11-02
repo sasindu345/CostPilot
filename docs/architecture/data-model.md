@@ -18,7 +18,7 @@ erDiagram
 | Table | Purpose | Phase |
 |---|---|---|
 | `users` | Links a Keycloak user to our data | 1 |
-| `sessions` | Login sessions. Tokens are stored encrypted | 1 |
+| `sessions` | Login sessions. Stores a hash of the browser ticket and the encrypted ID token | 1 |
 | `workspaces`, `memberships` | Who owns what | 1 |
 | `audit_events` | Record of important actions | 1 |
 | `documents` | Uploaded files, fingerprint, status, period | 2 |
@@ -51,5 +51,5 @@ Column names follow FOCUS, in `snake_case`.
 
 - Money uses `NUMERIC`, never floating point.
 - Currencies are never added together.
-- Every user-data table has `workspace_id` and a Row-Level Security rule.
+- Every user-data table has `workspace_id` and a Row-Level Security rule. `users` and `sessions` have no workspace, because we must read them before we know who is asking. Workspace data is never in those tables.
 - `detail_level` tells the AI what it can honestly answer from a file.

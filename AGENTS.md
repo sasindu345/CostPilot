@@ -92,7 +92,7 @@ Choose the production-quality option that costs $0. If something cannot be free,
 - Every feature comes with tests.
 - Every bug fix comes with a test that would have caught it.
 - Money calculations are checked against hand-worked "golden" test bills.
-- Run `make check` before every commit.
+- Run `make up`, then `make check`, before every commit.
 
 ## Finishing a phase
 
@@ -120,4 +120,5 @@ Do all of these before saying a phase is done:
 | `make down` | Stops all services |
 | `make check` | Runs all tests, style checks and rule checks |
 | `make test` | Runs tests only |
+| `make e2e` | Tests the full user journey in Chrome |
 | `make sample` | Creates a made-up bill in `samples/output/` |
