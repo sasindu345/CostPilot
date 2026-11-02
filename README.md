@@ -161,7 +161,7 @@ flowchart TB
 
 ## Getting started
 
-You need Docker, [uv](https://docs.astral.sh/uv/), Node (version in `.nvmrc`), pnpm, Gitleaks and pre-commit. See the [getting started guide](docs/guides/getting-started.md) for how to install them.
+You need Docker (we use [Colima](https://github.com/abiosoft/colima)), [uv](https://docs.astral.sh/uv/), Node (version in `.nvmrc`), pnpm, Gitleaks and pre-commit. See the [getting started guide](docs/guides/getting-started.md) for how to install them.
 
 ```bash
 make setup   # Install everything and create your .env
