@@ -283,13 +283,13 @@ Every phase ends with the same steps:
 
 ### Phase 3 – Reading bills (AWS first)
 **You will see:** an uploaded bill turned into clean records.
-- [ ] FOCUS-based tables, including provider and data detail level
-- [ ] Reader interface and file type detection
-- [ ] AWS readers: Cost Explorer, CUR old and new columns, FOCUS
-- [ ] `.csv` and `.csv.gz` support
-- [ ] Overlap rules for files covering the same period
-- [ ] Hand-checked "golden" test bills, so the totals are proven correct
-- [ ] Monthly and service summary tables
+- [x] FOCUS-based tables, including provider and data detail level
+- [x] Reader interface and file type detection
+- [x] AWS readers: Cost Explorer, CUR old and new columns, FOCUS
+- [x] `.csv` and `.csv.gz` support
+- [x] Overlap rules for files covering the same period
+- [x] Hand-checked "golden" test bills, so the totals are proven correct
+- [x] Monthly and service summary tables
 
 ### Phase 4 – Dashboard and analytics
 **You will see:** your design working with real calculated data.

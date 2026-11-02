@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date, datetime
 from enum import StrEnum
 from uuid import UUID
 
@@ -9,6 +9,7 @@ class DocumentStatus(StrEnum):
     PROCESSING = "processing"
     PROCESSED = "processed"
     FAILED = "failed"
+    REPLACED = "replaced"
 
 
 @dataclass(frozen=True)
@@ -25,6 +26,9 @@ class Document:
     error_message: str | None = None
     row_count: int | None = None
     processed_at: datetime | None = None
+    provider_name: str | None = None
+    first_month: date | None = None
+    last_month: date | None = None
 
 
 @dataclass(frozen=True)

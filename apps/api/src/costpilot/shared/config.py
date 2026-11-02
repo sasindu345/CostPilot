@@ -46,6 +46,7 @@ class Settings(BaseSettings):
     max_upload_mb: int = 100
     max_unpacked_mb: int = 1024
     document_list_limit: int = 100
+    import_batch_size: int = 2000
     worker_poll_seconds: float = 2
     job_max_attempts: int = 3
     job_retry_seconds: int = 30

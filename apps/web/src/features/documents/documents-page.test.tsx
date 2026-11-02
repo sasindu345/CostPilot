@@ -13,6 +13,9 @@ const DOCUMENT = {
   error_message: "This file has no data rows.",
   row_count: null,
   processed_at: null,
+  provider_name: null,
+  first_month: null,
+  last_month: null,
 };
 
 function renderPage() {
@@ -50,6 +53,14 @@ describe("DocumentsPage", () => {
     expect(await screen.findByText("AWS-October.csv")).toBeInTheDocument();
     expect(screen.getByText("Failed")).toBeInTheDocument();
     expect(screen.getByText("This file has no data rows.")).toBeInTheDocument();
+  });
+
+  it("explains why a replaced document is not counted", async () => {
+    mockApi(() => json([{ ...DOCUMENT, status: "replaced", error_message: null }]));
+    renderPage();
+
+    expect(await screen.findByText("Replaced")).toBeInTheDocument();
+    expect(screen.getByText(/not counted/)).toBeInTheDocument();
   });
 
   it("asks for confirmation before deleting", async () => {

@@ -24,7 +24,8 @@ erDiagram
 | `documents` | Uploaded files, fingerprint, status, period | 2 |
 | `jobs` | Background work queue | 2 |
 | `cost_records` | One row per billed item, in FOCUS format | 3 |
-| `monthly_summaries` | Fast totals for dashboards | 3 |
+| `document_periods` | Which file counts for each account and month | 3 |
+| `monthly_summaries` | Fast totals for dashboards, built only from counted files | 3 |
 | `conversations`, `messages` | Chat history | 6 |
 | `recommendations` | Saved findings with evidence | 7 |
 
@@ -46,6 +47,18 @@ Column names follow FOCUS, in `snake_case`.
 | `consumed_quantity`, `consumed_unit` | How much was used |
 | `tags` | Labels, stored as JSON. Never sent to the AI |
 | `detail_level` | `service_month` or `line_item` |
+
+## Which file counts
+
+Two files can cover the same month, so `document_periods` records one row per file, account and month. After every import and delete, `refresh` runs three steps in one transaction:
+
+1. For each provider, account and month, the most detailed file wins. If two are equal, the newest wins.
+2. A summary file names no account, so any file for a known account replaces it for that month.
+3. `monthly_summaries` is rebuilt from the winners only.
+
+A file loses month by month, so it keeps counting for months nothing else covers. If it loses every month, its status becomes `replaced`. Deleting the winner brings the older file back.
+
+**Limit:** two Cost Explorer files from different accounts look the same, so the newest wins.
 
 ## Rules
 

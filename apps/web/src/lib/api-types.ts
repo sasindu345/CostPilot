@@ -174,12 +174,18 @@ export interface components {
             row_count: number | null;
             /** Processed At */
             processed_at: string | null;
+            /** Provider Name */
+            provider_name: string | null;
+            /** First Month */
+            first_month: string | null;
+            /** Last Month */
+            last_month: string | null;
         };
         /**
          * DocumentStatus
          * @enum {string}
          */
-        DocumentStatus: "queued" | "processing" | "processed" | "failed";
+        DocumentStatus: "queued" | "processing" | "processed" | "failed" | "replaced";
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */

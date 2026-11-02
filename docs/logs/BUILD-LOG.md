@@ -2,6 +2,33 @@
 
 A dated record of what was built. Newest entries go at the top.
 
+## 2 Nov 2026: Phase 3, reading bills
+
+**Built**
+
+- Common FOCUS records, with provider and detail level
+- Readers for AWS Cost Explorer, CUR old and new columns, and FOCUS exports
+- `.csv` and `.csv.gz` support, with all records saved together or not at all
+- Overlap rules, a new `replaced` status, and monthly summaries built only from counted files
+- Provider, billing period and record count on the Documents page
+
+**Decided during the work**
+
+- **No Pandas for reading bills.** See decision 0008.
+- **Billed and effective cost are both kept.** Billed matches the invoice. Effective spreads prepaid Savings Plans and reserved instances over the usage they paid for.
+
+**Tested on 2 Nov 2026**
+
+- Hand-worked bills: Savings Plans, reserved instances, credits, exact decimals, and old and new CUR columns giving identical records
+- 123 backend tests, including real PostgreSQL tests for overlaps, currencies, double counting, partial failures and workspace privacy
+- Sample bill totals exactly $248.60
+
+**Known limits**
+
+- All reader formats were built from AWS docs and memory, with made-up files. They have not been checked against a real AWS file yet. The Cost Explorer layout is the least certain.
+- Two Cost Explorer files from different accounts look the same, so the newest wins.
+- Unknown AWS services are grouped as `Other`.
+
 ## 2 Nov 2026: Phase 2, document upload
 
 **Built**

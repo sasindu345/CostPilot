@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatFileSize } from "@/lib/format";
+import { formatFileSize, formatMonthRange, providerName } from "@/lib/format";
 
 describe("formatFileSize", () => {
   it.each([
@@ -10,5 +10,29 @@ describe("formatFileSize", () => {
     [5368709120, "5.0 GB"],
   ])("shows %d bytes as %s", (bytes, expected) => {
     expect(formatFileSize(bytes)).toBe(expected);
+  });
+});
+
+describe("formatMonthRange", () => {
+  it("shows one month once", () => {
+    expect(formatMonthRange("2026-10-01", "2026-10-01")).toBe("Oct 2026");
+  });
+
+  it("shows a range of months", () => {
+    expect(formatMonthRange("2026-05-01", "2026-10-01")).toBe("May 2026 to Oct 2026");
+  });
+
+  it("explains when a file has not been read", () => {
+    expect(formatMonthRange(null, null)).toBe("Not read yet");
+  });
+});
+
+describe("providerName", () => {
+  it("uses the full name", () => {
+    expect(providerName("aws")).toBe("AWS");
+  });
+
+  it("shows an unknown provider as it is", () => {
+    expect(providerName("ibm")).toBe("ibm");
   });
 });

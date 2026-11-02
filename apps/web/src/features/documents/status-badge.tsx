@@ -1,4 +1,11 @@
-import { CircleAlert, CircleCheck, Clock, LoaderCircle, type LucideIcon } from "lucide-react";
+import {
+  CircleAlert,
+  CircleCheck,
+  Clock,
+  LoaderCircle,
+  Replace,
+  type LucideIcon,
+} from "lucide-react";
 
 import type { Document } from "./use-documents";
 
@@ -14,6 +21,7 @@ const STATUS_STYLES: Record<
   },
   processed: { label: "Processed", icon: CircleCheck, className: "bg-brand-tint text-success" },
   failed: { label: "Failed", icon: CircleAlert, className: "bg-danger-tint text-danger" },
+  replaced: { label: "Replaced", icon: Replace, className: "bg-surface-subtle text-muted" },
 };
 
 export function StatusBadge({ status }: { status: Document["status"] }) {

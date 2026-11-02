@@ -16,3 +16,34 @@ const dateFormatter = new Intl.DateTimeFormat("en", { dateStyle: "medium", timeS
 export function formatDateTime(value: string): string {
   return dateFormatter.format(new Date(value));
 }
+
+const monthFormatter = new Intl.DateTimeFormat("en", {
+  month: "short",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+export function formatMonthRange(first: string | null, last: string | null): string {
+  if (!first || !last) {
+    return "Not read yet";
+  }
+  const start = monthFormatter.format(new Date(first));
+  const end = monthFormatter.format(new Date(last));
+  return start === end ? start : `${start} to ${end}`;
+}
+
+const PROVIDER_NAMES: Record<string, string> = {
+  aws: "AWS",
+  azure: "Microsoft Azure",
+  gcp: "Google Cloud",
+  oci: "Oracle Cloud",
+  digitalocean: "DigitalOcean",
+  multiple: "Several clouds",
+};
+
+export function providerName(provider: string | null): string {
+  if (!provider) {
+    return "Not read yet";
+  }
+  return PROVIDER_NAMES[provider] ?? provider;
+}

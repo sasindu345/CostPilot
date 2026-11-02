@@ -1,13 +1,14 @@
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from uuid import uuid4
 
 import pytest
 
+from costpilot.modules.billing.contracts import BillRejectedError, ImportResult
 from costpilot.modules.documents.application.job_runner import GENERAL_FAILURE, JobRunner
 from costpilot.modules.documents.domain.models import Document, DocumentStatus, Job
 
-GOOD_FILE = b"Service,Cost\nEC2,1.00\n"
+GOOD_FILE = b"Service,EC2($)\n2026-10-01,1.00\n"
 
 
 def document():
@@ -29,6 +30,7 @@ class FakeQueue:
         self.job = Job(uuid4(), uuid4(), uuid4(), attempts)
         self.deleted = deleted
         self.outcome = None
+        self.finished = False
 
     async def requeue_stale_jobs(self, stale_after):
         pass
@@ -40,8 +42,11 @@ class FakeQueue:
     async def mark_processing(self, job):
         return None if self.deleted else document()
 
-    async def complete(self, job, row_count):
-        self.outcome = ("complete", row_count)
+    async def mark_processed(self, job, result):
+        self.outcome = ("complete", result.record_count)
+
+    async def finish(self, job):
+        self.finished = True
 
     async def retry_later(self, job, delay, reason):
         self.outcome = ("retry", delay)
@@ -65,10 +70,29 @@ class FakeStorage:
         destination.write_bytes(self.content)
 
 
-def runner(queue, storage):
+class FakeImporter:
+    def __init__(self, error=None, refresh_error=None):
+        self.error = error
+        self.refresh_error = refresh_error
+        self.refreshed = 0
+
+    async def import_bill(self, workspace_id, document_id, columns, rows):
+        if self.error:
+            raise self.error
+        count = sum(1 for _ in rows)
+        return ImportResult(count, "aws", date(2026, 10, 1), date(2026, 10, 1))
+
+    async def refresh(self, workspace_id):
+        self.refreshed += 1
+        if self.refresh_error:
+            raise self.refresh_error
+
+
+def runner(queue, storage, importer=None):
     return JobRunner(
         repository=queue,
         storage=storage,
+        importer=importer or FakeImporter(),
         max_unpacked_bytes=1_000_000,
         max_attempts=3,
         retry_delay=timedelta(seconds=30),
@@ -128,3 +152,33 @@ async def test_retry_wait_grows_with_each_attempt(attempts):
     await runner(queue, FakeStorage(error=OSError())).run_once()
 
     assert queue.outcome == ("retry", timedelta(seconds=30 * attempts))
+
+
+async def test_a_good_file_updates_the_summaries_before_the_job_ends():
+    queue = FakeQueue()
+    importer = FakeImporter()
+
+    await runner(queue, FakeStorage(), importer).run_once()
+
+    assert importer.refreshed == 1
+    assert queue.finished is True
+
+
+async def test_a_rejected_bill_fails_at_once_with_its_reason():
+    queue = FakeQueue()
+    importer = FakeImporter(error=BillRejectedError("Row 2 has an amount we cannot read."))
+
+    await runner(queue, FakeStorage(), importer).run_once()
+
+    assert queue.outcome == ("fail", "Row 2 has an amount we cannot read.")
+    assert importer.refreshed == 1
+
+
+async def test_the_job_stays_if_summaries_could_not_be_updated():
+    queue = FakeQueue()
+    importer = FakeImporter(refresh_error=ConnectionError())
+
+    await runner(queue, FakeStorage(), importer).run_once()
+
+    assert queue.finished is False
+    assert queue.outcome[0] == "retry"

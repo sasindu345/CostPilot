@@ -1,12 +1,13 @@
 """Tests documents and the job queue against real PostgreSQL. Needs `make up`."""
 
 import asyncio
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from uuid import uuid4
 
 import pytest
 from sqlalchemy import text
 
+from costpilot.modules.billing.contracts import ImportResult
 from costpilot.modules.documents.domain.errors import DuplicateDocumentError
 from costpilot.modules.documents.domain.models import Document, DocumentStatus
 from costpilot.modules.documents.infrastructure.postgres_repository import (
@@ -108,11 +109,15 @@ async def test_full_job_journey(database, repository):
     processing = await repository.mark_processing(job)
     assert processing.status is DocumentStatus.PROCESSING
 
-    await repository.complete(job, row_count=7)
+    result = ImportResult(7, "aws", date(2026, 10, 1), date(2026, 10, 1))
+    await repository.mark_processed(job, result)
+    await repository.finish(job)
     done = await repository.get(user.workspace_id, document.id)
     assert done.status is DocumentStatus.PROCESSED
     assert done.row_count == 7
     assert done.processed_at is not None
+    assert done.provider_name == "aws"
+    assert done.first_month == date(2026, 10, 1)
 
 
 async def test_two_workers_never_take_the_same_job(database, repository):

@@ -5,6 +5,9 @@ import gzip
 import io
 import unicodedata
 import zlib
+from collections.abc import Iterator
+from contextlib import contextmanager
+from itertools import chain
 from pathlib import Path, PurePosixPath
 
 from costpilot.modules.documents.domain.errors import InvalidBillFileError, UnsupportedFileError
@@ -59,25 +62,32 @@ def _open_binary(path: Path) -> io.BufferedIOBase:
     return gzip.open(path, "rb") if is_gzip else path.open("rb")
 
 
-def count_bill_rows(path: Path, max_unpacked_bytes: int) -> int:
-    """Check the file is a readable table and return its number of data rows."""
+def _checked_rows(rows: Iterator[list[str]]) -> Iterator[list[str]]:
     try:
-        with _open_binary(path) as binary:
-            limited = io.BufferedReader(_SizeLimitedStream(binary, max_unpacked_bytes))
-            text = io.TextIOWrapper(limited, encoding="utf-8-sig", newline="")
-            rows = csv.reader(text)
-            header = next(rows, None)
-            if header is None or len(header) < MIN_COLUMNS:
-                raise InvalidBillFileError("This file has no column headings.")
-            row_count = 0
-            for row in rows:
-                if any(NULL_CHARACTER in cell for cell in row):
-                    raise InvalidBillFileError("This file is not a readable CSV table.")
-                row_count += 1 if row else 0
+        for row in rows:
+            if any(NULL_CHARACTER in cell for cell in row):
+                raise InvalidBillFileError("This file is not a readable CSV table.")
+            if row:
+                yield row
     except (csv.Error, UnicodeDecodeError) as error:
         raise InvalidBillFileError("This file is not a readable CSV table.") from error
     except (EOFError, gzip.BadGzipFile, zlib.error) as error:
         raise InvalidBillFileError("This compressed file is damaged.") from error
-    if row_count == 0:
-        raise InvalidBillFileError("This file has no data rows.")
-    return row_count
+
+
+@contextmanager
+def open_bill_table(
+    path: Path, max_unpacked_bytes: int
+) -> Iterator[tuple[list[str], Iterator[list[str]]]]:
+    """Check the file is a readable table, then give its column names and data rows."""
+    with _open_binary(path) as binary:
+        limited = io.BufferedReader(_SizeLimitedStream(binary, max_unpacked_bytes))
+        text = io.TextIOWrapper(limited, encoding="utf-8-sig", newline="")
+        rows = _checked_rows(csv.reader(text))
+        columns = next(rows, None)
+        if columns is None or len(columns) < MIN_COLUMNS:
+            raise InvalidBillFileError("This file has no column headings.")
+        first_row = next(rows, None)
+        if first_row is None:
+            raise InvalidBillFileError("This file has no data rows.")
+        yield columns, chain([first_row], rows)

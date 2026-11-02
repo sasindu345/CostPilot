@@ -3,6 +3,8 @@
 from datetime import timedelta
 
 from costpilot.modules.audit.infrastructure.postgres_audit_log import PostgresAuditLog
+from costpilot.modules.billing.application.import_service import BillImportService
+from costpilot.modules.billing.infrastructure.postgres_store import PostgresBillingStore
 from costpilot.modules.documents.application.document_service import DocumentService
 from costpilot.modules.documents.application.job_runner import JobRunner
 from costpilot.modules.documents.application.ports import FileStorage
@@ -49,11 +51,19 @@ def build_file_storage(settings: Settings) -> FileStorage:
     return LocalFileStorage(settings.storage_local_path)
 
 
+def build_bill_importer(settings: Settings, database: Database) -> BillImportService:
+    return BillImportService(
+        store=PostgresBillingStore(database),
+        batch_size=settings.import_batch_size,
+    )
+
+
 def build_document_service(settings: Settings, database: Database) -> DocumentService:
     return DocumentService(
         repository=PostgresDocumentRepository(database),
         storage=build_file_storage(settings),
         audit_log=PostgresAuditLog(database),
+        importer=build_bill_importer(settings, database),
         list_limit=settings.document_list_limit,
     )
 
@@ -62,6 +72,7 @@ def build_job_runner(settings: Settings, database: Database) -> JobRunner:
     return JobRunner(
         repository=PostgresDocumentRepository(database),
         storage=build_file_storage(settings),
+        importer=build_bill_importer(settings, database),
         max_unpacked_bytes=settings.max_unpacked_mb * MEGABYTE,
         max_attempts=settings.job_max_attempts,
         retry_delay=timedelta(seconds=settings.job_retry_seconds),

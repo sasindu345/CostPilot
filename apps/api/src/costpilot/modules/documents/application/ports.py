@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Protocol
 from uuid import UUID
 
+from costpilot.modules.billing.contracts import ImportResult
 from costpilot.modules.documents.domain.models import Document, Job
 
 
@@ -41,7 +42,10 @@ class JobQueue(Protocol):
     async def mark_processing(self, job: Job) -> Document | None:
         """Return None if the document was deleted while it waited."""
 
-    async def complete(self, job: Job, row_count: int) -> None: ...
+    async def mark_processed(self, job: Job, result: ImportResult) -> None: ...
+
+    async def finish(self, job: Job) -> None:
+        """Remove a job whose work is fully done."""
 
     async def retry_later(self, job: Job, delay: timedelta, reason: str) -> None: ...
 

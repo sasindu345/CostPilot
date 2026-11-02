@@ -5,6 +5,7 @@ from sqlalchemy import Row, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from costpilot.modules.billing.contracts import ImportResult
 from costpilot.modules.documents.domain.errors import DuplicateDocumentError
 from costpilot.modules.documents.domain.models import Document, DocumentStatus, Job
 from costpilot.shared.database import Database
@@ -23,7 +24,8 @@ INSERT_JOB = text(
 DELETE_DOCUMENT = text("DELETE FROM documents WHERE id = :id")
 QUEUE_AGAIN = text(
     "UPDATE documents SET status = 'queued', error_message = NULL, row_count = NULL, "
-    "processed_at = NULL WHERE id = :id AND status IN ('processed', 'failed') RETURNING id"
+    "processed_at = NULL WHERE id = :id AND status IN ('processed', 'failed', 'replaced') "
+    "RETURNING id"
 )
 REQUEUE_STALE = text(
     "UPDATE jobs SET status = 'queued', locked_at = NULL "
@@ -38,6 +40,7 @@ CLAIM_JOB = text(
 SET_PROCESSING = text("UPDATE documents SET status = 'processing' WHERE id = :id RETURNING *")
 SET_PROCESSED = text(
     "UPDATE documents SET status = 'processed', row_count = :row_count, "
+    "provider_name = :provider_name, first_month = :first_month, last_month = :last_month, "
     "processed_at = now() WHERE id = :id"
 )
 SET_FAILED = text("UPDATE documents SET status = 'failed', error_message = :message WHERE id = :id")
@@ -63,6 +66,9 @@ def _to_document(row: Row) -> Document:
         error_message=row.error_message,
         row_count=row.row_count,
         processed_at=row.processed_at,
+        provider_name=row.provider_name,
+        first_month=row.first_month,
+        last_month=row.last_month,
     )
 
 
@@ -144,9 +150,21 @@ class PostgresDocumentRepository:
             row = (await db.execute(SET_PROCESSING, {"id": job.document_id})).first()
             return _to_document(row) if row else None
 
-    async def complete(self, job: Job, row_count: int) -> None:
+    async def mark_processed(self, job: Job, result: ImportResult) -> None:
         async with self._database.transaction(workspace_id=job.workspace_id) as db:
-            await db.execute(SET_PROCESSED, {"id": job.document_id, "row_count": row_count})
+            await db.execute(
+                SET_PROCESSED,
+                {
+                    "id": job.document_id,
+                    "row_count": result.record_count,
+                    "provider_name": result.provider_name,
+                    "first_month": result.first_month,
+                    "last_month": result.last_month,
+                },
+            )
+
+    async def finish(self, job: Job) -> None:
+        async with self._database.transaction(workspace_id=job.workspace_id) as db:
             await db.execute(DELETE_JOB, {"id": job.id})
 
     async def retry_later(self, job: Job, delay: timedelta, reason: str) -> None:

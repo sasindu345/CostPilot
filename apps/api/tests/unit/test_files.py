@@ -5,11 +5,16 @@ import pytest
 from costpilot.modules.documents.domain.errors import InvalidBillFileError, UnsupportedFileError
 from costpilot.modules.documents.domain.files import (
     check_file_matches_name,
-    count_bill_rows,
+    open_bill_table,
     safe_file_name,
 )
 
 LIMIT = 10_000
+
+
+def count_bill_rows(path, limit):
+    with open_bill_table(path, limit) as (_, rows):
+        return sum(1 for _ in rows)
 
 
 @pytest.mark.parametrize(

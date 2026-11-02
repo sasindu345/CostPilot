@@ -9,7 +9,7 @@ This is the one place to see what is done and what remains. Update it at the end
 | 0 | [Project baseline](phase-00-project-baseline.md) | Running empty app, docs and automatic checks | ✅ |
 | 1 | [Login and app shell](phase-01-login-and-app-shell.md) | Sign up, sign in, real layout | ✅ |
 | 2 | [Document upload](phase-02-document-upload.md) | Upload a file and watch its status | ✅ |
-| 3 | [Reading bills (AWS first)](phase-03-reading-bills-aws-first.md) | Bills turned into clean records | ⬜ |
+| 3 | [Reading bills (AWS first)](phase-03-reading-bills-aws-first.md) | Bills turned into clean records | ✅ |
 | 4 | [Dashboard and analytics](phase-04-dashboard-and-analytics.md) | The design working with real data | ⬜ |
 | 5 | [Documentation search](phase-05-documentation-search-rag.md) | Search finds the right cloud advice | ⬜ |
 | 6 | [AI assistant](phase-06-ai-assistant.md) | Live answers about your bill | ⬜ |
@@ -26,6 +26,7 @@ This is the one place to see what is done and what remains. Update it at the end
 | AWS free plan | 6 months or until credits run out | Keep backups and stay portable |
 | Gemini free key | Few requests per minute; do not send sensitive data | Use made-up bills. Aim for at most 3 AI calls per question |
 | Qdrant Cloud free | Paused after 1 week idle, deleted after 4 | Weekly job keeps it awake; `make reindex` rebuilds it |
+| Your Mac's disk | About 2 GB free of 228 GB | Docker builds and browser tests can fail. Free up space before Phase 5 |
 | GitHub, private repo | 2,000 Actions minutes, 500 MB image storage | Keep only the latest two images |
 
 ## Open items

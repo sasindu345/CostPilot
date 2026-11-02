@@ -7,6 +7,7 @@ from uuid import UUID, uuid4
 import structlog
 
 from costpilot.modules.audit.contracts import AuditLog
+from costpilot.modules.billing.contracts import BillImporter
 from costpilot.modules.documents.application.ports import DocumentRepository, FileStorage
 from costpilot.modules.documents.domain.errors import (
     DocumentBusyError,
@@ -26,11 +27,13 @@ class DocumentService:
         repository: DocumentRepository,
         storage: FileStorage,
         audit_log: AuditLog,
+        importer: BillImporter,
         list_limit: int,
     ) -> None:
         self._repository = repository
         self._storage = storage
         self._audit_log = audit_log
+        self._importer = importer
         self._list_limit = list_limit
 
     async def upload(
@@ -82,6 +85,7 @@ class DocumentService:
     async def delete(self, user: CurrentUser, document_id: UUID) -> None:
         document = await self.get(user, document_id)
         await self._repository.delete(user.workspace_id, document_id)
+        await self._importer.refresh(user.workspace_id)
         await self._record(user, "document.deleted", document)
         try:
             await self._storage.delete(document.storage_key)

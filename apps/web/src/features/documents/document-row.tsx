@@ -9,7 +9,7 @@ import {
   useReprocessDocument,
   type Document,
 } from "./use-documents";
-import { formatDateTime, formatFileSize } from "@/lib/format";
+import { formatDateTime, formatFileSize, formatMonthRange, providerName } from "@/lib/format";
 
 function Detail({ label, value }: { label: string; value: string }) {
   return (
@@ -25,7 +25,7 @@ export function DocumentRow({ document }: { document: Document }) {
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const remove = useDeleteDocument();
   const reprocess = useReprocessDocument();
-  const canReprocess = document.status === "processed" || document.status === "failed";
+  const canReprocess = !["queued", "processing"].includes(document.status);
   const actionError = remove.error ?? reprocess.error;
 
   return (
@@ -54,11 +54,23 @@ export function DocumentRow({ document }: { document: Document }) {
           {document.error_message}
         </p>
       )}
+      {document.status === "replaced" && (
+        <p className="mx-4 mb-4 text-sm text-muted">
+          A newer or more detailed file covers these months, so this one is not counted.
+        </p>
+      )}
       {isOpen && (
         <div className="px-4 pb-4">
           <dl className="mb-4 grid gap-4 sm:grid-cols-3">
-            <Detail label="Rows" value={document.row_count?.toLocaleString() ?? "Not read yet"} />
-            <Detail label="Size" value={formatFileSize(document.size_bytes)} />
+            <Detail
+              label="Records"
+              value={document.row_count?.toLocaleString() ?? "Not read yet"}
+            />
+            <Detail label="Provider" value={providerName(document.provider_name)} />
+            <Detail
+              label="Billing period"
+              value={formatMonthRange(document.first_month, document.last_month)}
+            />
             <Detail
               label="Processed"
               value={document.processed_at ? formatDateTime(document.processed_at) : "Not yet"}

@@ -4,7 +4,7 @@
 
 ![CostPilot overview design](docs/design/overview-mockup.png)
 
-> **Status:** Phase 1 (login and app shell) is built. The design above is the target, not the current app. See the [roadmap](docs/plan/ROADMAP.md) for what is built and what remains.
+> **Status:** Phases 0 to 3 are built: login, document upload and reading AWS bills. The design above is the target, not the current app. See the [roadmap](docs/plan/ROADMAP.md) for what is built and what remains.
 
 ## The problem
 

@@ -1,6 +1,6 @@
 import hashlib
 import tempfile
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 from typing import Annotated
 from uuid import UUID
@@ -36,6 +36,9 @@ class DocumentResponse(BaseModel):
     error_message: str | None
     row_count: int | None
     processed_at: datetime | None
+    provider_name: str | None
+    first_month: date | None
+    last_month: date | None
 
     @classmethod
     def of(cls, document: Document) -> "DocumentResponse":
@@ -48,6 +51,9 @@ class DocumentResponse(BaseModel):
             error_message=document.error_message,
             row_count=document.row_count,
             processed_at=document.processed_at,
+            provider_name=document.provider_name,
+            first_month=document.first_month,
+            last_month=document.last_month,
         )
 
 
