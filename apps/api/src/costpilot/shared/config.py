@@ -48,6 +48,12 @@ class Settings(BaseSettings):
     document_list_limit: int = 100
     import_batch_size: int = 2000
     worker_poll_seconds: float = 2
+    top_service_limit: int = 3
+    unusual_history_months: int = 6
+    unusual_min_history_months: int = 3
+    unusual_threshold: float = 3.0
+    unusual_min_increase_percent: float = 20
+    unusual_min_increase_amount: float = 1
     job_max_attempts: int = 3
     job_retry_seconds: int = 30
     job_stale_minutes: int = 15

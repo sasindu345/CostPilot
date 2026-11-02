@@ -18,6 +18,7 @@ router = APIRouter(prefix="/documents", tags=["documents"])
 READ_CHUNK_BYTES = 1024 * 1024
 SNIFF_BYTES = 8
 MEGABYTE = 1024 * 1024
+SAMPLE_BILL = Path(__file__).parents[1] / "infrastructure" / "sample-aws-bill.csv"
 
 
 def get_documents(request: Request) -> DocumentService:
@@ -78,6 +79,21 @@ async def upload_document(
         document = await documents.upload(
             user, file.filename or "", temporary_file, first_bytes, size_bytes, digest.hexdigest()
         )
+    return DocumentResponse.of(document)
+
+
+@router.post("/sample", status_code=status.HTTP_201_CREATED)
+async def add_sample_document(user: SignedInUser, documents: Documents) -> DocumentResponse:
+    """Give a new user made-up data, so they can try the app before finding a real bill."""
+    content = SAMPLE_BILL.read_bytes()
+    document = await documents.upload(
+        user,
+        SAMPLE_BILL.name,
+        SAMPLE_BILL,
+        content[:SNIFF_BYTES],
+        len(content),
+        hashlib.sha256(content).hexdigest(),
+    )
     return DocumentResponse.of(document)
 
 

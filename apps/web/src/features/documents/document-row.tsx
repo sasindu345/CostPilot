@@ -3,12 +3,12 @@
 import { ChevronDown, FileText, RotateCw, Trash2 } from "lucide-react";
 import { useState } from "react";
 
-import { StatusBadge } from "./status-badge";
+import { StatusBadge } from "@/components/status-badge";
 import {
   useDeleteDocument,
   useReprocessDocument,
   type Document,
-} from "./use-documents";
+} from "@/lib/documents";
 import { formatDateTime, formatFileSize, formatMonthRange, providerName } from "@/lib/format";
 
 function Detail({ label, value }: { label: string; value: string }) {

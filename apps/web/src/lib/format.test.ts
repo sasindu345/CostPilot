@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { formatFileSize, formatMonthRange, providerName } from "@/lib/format";
+import {
+  formatFileSize,
+  formatMoney,
+  formatMonth,
+  formatMonthRange,
+  formatPercent,
+  providerName,
+} from "@/lib/format";
 
 describe("formatFileSize", () => {
   it.each([
@@ -34,5 +41,20 @@ describe("providerName", () => {
 
   it("shows an unknown provider as it is", () => {
     expect(providerName("ibm")).toBe("ibm");
+  });
+});
+
+describe("money and percent", () => {
+  it("shows the amount in its own currency", () => {
+    expect(formatMoney("1245.60", "USD")).toBe("$1,245.60");
+    expect(formatMoney("10", "EUR")).toBe("€10.00");
+  });
+
+  it("shows a percent without its sign", () => {
+    expect(formatPercent("-8.1")).toBe("8.1%");
+  });
+
+  it("shows a month in UTC, so time zones cannot move it", () => {
+    expect(formatMonth("2026-10-01")).toBe("Oct 2026");
   });
 });

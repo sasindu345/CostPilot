@@ -107,6 +107,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/documents/sample": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add Sample Document
+         * @description Give a new user made-up data, so they can try the app before finding a real bill.
+         */
+        post: operations["add_sample_document_api_documents_sample_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/documents/{document_id}": {
         parameters: {
             query?: never;
@@ -142,6 +162,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/analytics/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Overview */
+        get: operations["overview_api_analytics_overview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/analytics/compare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Compare */
+        get: operations["compare_api_analytics_compare_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/analytics/unusual": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Unusual */
+        get: operations["unusual_api_analytics_unusual_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -151,6 +222,21 @@ export interface components {
             /** File */
             file: string;
         };
+        /** ChangeResponse */
+        ChangeResponse: {
+            /** Percent */
+            percent: string | null;
+            /** Compared Days */
+            compared_days: number | null;
+            /** Previous Cost */
+            previous_cost: string | null;
+        };
+        /**
+         * CostType
+         * @description Billed matches the invoice. Effective spreads prepaid discounts over the usage.
+         * @enum {string}
+         */
+        CostType: "billed" | "effective";
         /** DocumentResponse */
         DocumentResponse: {
             /**
@@ -218,6 +304,85 @@ export interface components {
             role: string;
             /** Account Url */
             account_url: string;
+        };
+        /** MonthCostResponse */
+        MonthCostResponse: {
+            /**
+             * Month
+             * Format: date
+             */
+            month: string;
+            /** Cost */
+            cost: string | null;
+        };
+        /** OverviewResponse */
+        OverviewResponse: {
+            /** Currency */
+            currency: string;
+            /** Currencies */
+            currencies: string[];
+            /** Providers */
+            providers: string[];
+            /** Total */
+            total: string;
+            /**
+             * Latest Month
+             * Format: date
+             */
+            latest_month: string;
+            /** Latest Cost */
+            latest_cost: string;
+            /** Latest Is Partial */
+            latest_is_partial: boolean;
+            /** Days Covered */
+            days_covered: number | null;
+            /** Previous Cost */
+            previous_cost: string | null;
+            change: components["schemas"]["ChangeResponse"];
+            /** Trend */
+            trend: components["schemas"]["MonthCostResponse"][];
+            /** Top Services */
+            top_services: components["schemas"]["ServiceCostResponse"][];
+        };
+        /** ServiceComparisonResponse */
+        ServiceComparisonResponse: {
+            /** Service */
+            service: string;
+            /** First Cost */
+            first_cost: string;
+            /** Second Cost */
+            second_cost: string;
+            /** Difference */
+            difference: string;
+            /** Percent */
+            percent: string | null;
+        };
+        /** ServiceCostResponse */
+        ServiceCostResponse: {
+            /** Name */
+            name: string;
+            /** Cost */
+            cost: string;
+            /** Share Percent */
+            share_percent: string;
+        };
+        /** UnusualCostResponse */
+        UnusualCostResponse: {
+            /** Service */
+            service: string;
+            /**
+             * Month
+             * Format: date
+             */
+            month: string;
+            /** Cost */
+            cost: string;
+            /** Usual Cost */
+            usual_cost: string;
+            /** Increase */
+            increase: string;
+            /** Percent */
+            percent: string | null;
         };
         /** ValidationError */
         ValidationError: {
@@ -408,6 +573,26 @@ export interface operations {
             };
         };
     };
+    add_sample_document_api_documents_sample_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentResponse"];
+                };
+            };
+        };
+    };
     get_document_api_documents__document_id__get: {
         parameters: {
             query?: never;
@@ -486,6 +671,110 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DocumentResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    overview_api_analytics_overview_get: {
+        parameters: {
+            query?: {
+                months?: number;
+                cost_type?: components["schemas"]["CostType"];
+                currency?: string | null;
+                provider?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OverviewResponse"] | null;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    compare_api_analytics_compare_get: {
+        parameters: {
+            query: {
+                first: string;
+                second: string;
+                months?: number;
+                cost_type?: components["schemas"]["CostType"];
+                currency?: string | null;
+                provider?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceComparisonResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unusual_api_analytics_unusual_get: {
+        parameters: {
+            query?: {
+                months?: number;
+                cost_type?: components["schemas"]["CostType"];
+                currency?: string | null;
+                provider?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnusualCostResponse"][];
                 };
             };
             /** @description Validation Error */

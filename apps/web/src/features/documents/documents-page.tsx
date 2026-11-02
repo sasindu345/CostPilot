@@ -2,7 +2,7 @@
 
 import { DocumentRow } from "./document-row";
 import { UploadPanel } from "./upload-panel";
-import { useDocuments } from "./use-documents";
+import { useDocuments } from "@/lib/documents";
 
 function DocumentList() {
   const { data: documents, error, isPending, refetch } = useDocuments();

@@ -3,7 +3,7 @@
 import { Upload } from "lucide-react";
 import { useRef, useState } from "react";
 
-import { useUploadDocument } from "./use-documents";
+import { useUploadDocument } from "@/lib/documents";
 
 const ACCEPTED_FILES = ".csv,.gz";
 

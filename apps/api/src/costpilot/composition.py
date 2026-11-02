@@ -1,7 +1,12 @@
 """Builds the real objects and connects modules. The API and the worker both start from here."""
 
-from datetime import timedelta
+from datetime import UTC, date, datetime, timedelta
 
+from costpilot.modules.analytics.application.analytics_service import AnalyticsService
+from costpilot.modules.analytics.infrastructure.numpy_unusual_cost_detector import (
+    NumpyUnusualCostDetector,
+)
+from costpilot.modules.analytics.infrastructure.postgres_store import PostgresAnalyticsStore
 from costpilot.modules.audit.infrastructure.postgres_audit_log import PostgresAuditLog
 from costpilot.modules.billing.application.import_service import BillImportService
 from costpilot.modules.billing.infrastructure.postgres_store import PostgresBillingStore
@@ -55,6 +60,25 @@ def build_bill_importer(settings: Settings, database: Database) -> BillImportSer
     return BillImportService(
         store=PostgresBillingStore(database),
         batch_size=settings.import_batch_size,
+    )
+
+
+def today_utc() -> date:
+    return datetime.now(UTC).date()
+
+
+def build_analytics_service(settings: Settings, database: Database) -> AnalyticsService:
+    return AnalyticsService(
+        store=PostgresAnalyticsStore(database),
+        detector=NumpyUnusualCostDetector(
+            history_months=settings.unusual_history_months,
+            min_history_months=settings.unusual_min_history_months,
+            threshold=settings.unusual_threshold,
+            min_increase_percent=settings.unusual_min_increase_percent,
+            min_increase_amount=settings.unusual_min_increase_amount,
+        ),
+        top_service_limit=settings.top_service_limit,
+        today=today_utc,
     )
 
 

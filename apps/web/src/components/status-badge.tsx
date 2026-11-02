@@ -7,7 +7,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import type { Document } from "./use-documents";
+import type { Document } from "@/lib/documents";
 
 const STATUS_STYLES: Record<
   Document["status"],

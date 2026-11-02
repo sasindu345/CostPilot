@@ -47,3 +47,15 @@ export function providerName(provider: string | null): string {
   }
   return PROVIDER_NAMES[provider] ?? provider;
 }
+
+export function formatMoney(value: string | number, currency: string): string {
+  return new Intl.NumberFormat("en", { style: "currency", currency }).format(Number(value));
+}
+
+export function formatPercent(value: string): string {
+  return `${Math.abs(Number(value)).toFixed(1)}%`;
+}
+
+export function formatMonth(value: string): string {
+  return monthFormatter.format(new Date(value));
+}
