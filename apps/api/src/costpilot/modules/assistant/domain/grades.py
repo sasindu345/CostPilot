@@ -13,7 +13,7 @@ class Grade(StrEnum):
 
 
 def needs_documents(evidence: Evidence) -> bool:
-    return Route.OPTIMIZATION in evidence.routes
+    return bool({Route.OPTIMIZATION, Route.KNOWLEDGE} & set(evidence.routes))
 
 
 def grade_answer(

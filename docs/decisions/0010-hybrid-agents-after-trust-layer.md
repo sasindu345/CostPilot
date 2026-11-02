@@ -28,3 +28,17 @@ Phase 7 builds measurement and the trust layer. Phase 8 builds the agents. Each 
 **Measured before deciding.** A router call took 1 to 2 seconds and about 120 tokens. An answer call with five document chunks used 1,347 input tokens. A four-call question is estimated at about $0.003, so money is not the main limit. Speed and free limits are. Google shows exact free limits in AI Studio, and they apply per project.
 
 **Trade-offs.** New agents arrive later. A two-part question uses 4 AI calls instead of 2. The test question set is more work, and the free key limits how often it can run.
+
+## Result after Phase 8
+
+| Measure | Without AI specialists | With them |
+|---|---|---|
+| 10 hard questions passed | 6 | 10 |
+| Average AI calls | 2.1 | 3.0 |
+| Average input tokens | 1,364 | 3,294 |
+
+The Anomaly and Optimization agents beat the baseline and stay. The Knowledge Agent scored the same with or without AI, so it is off by default and can be turned on with `ASSISTANT_AI_SPECIALISTS`.
+
+Recommendations are built on request and not saved, because they use no AI and cost nothing to rebuild.
+
+The first hybrid run also needed a change to the answer rules: a number's sentence must name its service.

@@ -1,5 +1,6 @@
 """All backend settings. Values come from environment variables, never from code."""
 
+from decimal import Decimal
 from functools import lru_cache
 from typing import Literal
 
@@ -43,6 +44,7 @@ class Settings(BaseSettings):
     s3_bucket: str = ""
     aws_region: str = ""
 
+    aws_docs_url: str
     qdrant_url: str
     qdrant_api_key: SecretStr = SecretStr("")
     gemini_api_key: SecretStr = SecretStr("")
@@ -57,6 +59,8 @@ class Settings(BaseSettings):
     assistant_history_messages: int = 6
     assistant_conversation_limit: int = 20
     assistant_answer_attempts: int = 2
+    assistant_ai_call_limit: int = 4
+    assistant_ai_specialists: tuple[str, ...] = ("anomaly", "optimization")
     knowledge_sources_path: str = "../../knowledge/sources.yaml"
     knowledge_questions_path: str = "../../knowledge/search-questions.yaml"
     knowledge_collection: str = "cloud_docs"
@@ -79,6 +83,9 @@ class Settings(BaseSettings):
     import_batch_size: int = 2000
     worker_poll_seconds: float = 2
     top_service_limit: int = 3
+    usage_change_limit: int = 8
+    recommendation_min_monthly_cost: Decimal = Decimal(5)
+    recommendation_steady_ratio: Decimal = Decimal("1.25")
     unusual_history_months: int = 6
     unusual_min_history_months: int = 3
     unusual_threshold: float = 3.0

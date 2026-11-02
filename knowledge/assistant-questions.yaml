@@ -21,13 +21,18 @@ questions:
     routes: [cost, anomaly]
     include: ["S3"]
   - question: "How can I save money on S3 storage?"
-    routes: [optimization]
+    routes: [optimization, knowledge]
+    include: ["lifecycle"]
+    exclude: ["no documents"]
     sources: ["S3 object lifecycle management", "S3 storage classes", "S3 Intelligent-Tiering"]
   - question: "How do I lower my RDS costs?"
-    routes: [optimization]
+    routes: [optimization, knowledge]
+    include: ["reserved"]
+    exclude: ["no documents"]
     sources: ["RDS Reserved DB instances", "RDS DB instance storage"]
   - question: "Explain AWS Savings Plans"
-    routes: [optimization]
+    routes: [optimization, knowledge]
+    include: ["commit"]
     sources: ["What are Savings Plans"]
   - question: "Why did S3 rise, and how can I save on it?"
     routes: [anomaly, optimization]

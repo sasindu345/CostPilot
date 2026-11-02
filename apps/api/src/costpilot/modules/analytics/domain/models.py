@@ -66,3 +66,19 @@ class UnusualCost:
     usual_cost: Decimal
     increase: Decimal
     percent: Decimal | None
+
+
+@dataclass(frozen=True)
+class UsageChange:
+    """How one kind of usage changed. It holds a resource count, never resource names."""
+
+    service: str
+    usage_type: str
+    region: str
+    first_cost: Decimal
+    second_cost: Decimal
+    resources: int
+
+    @property
+    def difference(self) -> Decimal:
+        return self.second_cost - self.first_cost

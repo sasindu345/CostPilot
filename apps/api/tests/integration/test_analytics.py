@@ -130,6 +130,7 @@ async def test_a_current_month_summary_file_gives_no_false_percentage(
         store=PostgresAnalyticsStore(database),
         detector=NumpyUnusualCostDetector(6, 3, 3.0, 20, 1),
         top_service_limit=3,
+        usage_change_limit=8,
         today=lambda: date(2026, 10, 15),
     )
     await load(
@@ -234,3 +235,27 @@ async def test_one_workspace_cannot_read_anothers_analytics(
     await load(importer, documents, owner, CUR_COLUMNS, [cur_row("2026-10", "10.00")])
 
     assert await analytics.overview(stranger.workspace_id, SIX_MONTHS) is None
+
+
+async def test_usage_changes_show_usage_and_a_resource_count_only(
+    database, documents, importer, analytics
+):
+    user = await new_user(database)
+    columns = [*CUR_COLUMNS, "line_item_usage_type", "line_item_resource_id", "product_region_code"]
+    extra = ["BoxUsage:t3.large", "i-secret", "us-east-1"]
+    await load(
+        importer,
+        documents,
+        user,
+        columns,
+        [[*cur_row("2026-09", "10.00"), *extra], [*cur_row("2026-10", "40.00"), *extra]],
+    )
+
+    rows = await analytics.usage_changes(
+        user.workspace_id, SIX_MONTHS, "USD", date(2026, 9, 1), date(2026, 10, 1)
+    )
+
+    assert rows[0].usage_type == "BoxUsage:t3.large"
+    assert rows[0].difference == Decimal("30.00")
+    assert rows[0].resources == 1
+    assert "i-secret" not in str(rows)

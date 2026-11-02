@@ -335,17 +335,17 @@ Every phase ends with the same steps:
 
 ### Phase 8 – Hybrid agents
 **You will see:** deeper answers from specialist agents, proven against the baseline. See decision 0010.
-- [ ] Breakdown tools: usage type, region and resource
-- [ ] Recommendation rules and the Overview card
-- [ ] Provider profiles and shared document retrieval
-- [ ] Supervisor upgrade
-- [ ] Anomaly Agent: Python detector first, AI only if needed
-- [ ] Optimization Agent
-- [ ] Knowledge Agent: AI for pure documentation questions only
-- [ ] Final Response Agent, using validated findings only
-- [ ] Limit of 4 AI calls per question, with a Python fallback
-- [ ] Compare each AI agent with the baseline, and remove any that does not help
-- [ ] Review the Lambda options in decision 0007
+- [x] Breakdown tools: usage type, region and resource
+- [x] Recommendation rules and the Overview card
+- [x] Provider profiles and shared document retrieval
+- [x] Supervisor upgrade
+- [x] Anomaly Agent: Python detector first, AI only if needed
+- [x] Optimization Agent
+- [x] Knowledge Agent: built, but off by default, as it did not beat the baseline
+- [x] Final Response Agent, using validated findings only
+- [x] Limit of 4 AI calls per question, with a Python fallback
+- [x] Compare each AI agent with the baseline, and remove any that does not help
+- [x] Review the Lambda options in decision 0007
 
 ### Phase 9 – Other clouds
 **You will see:** a bill from each cloud shows up in the same dashboard.

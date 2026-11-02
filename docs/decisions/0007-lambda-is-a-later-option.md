@@ -1,6 +1,6 @@
 # 0007: Keep everything on EC2 for now, and review Lambda later
 
-**Status:** Deferred, 2 Nov 2026. Review after Phase 8.
+**Status:** Deferred, 2 Nov 2026. Reviewed after Phase 8, and to be checked again in Phase 10.
 
 **Situation.** We asked if the AI assistant should run on AWS Lambda or Fargate instead of EC2.
 
@@ -23,3 +23,9 @@
 | Fargate | Paid hosting is acceptable | Medium: new Terraform, and a load balancer if needed |
 
 **Check before choosing.** Confirm whether Lambda's free allowance is permanent for your account.
+
+## Review after Phase 8
+
+Stay on EC2. Memory seen locally while idle after testing: API 200.2MiB, worker 165.7MiB, web 52.25MiB, PostgreSQL 79.45MiB, Keycloak 698.9MiB.
+
+The AI specialists add almost no memory, because they wait on Gemini and do no heavy work. Almost all waiting is Gemini's response time, which Lambda would not change. The sample bills are too small to test memory use on a large bill, so this needs checking in Phase 10.

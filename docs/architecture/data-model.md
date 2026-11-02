@@ -9,7 +9,6 @@ erDiagram
     WORKSPACE ||--o{ DOCUMENT : owns
     DOCUMENT ||--o{ COST_RECORD : produces
     WORKSPACE ||--o{ MONTHLY_SUMMARY : owns
-    WORKSPACE ||--o{ RECOMMENDATION : owns
     WORKSPACE ||--o{ CONVERSATION : owns
     CONVERSATION ||--o{ MESSAGE : contains
     MESSAGE ||--o{ AUDIT_EVENT : records
@@ -27,7 +26,6 @@ erDiagram
 | `document_periods` | Which file counts for each account and month | 3 |
 | `monthly_summaries` | Fast totals for dashboards, built only from counted files | 3 |
 | `conversations`, `messages` | Chat history | 6 |
-| `recommendations` | Saved findings with evidence | 8 |
 
 ## `cost_records`: the most important table
 

@@ -14,7 +14,7 @@ This is the one place to see what is done and what remains. Update it at the end
 | 5 | [Documentation search](phase-05-documentation-search-rag.md) | Search finds the right cloud advice | ✅ |
 | 6 | [AI assistant](phase-06-ai-assistant.md) | Live answers about your bill | ✅ |
 | 7 | [Trust and measurement](phase-07-trust-and-measurement.md) | Every answer shows its evidence, and quality can be measured | ✅ |
-| 8 | [Hybrid agents](phase-08-hybrid-agents.md) | Deeper answers from specialist agents, proven against a baseline | ⬜ |
+| 8 | [Hybrid agents](phase-08-hybrid-agents.md) | Deeper answers from specialist agents, proven against a baseline | ✅ |
 | 9 | [Other clouds](phase-09-other-clouds.md) | Azure, Google Cloud, Oracle, DigitalOcean | ⬜ |
 | 10 | [Live deployment](phase-10-live-deployment.md) | Running on the internet with HTTPS | ⬜ |
 | 11 | [Monitoring, quality and finish](phase-11-monitoring-quality-and-finish.md) | Dashboards, measured AI quality, final docs | ⬜ |
@@ -34,10 +34,11 @@ This is the one place to see what is done and what remains. Update it at the end
 
 | Command | What it proves |
 |---|---|
-| `make check` | 286 backend tests, 34 frontend tests, style, architecture and security rules. Needs `make up` |
+| `make check` | 327 backend tests, 34 frontend tests, style, architecture and security rules. Needs `make up` |
 | `make e2e` | 12 browser and API tests, including every API endpoint, a real Gemini answer, accessibility and phone size |
 | `make eval-search` | Search quality. It was 10 of 10 |
 | `make eval-assistant` | Whole assistant, with real Gemini. It was 15 of 15, and uses about 30 AI calls |
+| `make eval-agents` | Hard questions with and without AI specialists. It was 10 of 10 against 6 of 10, and uses about 50 AI calls |
 
 ## Manual setup you will need
 
@@ -56,7 +57,7 @@ Code cannot do these for you.
 
 ## Open items
 
-- After Phase 8, review the Lambda options in [decision 0007](../decisions/0007-lambda-is-a-later-option.md).
+- Review the Lambda options again in Phase 10, with real server numbers. See [decision 0007](../decisions/0007-lambda-is-a-later-option.md).
 - The `phase-0-baseline` branch shows a red pipeline run, because the `npm` security fix is on `phase-1-login`. Merging `phase-1-login` into `main` carries everything.
 - Phase 10 starts by confirming `t3.small` is free on your AWS account. A micro-only account cannot run Keycloak.
 - Add `wijewardanasj.23@uom.lk` to your GitHub account so commits count on your profile.

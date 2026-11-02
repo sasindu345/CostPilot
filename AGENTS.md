@@ -125,4 +125,5 @@ Do all of these before saying a phase is done:
 | `make reindex` | Rebuilds documentation search |
 | `make eval-search` | Measures search quality |
 | `make eval-assistant` | Scores the assistant with real Gemini |
+| `make eval-agents` | Compares hard questions with and without AI specialists |
 | `make sample` | Creates made-up bills in `samples/output/` |

@@ -24,6 +24,8 @@ test("a new user sees correct figures from sample data", async ({ page, request 
     await expect(page.getByText("$120.00")).toBeVisible();
     await expect(page.getByText("Other", { exact: true })).toHaveCount(1);
     await expect(page.getByText("sample-aws-bill.csv")).toBeVisible();
+    await expect(page.getByText("Review S3 storage lifecycle rules")).toBeVisible();
+    await expect(page.getByText("Saving: needs usage data").first()).toBeVisible();
     await expectNoAccessibilityProblems(page);
   });
 
