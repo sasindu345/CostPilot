@@ -40,11 +40,28 @@ class GeminiChatModel:
         timeout_seconds: float,
         retries: int,
     ) -> None:
-        settings = {"google_api_key": api_key, "timeout": timeout_seconds, "retries": retries}
-        self._answers = ChatGoogleGenerativeAI(model=answer_model, **settings)
-        self._router = ChatGoogleGenerativeAI(model=router_model, **settings)
+        self._api_key = api_key
+        self._answer_model = answer_model
+        self._router_model = router_model
+        self._timeout_seconds = timeout_seconds
+        self._retries = retries
+        self._answers: ChatGoogleGenerativeAI | None = None
+        self._router: ChatGoogleGenerativeAI | None = None
+
+    def _client(self, model: str) -> ChatGoogleGenerativeAI:
+        """Made on first use, so the app still starts when no Gemini key is set."""
+        if not self._api_key.get_secret_value():
+            logger.warning("gemini_key_missing")
+            raise ModelUnavailableError
+        return ChatGoogleGenerativeAI(
+            model=model,
+            google_api_key=self._api_key,
+            timeout=self._timeout_seconds,
+            retries=self._retries,
+        )
 
     async def choose_routes(self, question: str) -> list[Route]:
+        self._router = self._router or self._client(self._router_model)
         structured = self._router.with_structured_output(RouteChoice)
         messages = [SystemMessage(ROUTER_INSTRUCTIONS), HumanMessage(question)]
         for attempt in range(1, ATTEMPTS + 1):
@@ -61,6 +78,7 @@ class GeminiChatModel:
     async def stream_answer(
         self, system: str, history: Sequence[tuple[str, str]], prompt: str
     ) -> AsyncIterator[str]:
+        self._answers = self._answers or self._client(self._answer_model)
         messages: list[BaseMessage] = [SystemMessage(system)]
         for role, content in history:
             is_user = role == Role.USER.value

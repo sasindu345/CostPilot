@@ -4,14 +4,17 @@ from types import SimpleNamespace
 
 import httpx
 import pytest
+from fastapi.testclient import TestClient
 from langchain_google_genai._common import GoogleGenerativeAIError
 from langchain_google_genai.chat_models import GoogleAPIError
 from pydantic import SecretStr
 
+from costpilot.main import create_app
 from costpilot.modules.assistant.domain.errors import ModelUnavailableError
 from costpilot.modules.assistant.infrastructure.gemini_chat_model import GeminiChatModel
 from costpilot.modules.knowledge.domain.errors import KnowledgeUnavailableError
 from costpilot.modules.knowledge.infrastructure.gemini_embedder import GeminiEmbedder
+from costpilot.shared.config import get_settings
 
 FAILURES = [
     GoogleGenerativeAIError("failed"),
@@ -38,8 +41,8 @@ class BrokenEmbeddings:
         raise self.error
 
 
-def chat_model():
-    return GeminiChatModel(SecretStr("test"), "test-model", "test-model", 1, 0)
+def chat_model(key="test"):
+    return GeminiChatModel(SecretStr(key), "test-model", "test-model", 1, 0)
 
 
 @pytest.mark.parametrize("failure", FAILURES)
@@ -100,3 +103,30 @@ async def test_an_answer_is_never_restarted_after_words_were_sent():
         [chunk async for chunk in model.stream_answer("system", [], "prompt")]
 
     assert answers.calls == 1
+
+
+async def test_without_a_key_the_assistant_reports_it_is_unavailable():
+    model = chat_model(key="")
+
+    with pytest.raises(ModelUnavailableError):
+        await model.choose_routes("question")
+    with pytest.raises(ModelUnavailableError):
+        [chunk async for chunk in model.stream_answer("system", [], "prompt")]
+
+
+async def test_without_a_key_search_reports_it_is_unavailable():
+    embedder = GeminiEmbedder(SecretStr(""), "test-model", 8, 2, retries=1, retry_seconds=0)
+
+    with pytest.raises(KnowledgeUnavailableError):
+        await embedder.embed_query("question")
+
+
+def test_the_app_starts_without_a_gemini_key(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "")
+    get_settings.cache_clear()
+    try:
+        response = TestClient(create_app()).get("/api/health")
+    finally:
+        get_settings.cache_clear()
+
+    assert response.status_code == 200

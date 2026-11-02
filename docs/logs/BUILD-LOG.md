@@ -23,6 +23,7 @@ A dated record of what was built. Newest entries go at the top.
 
 - A dropped Gemini connection made the chat fail silently. All three failure types now give a clear message
 - Gemini failure reasons are now logged
+- The app crashed at startup with no Gemini key, which GitHub Actions caught. The app now starts, and the assistant says it is unavailable
 - A stale idle connection made some questions fail with "Server disconnected". Both AI calls now retry once, and an answer is never restarted after words were sent
 
 **Tested on 2 Nov 2026**
