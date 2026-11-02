@@ -1,6 +1,6 @@
 -include .env
 
-.PHONY: help setup up down logs dev-api dev-web check test sample
+.PHONY: help setup up down logs dev-api dev-web migrate e2e check test sample
 
 help: ## Show this list
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  make %-10s %s\n", $$1, $$2}'
@@ -20,6 +20,9 @@ logs: ## Follow the logs of all services
 dev-api: ## Run the API with live reload
 	cd apps/api && uv run uvicorn costpilot.main:app --reload --port $(API_PORT)
 
+migrate: ## Update the database to the latest version
+	cd apps/api && uv run alembic upgrade head
+
 dev-web: ## Run the web app with live reload
 	cd apps/web && API_INTERNAL_URL=http://localhost:$(API_PORT) pnpm dev
 
@@ -34,6 +37,9 @@ check: ## Run all tests, style checks and rule checks
 test: ## Run tests only
 	cd apps/api && uv run pytest
 	cd apps/web && pnpm test
+
+e2e: ## Test the full user journey in a real browser
+	cd apps/web && E2E_BASE_URL=$(APP_PUBLIC_URL) MAILPIT_URL=http://localhost:$(MAILPIT_UI_PORT) E2E_BROWSER_CHANNEL=chrome pnpm e2e
 
 sample: ## Create a made-up bill in samples/output
 	python3 samples/generate_sample_bill.py

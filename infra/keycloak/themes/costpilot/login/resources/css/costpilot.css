@@ -1,0 +1,29 @@
+/* Login page colours. shared/tokens.css is mounted from the web app, so there is one source of colours. */
+:root {
+  --pf-v5-global--primary-color--100: var(--token-brand);
+  --pf-v5-global--primary-color--200: var(--token-brand);
+  --pf-v5-global--active-color--100: var(--token-brand);
+  --pf-v5-global--link--Color: var(--token-brand);
+  --pf-v5-global--link--Color--hover: var(--token-brand);
+}
+
+.pf-v5-c-login,
+body {
+  background: var(--token-sidebar);
+  background-image: none;
+}
+
+.pf-v5-c-login__main {
+  border-radius: var(--token-radius-card);
+}
+
+.pf-v5-c-button.pf-m-primary {
+  background: var(--token-brand);
+  color: var(--token-brand-foreground);
+  border-radius: var(--token-radius-control);
+}
+
+#kc-header-wrapper {
+  color: var(--token-sidebar-foreground);
+  font-weight: 700;
+}
