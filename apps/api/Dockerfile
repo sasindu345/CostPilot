@@ -6,9 +6,16 @@ COPY src ./src
 RUN uv sync --frozen --no-dev --no-editable
 
 FROM python:3.13-slim
-RUN useradd --create-home --uid 1000 costpilot
+# The running app has no use for pip or Python's test files, and they carry known security problems.
+RUN useradd --create-home --uid 1000 costpilot \
+  && rm -rf /usr/local/bin/pip* \
+    /usr/local/lib/python3.13/site-packages/pip* \
+    /usr/local/lib/python3.13/ensurepip \
+    /usr/local/lib/python3.13/test
 WORKDIR /app
 COPY --from=build /app/.venv ./.venv
+COPY alembic.ini ./
+COPY migrations ./migrations
 ENV PATH="/app/.venv/bin:$PATH"
 USER costpilot
 EXPOSE 8000

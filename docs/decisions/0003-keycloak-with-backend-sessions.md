@@ -12,4 +12,4 @@
 - All login logic is in one place and can be tested with Pytest.
 - We avoided Auth.js because it now only receives security fixes and v5 is still in beta.
 
-**Trade-offs.** Keycloak needs about 1 GB of memory, so the server must be at least a 2 GB `t3.small`. We store tokens, so they must be encrypted in the database.
+**Trade-offs.** Keycloak needs about 1 GB of memory, so the server must be at least a 2 GB `t3.small`. We store the ID token, needed for sign-out, so it is encrypted in the database. We do not keep access or refresh tokens, because the backend does not call other services for the user.

@@ -4,18 +4,9 @@ import structlog
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 
+from costpilot.shared.exceptions import AppError
+
 logger = structlog.get_logger()
-
-
-class AppError(Exception):
-    """A problem we expect and can explain to the user."""
-
-    status_code = status.HTTP_400_BAD_REQUEST
-    code = "bad_request"
-
-    def __init__(self, message: str) -> None:
-        super().__init__(message)
-        self.message = message
 
 
 def _error_response(status_code: int, code: str, message: str) -> JSONResponse:

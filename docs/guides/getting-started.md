@@ -5,12 +5,12 @@
 On a Mac with [Homebrew](https://brew.sh):
 
 ```bash
-brew install uv gitleaks pre-commit
+brew install uv gitleaks pre-commit colima docker docker-compose
 ```
 
 Also install:
 
-- **Docker Desktop**, and make sure it is running
+- **A container engine.** We use **Colima**, a free, lightweight way to run Docker containers on a Mac. Start it with `colima start`. Docker Desktop works too, but needs a paid licence at larger companies
 - **Node**, using nvm: run `nvm install` in the project folder. It reads the version from `.nvmrc`
 - **pnpm**: run `npm install -g pnpm`
 
@@ -38,6 +38,10 @@ make up
 
 Your Keycloak admin password is `KEYCLOAK_ADMIN_PASSWORD` in `.env`.
 
+Open http://localhost:3010 and click **Register**. The verification email appears in the test inbox at http://localhost:8025.
+
+`make check` needs the database, so run `make up` first.
+
 ## 4. Everyday commands
 
 | Command | What it does |
@@ -45,6 +49,8 @@ Your Keycloak admin password is `KEYCLOAK_ADMIN_PASSWORD` in `.env`.
 | `make dev-api` | Runs the API with live reload |
 | `make dev-web` | Runs the web app with live reload |
 | `make check` | Runs all tests and checks. Do this before committing |
+| `make migrate` | Updates your database to the latest version |
+| `make e2e` | Tests the full user journey in Chrome |
 | `make sample` | Creates a made-up bill |
 | `make down` | Stops everything |
 
@@ -62,3 +68,5 @@ From Phase 5 you will need a [Gemini API key](https://aistudio.google.com/apikey
 | A port is already in use | Change the port in `.env` |
 | Commit is rejected | Read the message. A check found a secret, a hardcoded value or an AI co-author line |
 | Keycloak is slow to start | This is normal. It can take up to a minute |
+| `Cannot connect to the Docker daemon` | Colima has stopped. Run `colima start` |
+| Everything is very slow | Colima has limited memory. Stop other projects, or give it more: `colima stop`, then `colima start --memory 6` |

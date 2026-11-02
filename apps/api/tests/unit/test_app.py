@@ -3,7 +3,8 @@ from fastapi.testclient import TestClient
 
 from costpilot.main import create_app
 from costpilot.shared.config import Settings
-from costpilot.shared.errors import AppError, register_error_handlers
+from costpilot.shared.errors import register_error_handlers
+from costpilot.shared.exceptions import AppError
 
 
 def test_health_returns_ok() -> None:
