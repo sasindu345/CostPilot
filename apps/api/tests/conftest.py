@@ -4,11 +4,12 @@ import base64
 import os
 from pathlib import Path
 
+TEST_DATABASE = "costpilot_test"
+
 TEST_DEFAULTS = {
     "APP_PUBLIC_URL": "http://app.test",
     "POSTGRES_HOST": "localhost",
     "POSTGRES_PORT": "5433",
-    "POSTGRES_DB": "costpilot",
     "POSTGRES_USER": "test_admin",
     "POSTGRES_PASSWORD": "test",
     "POSTGRES_APP_USER": "test_app",
@@ -27,6 +28,9 @@ TEST_DEFAULTS = {
     "STORAGE_BACKEND": "local",
     "STORAGE_LOCAL_PATH": "/tmp/costpilot-test-uploads",
 }
+
+# Tests use their own database, so they never touch the running app or its worker.
+os.environ["POSTGRES_DB"] = TEST_DATABASE
 
 if not (Path(__file__).parents[3] / ".env").exists():
     for name, value in TEST_DEFAULTS.items():

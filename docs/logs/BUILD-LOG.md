@@ -2,6 +2,15 @@
 
 A dated record of what was built. Newest entries go at the top.
 
+## 2 Nov 2026: Phases 1 to 5 clean-up
+
+- Cancelling at Keycloak now returns to the app, instead of showing a validation error
+- Added friendly "page not found" and error pages
+- The API image installs packages before copying code, so code changes rebuild much faster
+- Tests now use their own `costpilot_test` database. The live worker was picking up test documents, which made one test fail at random
+- Added `e2e/api.spec.ts`. It tests every endpoint, and fails if a new route is not on its list
+- The password reset test now follows the email link and sets a new password
+
 ## 2 Nov 2026: Phase 5, documentation search
 
 **Built**

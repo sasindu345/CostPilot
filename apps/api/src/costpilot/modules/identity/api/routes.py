@@ -40,8 +40,15 @@ def login(auth: Auth, settings: AppSettings) -> RedirectResponse:
 
 @router.get("/auth/callback")
 async def callback(
-    code: str, state: str, request: Request, auth: Auth, settings: AppSettings
+    request: Request,
+    auth: Auth,
+    settings: AppSettings,
+    code: str | None = None,
+    state: str | None = None,
 ) -> RedirectResponse:
+    if code is None or state is None:
+        # Keycloak sends no code if the user cancels, so start again from the app.
+        return RedirectResponse(settings.app_public_url, status_code=status.HTTP_302_FOUND)
     session_token, _ = await auth.complete_login(
         code, state, request.cookies.get(settings.login_cookie_name)
     )

@@ -4,7 +4,7 @@
 
 ![CostPilot overview design](docs/design/overview-mockup.png)
 
-> **Status:** Phases 0 to 3 are built: login, document upload and reading AWS bills. The design above is the target, not the current app. See the [roadmap](docs/plan/ROADMAP.md) for what is built and what remains.
+> **Status:** Phases 0 to 5 are built: login, document upload, reading AWS bills, the dashboard and documentation search. The AI assistant comes next. The design above is the target, not the current app. See the [roadmap](docs/plan/ROADMAP.md) for what is built and what remains.
 
 ## The problem
 
@@ -149,9 +149,9 @@ flowchart TB
 
 | Part | Tools |
 |---|---|
-| Frontend | Next.js, React, TypeScript, Tailwind CSS, shadcn/ui, Recharts, TanStack Query |
+| Frontend | Next.js, React, TypeScript, Tailwind CSS, Recharts, TanStack Query |
 | Backend | Python, FastAPI, Pydantic, SQLAlchemy, Alembic |
-| Data | PostgreSQL, Pandas, NumPy, Amazon S3 |
+| Data | PostgreSQL, NumPy, Amazon S3 |
 | AI | Gemini, LangChain, LangGraph, Qdrant |
 | Login | Keycloak |
 | Testing | Pytest, Vitest, Playwright, DeepEval or Ragas |
@@ -167,6 +167,7 @@ You need Docker (we use [Colima](https://github.com/abiosoft/colima)), [uv](http
 make setup   # Install everything and create your .env
 make up      # Start all services
 make check   # Run all tests and checks
+make e2e     # Test the full journeys in Chrome
 ```
 
 | Service | Address |

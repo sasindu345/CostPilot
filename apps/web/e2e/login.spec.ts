@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { emailCount, PASSWORD, signUp } from "./helpers";
+import { emailLink, PASSWORD, signUp } from "./helpers";
 
 test("a new user can sign up, verify their email, sign out and sign in again", async ({
   page,
@@ -39,12 +39,17 @@ test("a new user can sign up, verify their email, sign out and sign in again", a
     await expect(page.getByRole("heading", { name: "Welcome to CostPilot" })).toBeVisible();
   });
 
-  await test.step("they can ask for a password reset email", async () => {
+  await test.step("they can reset a forgotten password and sign in with it", async () => {
     await page.getByRole("button", { name: /Ann Lee/ }).click();
     await page.getByRole("menuitem", { name: "Sign out" }).click();
     await page.getByRole("link", { name: "Forgot Password?" }).click();
     await page.locator("#username").fill(email);
     await page.getByRole("button", { name: "Submit" }).click();
-    await expect.poll(() => emailCount(request, email)).toBe(2);
+    await page.goto(await emailLink(request, email, 2));
+    const newPassword = `Reset-${crypto.randomUUID()}`;
+    await page.locator("#password-new").fill(newPassword);
+    await page.locator("#password-confirm").fill(newPassword);
+    await page.getByRole("button", { name: "Submit" }).click();
+    await expect(page.getByRole("heading", { name: "Welcome to CostPilot" })).toBeVisible();
   });
 });
