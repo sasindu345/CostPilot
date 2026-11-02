@@ -122,4 +122,6 @@ Do all of these before saying a phase is done:
 | `make test` | Runs tests only |
 | `make e2e` | Tests the full user journey in Chrome |
 | `make types` | Updates the frontend's API types. Run it after changing an API |
+| `make reindex` | Rebuilds documentation search |
+| `make eval-search` | Measures search quality |
 | `make sample` | Creates made-up bills in `samples/output/` |

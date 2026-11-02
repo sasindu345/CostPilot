@@ -2,6 +2,8 @@
 
 from datetime import UTC, date, datetime, timedelta
 
+from qdrant_client import AsyncQdrantClient
+
 from costpilot.modules.analytics.application.analytics_service import AnalyticsService
 from costpilot.modules.analytics.infrastructure.numpy_unusual_cost_detector import (
     NumpyUnusualCostDetector,
@@ -24,6 +26,12 @@ from costpilot.modules.identity.infrastructure.keycloak_provider import Keycloak
 from costpilot.modules.identity.infrastructure.postgres_repository import (
     PostgresIdentityRepository,
 )
+from costpilot.modules.knowledge.application.indexer import KnowledgeIndexer
+from costpilot.modules.knowledge.application.search_service import KnowledgeSearchService
+from costpilot.modules.knowledge.infrastructure.gemini_embedder import GeminiEmbedder
+from costpilot.modules.knowledge.infrastructure.html_page_loader import HtmlPageLoader
+from costpilot.modules.knowledge.infrastructure.langchain_splitter import LangChainTextSplitter
+from costpilot.modules.knowledge.infrastructure.qdrant_index import QdrantVectorIndex
 from costpilot.shared.config import Settings
 from costpilot.shared.database import Database
 
@@ -101,4 +109,50 @@ def build_job_runner(settings: Settings, database: Database) -> JobRunner:
         max_attempts=settings.job_max_attempts,
         retry_delay=timedelta(seconds=settings.job_retry_seconds),
         stale_after=timedelta(minutes=settings.job_stale_minutes),
+    )
+
+
+def _build_embedder(settings: Settings) -> GeminiEmbedder:
+    return GeminiEmbedder(
+        api_key=settings.gemini_api_key,
+        model=settings.gemini_embedding_model,
+        dimensions=settings.embedding_dimensions,
+        batch_size=settings.embedding_batch_size,
+        retries=settings.embedding_retries,
+        retry_seconds=settings.embedding_retry_seconds,
+    )
+
+
+def _build_vector_index(settings: Settings) -> QdrantVectorIndex:
+    client = AsyncQdrantClient(
+        url=settings.qdrant_url,
+        api_key=settings.qdrant_api_key.get_secret_value() or None,
+    )
+    return QdrantVectorIndex(
+        client=client,
+        collection=settings.knowledge_collection,
+        dimensions=settings.embedding_dimensions,
+    )
+
+
+def build_knowledge_indexer(settings: Settings) -> KnowledgeIndexer:
+    return KnowledgeIndexer(
+        loader=HtmlPageLoader(
+            allowed_hosts=settings.knowledge_allowed_hosts,
+            max_bytes=settings.knowledge_max_page_bytes,
+            timeout_seconds=settings.knowledge_timeout_seconds,
+        ),
+        splitter=LangChainTextSplitter(settings.chunk_size, settings.chunk_overlap),
+        embedder=_build_embedder(settings),
+        index=_build_vector_index(settings),
+        allowed_hosts=settings.knowledge_allowed_hosts,
+    )
+
+
+def build_knowledge_search(settings: Settings) -> KnowledgeSearchService:
+    return KnowledgeSearchService(
+        embedder=_build_embedder(settings),
+        index=_build_vector_index(settings),
+        limit=settings.search_limit,
+        min_score=settings.search_min_score,
     )

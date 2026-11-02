@@ -43,6 +43,26 @@ class Settings(BaseSettings):
     s3_bucket: str = ""
     aws_region: str = ""
 
+    qdrant_url: str
+    qdrant_api_key: SecretStr = SecretStr("")
+    gemini_api_key: SecretStr = SecretStr("")
+    gemini_embedding_model: str
+    knowledge_sources_path: str = "../../knowledge/sources.yaml"
+    knowledge_questions_path: str = "../../knowledge/search-questions.yaml"
+    knowledge_collection: str = "cloud_docs"
+    knowledge_allowed_hosts: tuple[str, ...] = ("docs.aws.amazon.com",)
+    knowledge_max_page_bytes: int = 5_000_000
+    knowledge_timeout_seconds: float = 20
+    embedding_dimensions: int = 768
+    embedding_batch_size: int = 20
+    embedding_retries: int = 3
+    embedding_retry_seconds: float = 20
+    chunk_size: int = 1200
+    chunk_overlap: int = 150
+    search_limit: int = 5
+    search_min_score: float = 0.55
+    search_min_hit_rate: float = 0.8
+
     max_upload_mb: int = 100
     max_unpacked_mb: int = 1024
     document_list_limit: int = 100

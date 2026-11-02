@@ -2,6 +2,32 @@
 
 A dated record of what was built. Newest entries go at the top.
 
+## 2 Nov 2026: Phase 5, documentation search (waiting for a Gemini key)
+
+**Built**
+
+- 18 trusted AWS pages in `knowledge/sources.yaml`, and 10 test questions
+- Load, clean, split, embed and save to Qdrant, tagged by cloud
+- `make reindex`, which skips unchanged pages and removes old ones
+- Search with a cloud filter and a minimum score
+- `make eval-search`, and a job that keeps the free Qdrant cluster awake
+
+**Decided during the work**
+
+- **Qdrant's own client, not LangChain's wrapper.** It gives direct control of filters and page hashes.
+- **Page hashes decide what to embed,** so a rerun uses no free quota.
+
+**Tested on 2 Nov 2026**
+
+- 20 tests using a real in-memory Qdrant and a fake embedder
+- All 18 live AWS pages loaded, and the real Qdrant container stored and found data
+- `langchain-google-genai` works on Python 3.13, which closes an open item from the plan
+
+**Not yet tested**
+
+- Real Gemini embeddings, `make reindex` and `make eval-search`, because there is no key yet.
+- The keep-awake job, until there is a Qdrant Cloud cluster.
+
 ## 2 Nov 2026: Phase 4, dashboard and analytics (waiting for browser check)
 
 **Built**

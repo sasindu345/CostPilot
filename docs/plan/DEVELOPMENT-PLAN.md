@@ -302,12 +302,12 @@ Every phase ends with the same steps:
 
 ### Phase 5 – Documentation search (RAG)
 **You will see:** a test search returns the right AWS advice.
-- [ ] `knowledge/sources.yaml`: the list of trusted documents
+- [x] `knowledge/sources.yaml`: the list of trusted documents
 - [ ] Load, split, create embeddings, save to Qdrant, tagged by provider
 - [ ] `make reindex`, safe to run repeatedly
-- [ ] Search with a relevance check
-- [ ] Starter set of test questions, to measure search quality
-- [ ] Weekly job to keep the free Qdrant cluster awake
+- [x] Search with a relevance check
+- [x] Starter set of test questions, to measure search quality
+- [x] Weekly job to keep the free Qdrant cluster awake
 
 ### Phase 6 – AI assistant
 **You will see:** ask a question and get a live, streaming answer about your bill.

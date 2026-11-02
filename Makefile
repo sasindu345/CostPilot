@@ -1,6 +1,6 @@
 -include .env
 
-.PHONY: help setup up down logs dev-api dev-web migrate e2e types check test sample
+.PHONY: help setup up down logs dev-api dev-web migrate e2e types reindex eval-search check test sample
 
 help: ## Show this list
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  make %-10s %s\n", $$1, $$2}'
@@ -37,6 +37,12 @@ check: ## Run all tests, style checks and rule checks
 test: ## Run tests only
 	cd apps/api && uv run pytest
 	cd apps/web && pnpm test
+
+reindex: ## Rebuild the documentation search. Safe to run again
+	cd apps/api && uv run python scripts/reindex.py
+
+eval-search: ## Measure how well documentation search works
+	cd apps/api && uv run python scripts/eval_search.py
 
 types: ## Update the frontend's API types from the backend
 	cd apps/api && uv run python scripts/export_openapi.py ../web/openapi.json

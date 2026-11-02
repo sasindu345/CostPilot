@@ -51,6 +51,8 @@ Open http://localhost:3010 and click **Register**. After signing in, click **Try
 | `make check` | Runs all tests and checks. Do this before committing |
 | `make migrate` | Updates your database to the latest version |
 | `make e2e` | Tests the full user journey in Chrome |
+| `make reindex` | Rebuilds documentation search. Needs a Gemini key |
+| `make eval-search` | Measures search quality. Needs a Gemini key |
 | `make sample` | Creates a made-up bill |
 | `make down` | Stops everything |
 

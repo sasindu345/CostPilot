@@ -79,6 +79,7 @@ services:
       POSTGRES_PORT: "5432"
       KEYCLOAK_INTERNAL_URL: http://keycloak:8080
       STORAGE_LOCAL_PATH: /app/uploads
+      QDRANT_URL: http://qdrant:6333
     depends_on:
       postgres:
         condition: service_healthy

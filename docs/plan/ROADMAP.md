@@ -11,7 +11,7 @@ This is the one place to see what is done and what remains. Update it at the end
 | 2 | [Document upload](phase-02-document-upload.md) | Upload a file and watch its status | ✅ |
 | 3 | [Reading bills (AWS first)](phase-03-reading-bills-aws-first.md) | Bills turned into clean records | ✅ |
 | 4 | [Dashboard and analytics](phase-04-dashboard-and-analytics.md) | The design working with real data | 🔄 Waiting for browser check |
-| 5 | [Documentation search](phase-05-documentation-search-rag.md) | Search finds the right cloud advice | ⬜ |
+| 5 | [Documentation search](phase-05-documentation-search-rag.md) | Search finds the right cloud advice | 🔄 Waiting for Gemini key |
 | 6 | [AI assistant](phase-06-ai-assistant.md) | Live answers about your bill | ⬜ |
 | 7 | [Trust layer and recommendations](phase-07-trust-layer-and-recommendations.md) | Every answer shows its evidence | ⬜ |
 | 8 | [Other clouds](phase-08-other-clouds.md) | Azure, Google Cloud, Oracle, DigitalOcean | ⬜ |
@@ -31,6 +31,7 @@ This is the one place to see what is done and what remains. Update it at the end
 
 ## Open items
 
+- Phase 5 needs a Gemini key to finish, and Phase 6 needs one to test properly.
 - After Phase 7, review the Lambda options in [decision 0007](../decisions/0007-lambda-is-a-later-option.md).
 - The `phase-0-baseline` branch shows a red pipeline run, because the `npm` security fix is on `phase-1-login`. Merging `phase-1-login` into `main` carries everything.
 - Phase 9 starts by confirming `t3.small` is free on your AWS account. A micro-only account cannot run Keycloak.
