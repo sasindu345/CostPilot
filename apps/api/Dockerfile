@@ -14,6 +14,8 @@ RUN useradd --create-home --uid 1000 costpilot \
     /usr/local/lib/python3.13/test
 WORKDIR /app
 COPY --from=build /app/.venv ./.venv
+COPY alembic.ini ./
+COPY migrations ./migrations
 ENV PATH="/app/.venv/bin:$PATH"
 USER costpilot
 EXPOSE 8000
