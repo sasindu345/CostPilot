@@ -27,6 +27,7 @@ A dated record of what was built. Newest entries go at the top.
 - `make e2e`: sign up, verify email, choose a password, reach the app, see Settings, sign out, sign in, and request a password reset email
 - 24 backend tests, including 6 against real PostgreSQL that try to cross between workspaces
 - 7 frontend tests
+- Trivy found no high or critical problems in the API or web images, after removing `pip` and `npm` from them. The scan ran from the Mac, because the vulnerability database would not download inside Colima
 
 **Known limits**
 
