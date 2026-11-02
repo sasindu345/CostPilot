@@ -215,6 +215,31 @@ async def test_only_a_rule_can_state_a_saving():
     assert "10.00" not in model.prompts[0]
 
 
+async def test_documents_stay_available_to_the_final_answer():
+    rule = Recommendation(
+        "x", "aws", "Review S3", "Reason.", "USD", None, "S3", "https://docs.test/x"
+    )
+    model = FakeModel(route=Route.OPTIMIZATION)
+
+    await run(service(model, recommendations=FakeRecommendations([rule])))
+
+    assert "Use lifecycle." in model.prompts[0]
+
+
+async def test_a_detailed_finding_can_stand_in_for_its_document_to_save_tokens():
+    url = "https://docs.test/s3"
+    claim = "Lifecycle rules move rarely read objects to cheaper storage classes over time."
+    model = FakeModel(
+        route=Route.OPTIMIZATION,
+        findings=[FindingDraft(claim=claim, document_urls=[url])],
+    )
+
+    await run(service(model))
+
+    assert "Use lifecycle." not in model.prompts[0]
+    assert claim in model.prompts[0]
+
+
 async def test_a_rule_with_no_proof_says_it_needs_usage_data():
     item = Recommendation(
         "x", "aws", "Review S3", "Reason.", "USD", None, "S3", "https://docs.test/x"

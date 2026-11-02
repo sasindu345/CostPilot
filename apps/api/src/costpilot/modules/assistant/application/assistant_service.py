@@ -178,7 +178,7 @@ class AssistantService:
         text, attempts, used_template = await self._checked_answer(
             question, evidence, history, meter
         )
-        used_evidence = bool(evidence.passages) or any(
+        used_evidence = bool(evidence.passages or evidence.findings) or any(
             fact.value in text for fact in evidence.facts
         )
         grade = grade_answer(

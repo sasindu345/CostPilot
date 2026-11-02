@@ -74,6 +74,18 @@ def test_an_unknown_id_fails():
     assert check.unknown_ids == ["F9"]
 
 
+@pytest.mark.parametrize(
+    "answer",
+    ["Costs rose (F5).", "As stated in FINDINGS, costs rose.", "The DOCUMENTS say so."],
+)
+def test_our_internal_labels_never_reach_the_user(answer):
+    assert not check_answer(answer, FACTS).passed
+
+
+def test_normal_words_are_not_treated_as_labels():
+    assert check_answer("These facts and findings come from AWS documents.", FACTS).passed
+
+
 def test_a_correct_looking_number_typed_by_hand_still_fails():
     assert not check_answer("Total 1,245.60 USD.", FACTS).passed
 
@@ -95,7 +107,7 @@ async def test_the_ai_gets_one_chance_to_correct_itself():
 
     assert text == "Total 1,245.60 USD."
     assert len(model.prompts) == 2
-    assert "broke rule 1" in model.prompts[1]
+    assert "broke a rule" in model.prompts[1]
     assert store.last_trace["checks"]["answer_attempts"] == 2
     assert store.last_trace["checks"]["used_template"] is False
 
@@ -236,6 +248,15 @@ async def test_an_answer_that_used_no_evidence_gets_the_lowest_grade():
     await run(service(FakeModel(chunks=("I do not have that information.",)), store=store))
 
     assert store.last_grade == "D"
+
+
+async def test_an_answer_built_on_findings_keeps_its_grade_without_quoting_a_figure():
+    model = FakeModel(route=Route.ANOMALY, chunks=("The new servers drove the rise.",))
+    store = FakeStore()
+
+    await run(service(model, store=store))
+
+    assert store.last_grade == "A"
 
 
 def test_template_uses_only_true_figures():

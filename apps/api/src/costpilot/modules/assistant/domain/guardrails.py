@@ -28,6 +28,14 @@ TYPED_NUMBERS = (
 )
 
 
+INTERNAL_WORDS = re.compile(r"\bF\d+\b|\b(?:FINDINGS|FACTS|DOCUMENTS|LIMITATIONS)\b")
+
+
+def internal_words(text: str) -> list[str]:
+    """Find our own labels, such as F5 or FINDINGS, which mean nothing to a user."""
+    return INTERNAL_WORDS.findall(PLACEHOLDER.sub("", text))
+
+
 def looks_like_injection(text: str) -> bool:
     return INJECTION.search(text) is not None
 
@@ -60,10 +68,11 @@ class AnswerCheck:
     typed: list[str]
     unknown_ids: list[str]
     misplaced: list[str]
+    leaked: list[str]
 
     @property
     def passed(self) -> bool:
-        return not self.typed and not self.unknown_ids and not self.misplaced
+        return not (self.typed or self.unknown_ids or self.misplaced or self.leaked)
 
 
 def check_answer(answer: str, facts: Iterable[Fact]) -> AnswerCheck:
@@ -75,4 +84,5 @@ def check_answer(answer: str, facts: Iterable[Fact]) -> AnswerCheck:
         typed_numbers(answer),
         [fact_id for fact_id in used if fact_id not in known],
         misplaced_facts(answer, fact_list),
+        internal_words(answer),
     )

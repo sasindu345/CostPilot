@@ -19,6 +19,7 @@ from sqlalchemy import text
 
 from costpilot.composition import build_assistant_service, build_bill_importer
 from costpilot.modules.assistant.application.assistant_service import MODEL_DOWN_ANSWER
+from costpilot.modules.assistant.domain.guardrails import internal_words
 from costpilot.modules.documents.domain.files import open_bill_table
 from costpilot.modules.documents.domain.models import Document, DocumentStatus
 from costpilot.modules.documents.infrastructure.postgres_repository import (
@@ -71,6 +72,7 @@ def score(item: dict, answer: str, sources: list[str], trace: dict) -> dict[str,
         "route": "routes" not in item or (routes <= expected if expected else not routes),
         "include": all(word.lower() in lowered for word in item.get("include", [])),
         "exclude": not any(word.lower() in lowered for word in item.get("exclude", [])),
+        "clean": not internal_words(answer),
         "source": not item.get("sources") or bool(set(item["sources"]) & set(sources)),
     }
 
