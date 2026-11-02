@@ -1,5 +1,5 @@
 import { AuthGate } from "@/components/layout/auth-gate";
-import { Sidebar } from "@/components/layout/sidebar";
+import { MobileNavigation, Sidebar } from "@/components/layout/sidebar";
 import { TopBar } from "@/components/layout/top-bar";
 import { QueryProvider } from "@/components/providers/query-provider";
 
@@ -11,8 +11,9 @@ export function AppShell({ children }: Readonly<{ children: React.ReactNode }>) 
           <Sidebar />
           <div className="flex flex-1 flex-col">
             <TopBar />
-            <main className="flex-1 p-8">{children}</main>
+            <main className="flex-1 p-4 pb-24 md:p-8">{children}</main>
           </div>
+          <MobileNavigation />
         </div>
       </AuthGate>
     </QueryProvider>

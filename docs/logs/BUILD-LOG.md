@@ -2,6 +2,130 @@
 
 A dated record of what was built. Newest entries go at the top.
 
+## 2 Nov 2026: Phase 5, documentation search
+
+**Built**
+
+- 18 trusted AWS pages in `knowledge/sources.yaml`, and 10 test questions
+- Load, clean, split, embed and save to Qdrant, tagged by cloud
+- `make reindex`, which skips unchanged pages and removes old ones
+- Search with a cloud filter and a minimum score
+- `make eval-search`, and a job that keeps the free Qdrant cluster awake
+
+**Decided during the work**
+
+- **Qdrant's own client, not LangChain's wrapper.** It gives direct control of filters and page hashes.
+- **Page hashes decide what to embed,** so a rerun uses no free quota.
+
+**Tested on 2 Nov 2026**
+
+- 20 tests using a real in-memory Qdrant and a fake embedder
+- All 18 live AWS pages loaded, and the real Qdrant container stored and found data
+- `langchain-google-genai` works on Python 3.13, which closes an open item from the plan
+
+- With real Gemini embeddings, `make reindex` indexed all 18 pages, and a second run changed nothing
+- `make eval-search` found an expected source for 10 of 10 questions
+- One embedding call failed during indexing, and the automatic retry fixed it
+
+**Not yet tested**
+
+- The keep-awake job, until there is a Qdrant Cloud cluster.
+
+**Known limits**
+
+- The test questions were written by us, so they are an easy test. Phase 10 adds a harder one.
+
+## 2 Nov 2026: Phase 4, dashboard and analytics (waiting for browser check)
+
+**Built**
+
+- Exact calculations: totals, change, trends, top services with an Other row, and month comparison
+- Unusual spending detection with NumPy, using each service's own usual level
+- Overview page with the corrections from `docs/design/ui-spec.md`
+- Analytics page with period, cost type, provider and currency filters
+- Sample data button, phone navigation, and a table view for the chart
+
+**Decided during the work**
+
+- **Cards are labelled by month,** such as "Oct 2026". "This Month" would be wrong when the newest bill is from last month.
+- **Half-finished months** compare with the same days of the month before. Summary files cannot do that, so the percentage shows "Not available" and no guess is made.
+- **A month with no bill stays empty.** It is not shown as $0.
+- **Recommendations card** only says they are coming. It shows no made-up savings.
+
+**Tested on 2 Nov 2026**
+
+- 156 backend tests, including the design's −8.1% and half-finished months on real PostgreSQL
+- 29 frontend tests
+
+**Not yet tested**
+
+- The pages have not been seen in a real browser. `e2e/dashboard.spec.ts` has not been run.
+
+## 2 Nov 2026: Phase 3, reading bills
+
+**Built**
+
+- Common FOCUS records, with provider and detail level
+- Readers for AWS Cost Explorer, CUR old and new columns, and FOCUS exports
+- `.csv` and `.csv.gz` support, with all records saved together or not at all
+- Overlap rules, a new `replaced` status, and monthly summaries built only from counted files
+- Provider, billing period and record count on the Documents page
+
+**Decided during the work**
+
+- **No Pandas for reading bills.** See decision 0008.
+- **Billed and effective cost are both kept.** Billed matches the invoice. Effective spreads prepaid Savings Plans and reserved instances over the usage they paid for.
+
+**Tested on 2 Nov 2026**
+
+- Hand-worked bills: Savings Plans, reserved instances, credits, exact decimals, and old and new CUR columns giving identical records
+- 123 backend tests, including real PostgreSQL tests for overlaps, currencies, double counting, partial failures and workspace privacy
+- Sample bill totals exactly $248.60
+
+**Known limits**
+
+- All reader formats were built from AWS docs and memory, with made-up files. They have not been checked against a real AWS file yet. The Cost Explorer layout is the least certain.
+- Two Cost Explorer files from different accounts look the same, so the newest wins.
+- Unknown AWS services are grouped as `Other`.
+
+## 2 Nov 2026: Phase 2, document upload
+
+**Built**
+
+- Upload with type, size and fingerprint checks, plus safe file names
+- Local folder and S3 storage behind one interface
+- Background job table in PostgreSQL and a separate worker
+- Documents page: upload, list, status, details, delete and reprocess
+- API types generated into the frontend with `make types`
+- Sample AWS bills: Cost Explorer, CUR 2.0 and compressed CUR
+
+**Decided during the work**
+
+- **The `jobs` table has no Row-Level Security,** as the worker must see every workspace. It only holds IDs and error class names.
+- **`composition.py` connects the modules,** because the API and the worker both need it.
+- **`JobRunner.process` knows nothing about the queue,** which keeps the Lambda option in decision 0007 open.
+- **`make e2e` runs one test at a time,** as Chrome timed out starting several at once on this machine.
+
+**Tested on 2 Nov 2026**
+
+- `make e2e`: upload, processing, duplicate refused, wrong type refused, empty bill fails with a reason, details, reprocess, delete, and one user cannot see or delete another user's document
+- S3 storage with a fake S3 service (moto), not real AWS yet
+
+**Moved to a later phase**
+
+- Cleaning formula tricks from bill cells moved to Phase 3, where the cells are first read. File names are cleaned now.
+
+**Known limits**
+
+- If deleting a stored file fails after its record is deleted, the file stays and only a log line records it.
+- The local disk and Docker network were both tight during this work. See the Roadmap.
+
+## 2 Nov 2026: First GitHub Actions results
+
+- `phase-1-login`: all 4 jobs passed (project rules, backend, frontend, Docker images). This branch holds all of Phase 0 as well, so Phase 0 is now closed.
+- `phase-0-baseline`: the image scan failed, because the `npm` security fix is only on `phase-1-login`. No fix is needed on that branch.
+- `main` was pushed earlier at an older commit. Its run failed at the Docker images step, and it has not been updated.
+
 ## 2 Nov 2026: Phase 1, login and app shell
 
 **Built**

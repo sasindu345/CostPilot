@@ -1,0 +1,33 @@
+# Search test: each question should find one of its expected sources.
+# Run with `make eval-search`.
+questions:
+  - question: "How can I reduce the cost of objects I rarely read in S3?"
+    provider: aws
+    expected: [aws-s3-lifecycle, aws-s3-storage-classes, aws-s3-intelligent-tiering]
+  - question: "Should I move my EBS volumes from gp2 to gp3?"
+    provider: aws
+    expected: [aws-ebs-general-purpose, aws-ebs-volume-types]
+  - question: "How do Savings Plans work?"
+    provider: aws
+    expected: [aws-savings-plans]
+  - question: "Can I save money on steady RDS databases?"
+    provider: aws
+    expected: [aws-rds-reserved]
+  - question: "Can I run interruptible workloads for less on EC2?"
+    provider: aws
+    expected: [aws-ec2-spot]
+  - question: "How do I find oversized EC2 instances?"
+    provider: aws
+    expected: [aws-compute-optimizer]
+  - question: "Why is my NAT gateway bill so high?"
+    provider: aws
+    expected: [aws-nat-gateway-pricing]
+  - question: "How do I commit to EC2 usage for a discount?"
+    provider: aws
+    expected: [aws-ec2-reserved, aws-savings-plans]
+  - question: "How does Lambda memory affect cost?"
+    provider: aws
+    expected: [aws-lambda-memory]
+  - question: "How do I reduce CloudTrail costs?"
+    provider: aws
+    expected: [aws-cloudtrail-costs]

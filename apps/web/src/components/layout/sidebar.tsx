@@ -27,7 +27,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-sidebar shrink-0 flex-col bg-sidebar p-5">
+    <aside className="hidden w-sidebar shrink-0 flex-col bg-sidebar p-5 md:flex">
       <div className="mb-8 flex items-center gap-3 px-2 text-sidebar-foreground">
         <Cloud aria-hidden className="size-9" />
         <div>
@@ -47,5 +47,33 @@ export function Sidebar() {
         </div>
       </nav>
     </aside>
+  );
+}
+
+export function MobileNavigation() {
+  const pathname = usePathname();
+  const items = [...mainNavigation, settingsNavigation];
+
+  return (
+    <nav
+      aria-label="Main on small screens"
+      className="fixed inset-x-0 bottom-0 z-10 flex justify-around bg-sidebar p-2 md:hidden"
+    >
+      {items.map((item) => (
+        <Link
+          key={item.href}
+          href={item.href}
+          aria-label={item.label}
+          aria-current={pathname === item.href ? "page" : undefined}
+          className={`rounded-control p-2 ${
+            pathname === item.href
+              ? "bg-sidebar-active-from text-sidebar-active-foreground"
+              : "text-sidebar-foreground"
+          }`}
+        >
+          <item.icon aria-hidden className="size-6" />
+        </Link>
+      ))}
+    </nav>
   );
 }

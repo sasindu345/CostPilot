@@ -247,7 +247,7 @@ Every phase ends with the same steps:
 - [x] `samples/`: a generator for made-up bills (real bills are never committed)
 
 **Automatic checks**
-- [ ] GitHub Actions: Ruff, Bandit, Pytest, ESLint, Vitest, Gitleaks, Trivy, Docker builds
+- [x] GitHub Actions: Ruff, Bandit, Pytest, ESLint, Vitest, Gitleaks, Trivy, Docker builds
 - [x] `import-linter` for clean architecture
 - [x] `scripts/check_no_hardcoded.py`, which fails on raw colours and URLs outside allowed files
 
@@ -275,26 +275,26 @@ Every phase ends with the same steps:
 
 ### Phase 2 – Document upload
 **You will see:** upload a file and watch its status change.
-- [ ] Storage interface, with a local folder and S3 versions
-- [ ] Background job table in PostgreSQL (no Redis needed) and a small worker
-- [ ] File checks: type, size, fingerprint, safe names
-- [ ] Documents page: upload, list, status, details, delete, reprocess
-- [ ] Sample bill generator working for AWS
+- [x] Storage interface, with a local folder and S3 versions
+- [x] Background job table in PostgreSQL (no Redis needed) and a small worker
+- [x] File checks: type, size, fingerprint, safe names
+- [x] Documents page: upload, list, status, details, delete, reprocess
+- [x] Sample bill generator working for AWS
 
 ### Phase 3 – Reading bills (AWS first)
 **You will see:** an uploaded bill turned into clean records.
-- [ ] FOCUS-based tables, including provider and data detail level
-- [ ] Reader interface and file type detection
-- [ ] AWS readers: Cost Explorer, CUR old and new columns, FOCUS
-- [ ] `.csv` and `.csv.gz` support
-- [ ] Overlap rules for files covering the same period
-- [ ] Hand-checked "golden" test bills, so the totals are proven correct
-- [ ] Monthly and service summary tables
+- [x] FOCUS-based tables, including provider and data detail level
+- [x] Reader interface and file type detection
+- [x] AWS readers: Cost Explorer, CUR old and new columns, FOCUS
+- [x] `.csv` and `.csv.gz` support
+- [x] Overlap rules for files covering the same period
+- [x] Hand-checked "golden" test bills, so the totals are proven correct
+- [x] Monthly and service summary tables
 
 ### Phase 4 – Dashboard and analytics
 **You will see:** your design working with real calculated data.
-- [ ] Analytics calculations: totals, changes, top services, trends, period comparison
-- [ ] Unusual spending detection
+- [x] Analytics calculations: totals, changes, top services, trends, period comparison
+- [x] Unusual spending detection
 - [ ] Overview page, matching your design with the fixes in section 6
 - [ ] Analytics page with filters
 - [ ] Empty, loading and error states
@@ -302,12 +302,12 @@ Every phase ends with the same steps:
 
 ### Phase 5 – Documentation search (RAG)
 **You will see:** a test search returns the right AWS advice.
-- [ ] `knowledge/sources.yaml`: the list of trusted documents
-- [ ] Load, split, create embeddings, save to Qdrant, tagged by provider
-- [ ] `make reindex`, safe to run repeatedly
-- [ ] Search with a relevance check
-- [ ] Starter set of test questions, to measure search quality
-- [ ] Weekly job to keep the free Qdrant cluster awake
+- [x] `knowledge/sources.yaml`: the list of trusted documents
+- [x] Load, split, create embeddings, save to Qdrant, tagged by provider
+- [x] `make reindex`, safe to run repeatedly
+- [x] Search with a relevance check
+- [x] Starter set of test questions, to measure search quality
+- [x] Weekly job to keep the free Qdrant cluster awake
 
 ### Phase 6 – AI assistant
 **You will see:** ask a question and get a live, streaming answer about your bill.
@@ -328,6 +328,7 @@ Every phase ends with the same steps:
 - [ ] Recommendation rules, with provable savings or "Needs usage data"
 - [ ] Recommendations on the Overview page
 - [ ] "How was this answer made?" view from the audit records
+- [ ] Review the Lambda options in decision 0007, using real memory and speed numbers
 
 ### Phase 8 – Other clouds
 **You will see:** a bill from each cloud shows up in the same dashboard.

@@ -66,6 +66,20 @@ Google's terms say not to send sensitive or confidential information to the free
 - The app shows a notice when `GEMINI_TIER=free`.
 - Use a paid key before uploading real bills. No code changes are needed.
 
+## How documentation search works
+
+| Step | File |
+|---|---|
+| List of trusted pages | `knowledge/sources.yaml` |
+| Load and clean each page | `modules/knowledge/infrastructure/html_page_loader.py` |
+| Split, embed and save | `modules/knowledge/application/indexer.py` |
+| Search, filtered by cloud | `modules/knowledge/application/search_service.py` |
+
+- Only sites in `KNOWLEDGE_ALLOWED_HOSTS` can be loaded, and redirects are checked too.
+- `make reindex` skips pages that have not changed, so running it again uses no Gemini quota.
+- Matches below `search_min_score` are dropped, so a weak match is never used as evidence.
+- If search is down, the result says so, and the AI can still answer bill questions.
+
 ## Measuring quality
 
 From Phase 5, a set of test questions measures search quality. In Phase 10, DeepEval or Ragas adds automatic scoring, backed by human-checked test cases.

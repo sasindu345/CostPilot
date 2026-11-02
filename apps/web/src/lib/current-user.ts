@@ -3,18 +3,11 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { apiRequest } from "@/lib/api";
+import type { components } from "@/lib/api-types";
 
 export const LOGIN_PATH = "/api/auth/login";
 
-export type CurrentUser = {
-  user_id: string;
-  email: string;
-  display_name: string;
-  workspace_id: string;
-  workspace_name: string;
-  role: string;
-  account_url: string;
-};
+export type CurrentUser = components["schemas"]["MeResponse"];
 
 export function useCurrentUser() {
   return useQuery({

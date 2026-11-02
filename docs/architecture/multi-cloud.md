@@ -19,10 +19,9 @@ Everything after the reader never knows which cloud a bill came from. That cover
 
 ## Adding a new format
 
-1. Add a reader in `modules/billing/infrastructure/readers/`.
+1. Add a reader in `modules/billing/domain/readers/` and list it in `READERS`.
 2. It must answer two questions: "Is this file mine?" and "What are its FOCUS records?"
 3. Add a made-up sample file to `tests/fixtures/`, with hand-checked totals.
-4. Register the reader.
 
 Nothing else should need to change. If it does, the design has a leak.
 

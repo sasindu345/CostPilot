@@ -15,7 +15,7 @@ apps/web/src/
 
 ## Rules
 
-- **Features do not import each other.** Shared code moves to `components/` or `lib/`. ESLint enforces this.
+- **Features do not import each other.** Inside a feature, use `./` imports. Shared code moves to `components/` or `lib/`. ESLint enforces this.
 - **No raw colours.** Use Tailwind names from the tokens, such as `bg-surface` or `text-muted`. Built-in colours like `bg-green-500` are blocked too.
 - **No hardcoded URLs.** The browser calls `/api/...` on its own web address.
 - **Every screen has empty, loading and error states.**
@@ -31,6 +31,6 @@ apps/web/src/
 ## Talking to the backend
 
 - The browser calls `/api/...`. Next.js forwards it during development, and Caddy in production.
-- From Phase 2, TypeScript types are generated from the API, so frontend and backend cannot drift apart.
+- TypeScript types in `src/lib/api-types.ts` are generated from the API by `make types`. The pipeline fails if they are out of date.
 - TanStack Query will handle data loading and caching.
 - `next.config.ts` reads `API_INTERNAL_URL` when the app is built.

@@ -8,6 +8,7 @@ RUN uv sync --frozen --no-dev --no-editable
 FROM python:3.13-slim
 # The running app has no use for pip or Python's test files, and they carry known security problems.
 RUN useradd --create-home --uid 1000 costpilot \
+  && install -d -o costpilot /app/uploads \
   && rm -rf /usr/local/bin/pip* \
     /usr/local/lib/python3.13/site-packages/pip* \
     /usr/local/lib/python3.13/ensurepip \

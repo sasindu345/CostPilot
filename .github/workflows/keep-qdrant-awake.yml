@@ -1,0 +1,25 @@
+name: Keep Qdrant awake
+
+# Free Qdrant Cloud clusters are paused after a week without use. See decision 0002.
+on:
+  schedule:
+    - cron: "0 6 * * 1,4"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    env:
+      QDRANT_URL: ${{ secrets.QDRANT_URL }}
+      QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+    steps:
+      - name: Run one small query
+        if: env.QDRANT_URL != ''
+        run: >
+          curl --fail --silent --show-error --max-time 30
+          --header "api-key: $QDRANT_API_KEY"
+          --header "content-type: application/json"
+          --data '{"limit": 1}'
+          "$QDRANT_URL/collections/cloud_docs/points/scroll"

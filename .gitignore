@@ -21,6 +21,7 @@ samples/output/
 *.parquet
 !apps/api/tests/fixtures/**/*.csv
 !apps/api/tests/fixtures/**/*.csv.gz
+!apps/api/src/costpilot/modules/documents/infrastructure/sample-aws-bill.csv
 
 # ---- Python ----
 __pycache__/

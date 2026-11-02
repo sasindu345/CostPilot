@@ -1,0 +1,93 @@
+# Trusted documents for the AI's search. Run `make reindex` after changing this list.
+# Only sites listed in KNOWLEDGE_ALLOWED_HOSTS can be loaded.
+sources:
+  - id: aws-cost-pillar
+    provider: aws
+    topic: cost
+    title: "AWS Well-Architected Cost Optimization Pillar"
+    url: https://docs.aws.amazon.com/wellarchitected/latest/cost-optimization-pillar/welcome.html
+  - id: aws-cost-effective-resources
+    provider: aws
+    topic: cost
+    title: "Cost-effective resources"
+    url: https://docs.aws.amazon.com/wellarchitected/latest/cost-optimization-pillar/cost-effective-resources.html
+  - id: aws-demand-and-supply
+    provider: aws
+    topic: cost
+    title: "Manage demand and supply resources"
+    url: https://docs.aws.amazon.com/wellarchitected/latest/cost-optimization-pillar/manage-demand-and-supply-resources.html
+  - id: aws-cost-explorer
+    provider: aws
+    topic: cost
+    title: "What is AWS Cost Explorer"
+    url: https://docs.aws.amazon.com/cost-management/latest/userguide/ce-what-is.html
+  - id: aws-savings-plans
+    provider: aws
+    topic: compute
+    title: "What are Savings Plans"
+    url: https://docs.aws.amazon.com/savingsplans/latest/userguide/what-is-savings-plans.html
+  - id: aws-ec2-reserved
+    provider: aws
+    topic: compute
+    title: "EC2 Reserved Instances"
+    url: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-reserved-instances.html
+  - id: aws-ec2-spot
+    provider: aws
+    topic: compute
+    title: "EC2 Spot Instances"
+    url: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-spot-instances.html
+  - id: aws-compute-optimizer
+    provider: aws
+    topic: compute
+    title: "What is AWS Compute Optimizer"
+    url: https://docs.aws.amazon.com/compute-optimizer/latest/ug/what-is-compute-optimizer.html
+  - id: aws-lambda-memory
+    provider: aws
+    topic: compute
+    title: "Lambda memory and computing power"
+    url: https://docs.aws.amazon.com/lambda/latest/operatorguide/computing-power.html
+  - id: aws-s3-storage-classes
+    provider: aws
+    topic: storage
+    title: "S3 storage classes"
+    url: https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html
+  - id: aws-s3-lifecycle
+    provider: aws
+    topic: storage
+    title: "S3 object lifecycle management"
+    url: https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html
+  - id: aws-s3-intelligent-tiering
+    provider: aws
+    topic: storage
+    title: "S3 Intelligent-Tiering"
+    url: https://docs.aws.amazon.com/AmazonS3/latest/userguide/intelligent-tiering.html
+  - id: aws-ebs-volume-types
+    provider: aws
+    topic: storage
+    title: "EBS volume types"
+    url: https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html
+  - id: aws-ebs-general-purpose
+    provider: aws
+    topic: storage
+    title: "EBS General Purpose SSD volumes"
+    url: https://docs.aws.amazon.com/ebs/latest/userguide/general-purpose.html
+  - id: aws-rds-reserved
+    provider: aws
+    topic: database
+    title: "RDS Reserved DB instances"
+    url: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithReservedDBInstances.html
+  - id: aws-rds-storage
+    provider: aws
+    topic: database
+    title: "RDS DB instance storage"
+    url: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Storage.html
+  - id: aws-nat-gateway-pricing
+    provider: aws
+    topic: networking
+    title: "NAT gateway pricing"
+    url: https://docs.aws.amazon.com/vpc/latest/userguide/nat-gateway-pricing.html
+  - id: aws-cloudtrail-costs
+    provider: aws
+    topic: management
+    title: "Managing CloudTrail costs"
+    url: https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-trail-manage-costs.html

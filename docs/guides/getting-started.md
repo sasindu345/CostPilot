@@ -38,7 +38,7 @@ make up
 
 Your Keycloak admin password is `KEYCLOAK_ADMIN_PASSWORD` in `.env`.
 
-Open http://localhost:3010 and click **Register**. The verification email appears in the test inbox at http://localhost:8025.
+Open http://localhost:3010 and click **Register**. After signing in, click **Try sample data** to fill the dashboard with made-up bills. The verification email appears in the test inbox at http://localhost:8025.
 
 `make check` needs the database, so run `make up` first.
 
@@ -51,6 +51,8 @@ Open http://localhost:3010 and click **Register**. The verification email appear
 | `make check` | Runs all tests and checks. Do this before committing |
 | `make migrate` | Updates your database to the latest version |
 | `make e2e` | Tests the full user journey in Chrome |
+| `make reindex` | Rebuilds documentation search. Needs a Gemini key |
+| `make eval-search` | Measures search quality. Needs a Gemini key |
 | `make sample` | Creates a made-up bill |
 | `make down` | Stops everything |
 
