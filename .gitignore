@@ -1,0 +1,67 @@
+# ---- Secrets: never commit these ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+secrets/
+credentials*
+!**/credentials.py
+
+# ---- Billing data: real bills never go in Git ----
+# Only the generator script in samples/ is tracked.
+uploads/
+samples/output/
+/data/
+*.csv
+*.csv.gz
+*.parquet
+!apps/api/tests/fixtures/**/*.csv
+!apps/api/tests/fixtures/**/*.csv.gz
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.import_linter_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+
+# ---- Node and Next.js ----
+node_modules/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+.pnpm-store/
+playwright-report/
+test-results/
+
+# ---- Terraform ----
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
+
+# ---- Runtime logs (docs/logs is tracked on purpose) ----
+/logs/
+*.log
+
+# ---- Local AI tool settings ----
+.claude/settings.local.json
+
+# ---- Editor and system files ----
+.DS_Store
+.idea/
+.vscode/

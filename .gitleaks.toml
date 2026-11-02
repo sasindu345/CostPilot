@@ -1,0 +1,8 @@
+title = "CostPilot secret scan"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "The example file only holds empty settings"
+paths = ['''\.env\.example$''']

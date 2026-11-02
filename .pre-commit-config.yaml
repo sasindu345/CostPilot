@@ -1,0 +1,22 @@
+# Checks that run on your computer before each commit.
+# `make setup` installs them. They use tools already on your machine.
+default_install_hook_types: [pre-commit, commit-msg]
+
+repos:
+  - repo: local
+    hooks:
+      - id: gitleaks
+        name: Block secrets (Gitleaks)
+        entry: gitleaks protect --staged --redact --config .gitleaks.toml
+        language: system
+        pass_filenames: false
+      - id: no-hardcoded-values
+        name: Block hardcoded values
+        entry: python3 scripts/check_no_hardcoded.py
+        language: system
+        pass_filenames: false
+      - id: no-ai-attribution
+        name: Block AI co-author lines
+        entry: python3 scripts/check_commit_msg.py
+        language: system
+        stages: [commit-msg]
