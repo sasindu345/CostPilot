@@ -9,6 +9,7 @@ from langchain_google_genai.chat_models import GoogleAPIError
 from pydantic import BaseModel, SecretStr
 
 from costpilot.modules.assistant.domain.errors import ModelUnavailableError
+from costpilot.modules.assistant.domain.metrics import AnswerMeter
 from costpilot.modules.assistant.domain.models import Role, Route
 from costpilot.modules.assistant.domain.prompts import ROUTER_INSTRUCTIONS
 
@@ -60,23 +61,29 @@ class GeminiChatModel:
             retries=self._retries,
         )
 
-    async def choose_routes(self, question: str) -> list[Route]:
+    async def choose_routes(self, question: str, meter: AnswerMeter) -> list[Route]:
         self._router = self._router or self._client(self._router_model)
-        structured = self._router.with_structured_output(RouteChoice)
+        structured = self._router.with_structured_output(RouteChoice, include_raw=True)
         messages = [SystemMessage(ROUTER_INSTRUCTIONS), HumanMessage(question)]
         for attempt in range(1, ATTEMPTS + 1):
             try:
-                choice = await structured.ainvoke(messages)
+                result = await structured.ainvoke(messages)
                 break
             except MODEL_FAILURES as error:
                 self._log_failure("route", attempt, error)
                 if attempt == ATTEMPTS:
                     raise ModelUnavailableError from error
+        self._record_usage(meter, result["raw"])
+        choice = result["parsed"]
         routes = list(dict.fromkeys(choice.routes)) if choice else []
         return clean_routes(routes)
 
     async def stream_answer(
-        self, system: str, history: Sequence[tuple[str, str]], prompt: str
+        self,
+        system: str,
+        history: Sequence[tuple[str, str]],
+        prompt: str,
+        meter: AnswerMeter,
     ) -> AsyncIterator[str]:
         self._answers = self._answers or self._client(self._answer_model)
         messages: list[BaseMessage] = [SystemMessage(system)]
@@ -87,17 +94,26 @@ class GeminiChatModel:
 
         for attempt in range(1, ATTEMPTS + 1):
             has_started = False
+            input_tokens = output_tokens = 0
             try:
                 async for chunk in self._answers.astream(messages):
+                    usage = chunk.usage_metadata or {}
+                    input_tokens += usage.get("input_tokens", 0)
+                    output_tokens += usage.get("output_tokens", 0)
                     if text := chunk.text:
                         has_started = True
                         yield text
+                meter.add_ai_call(input_tokens, output_tokens)
                 return
             except MODEL_FAILURES as error:
                 self._log_failure("answer", attempt, error)
                 # Once words have reached the user, starting again would repeat them.
                 if has_started or attempt == ATTEMPTS:
                     raise ModelUnavailableError from error
+
+    def _record_usage(self, meter: AnswerMeter, message: object) -> None:
+        usage = getattr(message, "usage_metadata", None) or {}
+        meter.add_ai_call(usage.get("input_tokens", 0), usage.get("output_tokens", 0))
 
     def _log_failure(self, step: str, attempt: int, error: Exception) -> None:
         logger.warning(

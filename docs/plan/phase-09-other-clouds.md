@@ -1,4 +1,4 @@
-# Phase 8: Other clouds
+# Phase 9: Other clouds
 
 **You will see:** a bill from each cloud shows up in the same dashboard.
 - [ ] FOCUS reader tested with Azure, Google Cloud and Oracle samples
@@ -6,7 +6,7 @@
 - [ ] DigitalOcean invoice reader
 - [ ] Provider filter in the dashboard
 - [ ] Documentation for each cloud added to Qdrant
-- [ ] Provider-specific recommendation rules
+- [ ] Provider profiles and recommendation rules for each cloud
 
 ## Finish this phase
 

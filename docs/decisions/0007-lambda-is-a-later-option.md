@@ -1,10 +1,10 @@
 # 0007: Keep everything on EC2 for now, and review Lambda later
 
-**Status:** Deferred, 2 Nov 2026. Review after Phase 7.
+**Status:** Deferred, 2 Nov 2026. Review after Phase 8.
 
 **Situation.** We asked if the AI assistant should run on AWS Lambda or Fargate instead of EC2.
 
-**Decision.** Stay on EC2 for now. After Phase 7, measure real memory use and answer speed, then decide.
+**Decision.** Stay on EC2 for now. After Phase 8, measure real memory use and answer speed, then decide.
 
 **Why not now.**
 - The assistant mostly waits for Gemini, so it gains little from more server power.

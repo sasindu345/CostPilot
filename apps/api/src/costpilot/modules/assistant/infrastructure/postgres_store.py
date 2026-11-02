@@ -1,5 +1,6 @@
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from datetime import date
+from typing import Any
 from uuid import UUID, uuid4
 
 from sqlalchemy import Row as SqlRow
@@ -25,15 +26,16 @@ SET_TITLE = text(
     "(SELECT 1 FROM messages WHERE conversation_id = :id AND role = 'assistant')"
 )
 LAST_MESSAGES = text(
-    "SELECT * FROM (SELECT id, role, content, sources, created_at FROM messages "
+    "SELECT * FROM (SELECT id, role, content, sources, grade, trace, created_at FROM messages "
     "WHERE conversation_id = :id ORDER BY created_at DESC, id LIMIT :limit) recent "
     "ORDER BY created_at, id"
 )
 INSERT_MESSAGE = text(
-    "INSERT INTO messages (id, conversation_id, workspace_id, role, content, sources) "
-    "VALUES (:id, :conversation_id, :workspace_id, :role, :content, :sources) "
-    "RETURNING id, role, content, sources, created_at"
-).bindparams(bindparam("sources", type_=JSONB))
+    "INSERT INTO messages "
+    "(id, conversation_id, workspace_id, role, content, sources, grade, trace) "
+    "VALUES (:id, :conversation_id, :workspace_id, :role, :content, :sources, :grade, :trace) "
+    "RETURNING id, role, content, sources, grade, trace, created_at"
+).bindparams(bindparam("sources", type_=JSONB), bindparam("trace", type_=JSONB))
 CONSUME_QUESTION = text(
     "INSERT INTO assistant_usage (workspace_id, day, questions) VALUES (:workspace_id, :day, 1) "
     "ON CONFLICT (workspace_id, day) DO UPDATE SET questions = assistant_usage.questions + 1 "
@@ -49,6 +51,8 @@ def _to_message(row: SqlRow) -> Message:
         content=row.content,
         created_at=row.created_at,
         sources=[SourceLink(item["title"], item["url"]) for item in row.sources],
+        grade=row.grade,
+        trace=row.trace,
     )
 
 
@@ -101,6 +105,8 @@ class PostgresConversationStore:
         role: Role,
         content: str,
         sources: Sequence[SourceLink] = (),
+        grade: str | None = None,
+        trace: Mapping[str, Any] | None = None,
     ) -> Message:
         async with self._database.transaction(workspace_id=workspace_id) as db:
             row = (
@@ -113,6 +119,8 @@ class PostgresConversationStore:
                         "role": role.value,
                         "content": content,
                         "sources": [{"title": s.title, "url": s.url} for s in sources],
+                        "grade": grade,
+                        "trace": dict(trace or {}),
                     },
                 )
             ).one()

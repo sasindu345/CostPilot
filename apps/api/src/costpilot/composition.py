@@ -187,5 +187,6 @@ def build_assistant_service(settings: Settings, database: Database) -> Assistant
         max_question_length=settings.assistant_max_question_length,
         history_messages=settings.assistant_history_messages,
         conversation_limit=settings.assistant_conversation_limit,
+        answer_attempts=settings.assistant_answer_attempts,
         today=today_utc,
     )

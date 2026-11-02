@@ -10,6 +10,19 @@ export type ChatMessage = components["schemas"]["MessageResponse"];
 export type Source = components["schemas"]["SourceResponse"];
 export type AssistantInfo = components["schemas"]["AssistantInfoResponse"];
 
+export type AnswerTrace = {
+  routes?: string[];
+  facts?: { label: string; value: string }[];
+  limitations?: string[];
+  checks?: {
+    answer_attempts?: number;
+    used_template?: boolean;
+    blocked_by_guardrail?: boolean;
+    evidence_dropped?: number;
+  };
+  metrics?: { ai_calls?: number; input_tokens?: number; output_tokens?: number; total_ms?: number };
+};
+
 export type ChatEvent = {
   type: "status" | "text" | "replace" | "done";
   text: string;

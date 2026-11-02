@@ -34,6 +34,7 @@ from costpilot.modules.assistant.domain.errors import (
 )
 from costpilot.modules.assistant.domain.facts import FactList, safe_label
 from costpilot.modules.assistant.domain.merge import merge_evidence
+from costpilot.modules.assistant.domain.metrics import AnswerMeter
 from costpilot.modules.assistant.domain.models import (
     Conversation,
     Evidence,
@@ -44,6 +45,7 @@ from costpilot.modules.assistant.domain.models import (
 )
 from costpilot.modules.assistant.domain.placeholders import UNKNOWN_FACT, PlaceholderFiller
 from costpilot.modules.assistant.domain.prompts import evidence_prompt
+from costpilot.modules.assistant.domain.templates import TEMPLATE_INTRO
 from costpilot.modules.assistant.infrastructure.gemini_chat_model import clean_routes
 from costpilot.modules.assistant.infrastructure.langgraph_workflow import (
     LangGraphEvidenceWorkflow,
@@ -114,22 +116,24 @@ class FakeKnowledge:
 
 
 class FakeModel:
-    def __init__(self, route=Route.COST, chunks=("Total: ", "{{F1}}."), error=None):
+    def __init__(self, route=Route.COST, chunks=("Total: ", "{{F1}}."), error=None, retry=None):
         self.route = route
         self.chunks = chunks
+        self.retry = retry
         self.error = error
         self.prompts = []
 
-    async def choose_routes(self, question):
+    async def choose_routes(self, question, meter):
         if self.error == "route":
             raise ModelUnavailableError
         return self.route if isinstance(self.route, list) else [self.route]
 
-    async def stream_answer(self, system, history, prompt):
+    async def stream_answer(self, system, history, prompt, meter):
         self.prompts.append(prompt)
         if self.error == "answer":
             raise ModelUnavailableError
-        for chunk in self.chunks:
+        use_retry = self.retry is not None and len(self.prompts) > 1
+        for chunk in self.retry if use_retry else self.chunks:
             yield chunk
 
 
@@ -151,8 +155,12 @@ class FakeStore:
     async def messages(self, workspace_id, conversation_id, limit=None):
         return []
 
-    async def add_message(self, workspace_id, conversation_id, role, content, sources=()):
+    async def add_message(
+        self, workspace_id, conversation_id, role, content, sources=(), grade=None, trace=None
+    ):
         self.saved.append((role, content, list(sources)))
+        self.last_grade = grade
+        self.last_trace = trace
         return Message(uuid4(), role, content, datetime.now(UTC))
 
     async def set_title_if_new(self, workspace_id, conversation_id, title):
@@ -189,6 +197,7 @@ def service(model=None, *, analytics=None, knowledge=None, store=None, limiter=N
         max_question_length=100,
         history_messages=6,
         conversation_limit=20,
+        answer_attempts=2,
         today=lambda: OCT,
     )
 
@@ -214,10 +223,19 @@ async def test_the_ai_writes_a_placeholder_and_code_fills_in_the_real_number():
     assert events[-1].type == "done"
 
 
-async def test_a_made_up_fact_id_never_becomes_a_number():
+async def test_a_made_up_fact_id_never_reaches_the_user():
     assistant = service(FakeModel(chunks=("Total: {{F999}}",)))
 
-    assert answer_text(await run(assistant)) == f"Total: {UNKNOWN_FACT}"
+    text = answer_text(await run(assistant))
+
+    assert "F999" not in text
+    assert text.startswith(TEMPLATE_INTRO)
+
+
+def test_the_filler_marks_an_unknown_id_as_a_last_safety_net():
+    filler = PlaceholderFiller([])
+
+    assert filler.feed("{{F9}}") + filler.finish() == UNKNOWN_FACT
 
 
 def test_a_placeholder_split_across_chunks_is_still_filled():
@@ -327,7 +345,9 @@ async def test_a_two_part_question_runs_both_specialists_at_the_same_time():
 
     workflow = LangGraphEvidenceWorkflow(FakeModel(route=[Route.ANOMALY, Route.OPTIMIZATION]))
 
-    evidence = await workflow.gather("Why up, and how to save?", TrackedTools(uuid4(), None, None))
+    evidence = await workflow.gather(
+        "Why up, and how to save?", TrackedTools(uuid4(), None, None), AnswerMeter()
+    )
 
     assert sorted(started) == ["anomaly", "optimization"]
     assert set(evidence.routes) == {Route.ANOMALY, Route.OPTIMIZATION}
@@ -404,15 +424,22 @@ async def test_answers_still_work_when_documentation_search_is_down():
     assert answer_text(events) == "Total: 1,245.60 USD."
 
 
-@pytest.mark.parametrize("failure", ["route", "answer"])
-async def test_gemini_being_down_gives_a_clear_message_that_is_saved(failure):
+async def test_gemini_being_down_gives_a_clear_message_that_is_saved():
     store = FakeStore()
 
-    events = await run(service(FakeModel(error=failure), store=store))
+    events = await run(service(FakeModel(error="route"), store=store))
 
     assert answer_text(events) == MODEL_DOWN_ANSWER
     assert store.saved[-1][1] == MODEL_DOWN_ANSWER
     assert events[-1].type == "done"
+
+
+async def test_if_only_the_writing_step_fails_the_user_still_gets_the_true_figures():
+    events = await run(service(FakeModel(error="answer")))
+
+    text = answer_text(events)
+    assert text.startswith(TEMPLATE_INTRO)
+    assert "1,245.60 USD" in text
 
 
 async def test_both_sides_of_the_chat_are_saved_and_audited():
@@ -425,6 +452,7 @@ async def test_both_sides_of_the_chat_are_saved_and_audited():
     assert store.titles == ["How much?"]
     assert audit.events[0][0] == "assistant.answered"
     assert audit.events[0][1]["routes"] == ["cost"]
+    assert audit.events[0][1]["metrics"]["total_ms"] >= 0
 
 
 async def test_an_empty_question_is_refused():

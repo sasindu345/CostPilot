@@ -27,7 +27,7 @@ erDiagram
 | `document_periods` | Which file counts for each account and month | 3 |
 | `monthly_summaries` | Fast totals for dashboards, built only from counted files | 3 |
 | `conversations`, `messages` | Chat history | 6 |
-| `recommendations` | Saved findings with evidence | 7 |
+| `recommendations` | Saved findings with evidence | 8 |
 
 ## `cost_records`: the most important table
 

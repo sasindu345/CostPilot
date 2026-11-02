@@ -14,7 +14,7 @@ The Phase column shows where each one was or will be built. Items for Phase 6 an
 | Upload fails halfway | The job can be retried safely, with no half-saved data | 2 |
 | Credits, refunds, tax, Savings Plans, reserved instances | Handled as separate charge types, using FOCUS rules | 3 |
 | Different currencies | Never added together; shown separately | 3, 4 |
-| Formula tricks in a CSV | File names are cleaned on upload, and bill text is cleaned when read. Exports arrive in Phase 10 | 2, 3 |
+| Formula tricks in a CSV | File names are cleaned on upload, and bill text is cleaned when read. Exports arrive in Phase 11 | 2, 3 |
 | Summary-only file (Cost Explorer) | Each record stores its detail level. The AI uses this from Phase 6 | 3, 6 |
 | Gemini rate limit or downtime | Embeddings already retry. Chat follows in Phase 6; dashboards do not use Gemini | 5, 6 |
 | Qdrant asleep | Search reports it is unavailable and never crashes. The AI uses this from Phase 6 | 5, 6 |
@@ -27,3 +27,5 @@ The Phase column shows where each one was or will be built. Items for Phase 6 an
 | Document deleted while processing | The job stops safely | 2 |
 | Worker crashes during a job | The job returns to the queue | 2 |
 | Source page redirects off a trusted site | Refused | 5 |
+| A specialist agent fails, or the AI call limit is reached | The answer still goes out using Python facts | 8 |
+| Summary-only file with a cost increase | The Anomaly Agent skips AI and says the cause cannot be traced | 8 |

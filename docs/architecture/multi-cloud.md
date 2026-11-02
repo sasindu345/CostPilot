@@ -13,9 +13,9 @@ Everything after the reader never knows which cloud a bill came from. That cover
 | Cloud | Files | Phase |
 |---|---|---|
 | AWS | Cost Explorer CSV, CUR old and new columns, FOCUS | 3 |
-| Azure, Google Cloud, Oracle | FOCUS export, using the shared reader | 8 |
-| Azure, Google Cloud, Oracle | Native report formats | 8 |
-| DigitalOcean | Invoice CSV. It has no FOCUS export, so it needs its own reader | 8 |
+| Azure, Google Cloud, Oracle | FOCUS export, using the shared reader | 9 |
+| Azure, Google Cloud, Oracle | Native report formats | 9 |
+| DigitalOcean | Invoice CSV. It has no FOCUS export, so it needs its own reader | 9 |
 
 ## Adding a new format
 
@@ -24,6 +24,10 @@ Everything after the reader never knows which cloud a bill came from. That cover
 3. Add a made-up sample file to `tests/fixtures/`, with hand-checked totals.
 
 Nothing else should need to change. If it does, the design has a leak.
+
+## Agents and clouds
+
+From Phase 8, tools take a provider setting, and each cloud has a small profile with its documents and rules. A new cloud adds a profile, not new agents.
 
 ## File types compared
 

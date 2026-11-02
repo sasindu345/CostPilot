@@ -11,6 +11,7 @@ from pydantic import SecretStr
 
 from costpilot.main import create_app
 from costpilot.modules.assistant.domain.errors import ModelUnavailableError
+from costpilot.modules.assistant.domain.metrics import AnswerMeter
 from costpilot.modules.assistant.infrastructure.gemini_chat_model import GeminiChatModel
 from costpilot.modules.knowledge.domain.errors import KnowledgeUnavailableError
 from costpilot.modules.knowledge.infrastructure.gemini_embedder import GeminiEmbedder
@@ -51,7 +52,7 @@ async def test_answer_failures_become_one_clear_error(failure):
     model._answers = BrokenAnswers(failure)
 
     with pytest.raises(ModelUnavailableError):
-        [chunk async for chunk in model.stream_answer("system", [], "prompt")]
+        [chunk async for chunk in model.stream_answer("system", [], "prompt", AnswerMeter())]
 
 
 @pytest.mark.parametrize("failure", FAILURES)
@@ -61,6 +62,17 @@ async def test_embedding_failures_become_one_clear_error(failure):
 
     with pytest.raises(KnowledgeUnavailableError):
         await embedder.embed_query("question")
+
+
+class AnswersWithUsage:
+    async def astream(self, messages):
+        yield SimpleNamespace(
+            text="Hello", usage_metadata={"input_tokens": 500, "output_tokens": 2}
+        )
+        yield SimpleNamespace(
+            text=" there", usage_metadata={"input_tokens": 0, "output_tokens": 18}
+        )
+        yield SimpleNamespace(text="", usage_metadata=None)
 
 
 class FlakyAnswers:
@@ -73,7 +85,7 @@ class FlakyAnswers:
         self.calls += 1
         if self.calls == 1:
             raise httpx.RemoteProtocolError("Server disconnected")
-        yield SimpleNamespace(text="Hello")
+        yield SimpleNamespace(text="Hello", usage_metadata=None)
 
 
 class FailsAfterFirstWord:
@@ -82,15 +94,25 @@ class FailsAfterFirstWord:
 
     async def astream(self, messages):
         self.calls += 1
-        yield SimpleNamespace(text="Hello")
+        yield SimpleNamespace(text="Hello", usage_metadata=None)
         raise httpx.ReadTimeout("slow")
+
+
+async def test_answer_tokens_are_added_up_across_chunks():
+    model = chat_model()
+    model._answers = AnswersWithUsage()
+    meter = AnswerMeter()
+
+    [chunk async for chunk in model.stream_answer("system", [], "prompt", meter)]
+
+    assert (meter.ai_calls, meter.input_tokens, meter.output_tokens) == (1, 500, 20)
 
 
 async def test_a_stale_connection_is_retried_once():
     model = chat_model()
     model._answers = FlakyAnswers()
 
-    chunks = [chunk async for chunk in model.stream_answer("system", [], "prompt")]
+    chunks = [chunk async for chunk in model.stream_answer("system", [], "prompt", AnswerMeter())]
 
     assert chunks == ["Hello"]
 
@@ -100,7 +122,7 @@ async def test_an_answer_is_never_restarted_after_words_were_sent():
     model._answers = answers = FailsAfterFirstWord()
 
     with pytest.raises(ModelUnavailableError):
-        [chunk async for chunk in model.stream_answer("system", [], "prompt")]
+        [chunk async for chunk in model.stream_answer("system", [], "prompt", AnswerMeter())]
 
     assert answers.calls == 1
 
@@ -109,9 +131,9 @@ async def test_without_a_key_the_assistant_reports_it_is_unavailable():
     model = chat_model(key="")
 
     with pytest.raises(ModelUnavailableError):
-        await model.choose_routes("question")
+        await model.choose_routes("question", AnswerMeter())
     with pytest.raises(ModelUnavailableError):
-        [chunk async for chunk in model.stream_answer("system", [], "prompt")]
+        [chunk async for chunk in model.stream_answer("system", [], "prompt", AnswerMeter())]
 
 
 async def test_without_a_key_search_reports_it_is_unavailable():

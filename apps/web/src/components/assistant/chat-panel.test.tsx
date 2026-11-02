@@ -73,6 +73,13 @@ describe("ChatPanel", () => {
           content: "Use lifecycle rules.",
           created_at: "",
           sources: [{ title: "S3 lifecycle", url: "https://docs.test/s3" }],
+          grade: "A",
+          trace: {
+            routes: ["optimization"],
+            facts: [{ label: "Total", value: "10.00 USD" }],
+            checks: { answer_attempts: 1, used_template: false },
+            metrics: { ai_calls: 2, total_ms: 1500 },
+          },
         },
       ],
     );
@@ -82,6 +89,9 @@ describe("ChatPanel", () => {
       "href",
       "https://docs.test/s3",
     );
+    expect(screen.getByText("Evidence grade A: Full evidence")).toBeInTheDocument();
+    expect(screen.getByText("Total: 10.00 USD")).toBeInTheDocument();
+    expect(screen.getByText("2 AI calls in 1.5 seconds")).toBeInTheDocument();
   });
 
   it("keeps the question and explains when the daily limit is reached", async () => {

@@ -13,6 +13,7 @@ from langgraph.graph import END, START, StateGraph
 from costpilot.modules.assistant.application.ports import ChatModel
 from costpilot.modules.assistant.application.workspace_tools import WorkspaceTools
 from costpilot.modules.assistant.domain.merge import merge_evidence
+from costpilot.modules.assistant.domain.metrics import AnswerMeter
 from costpilot.modules.assistant.domain.models import Evidence, Route
 
 SUPERVISOR = "supervisor"
@@ -28,6 +29,7 @@ SPECIALISTS = {
 class State(TypedDict, total=False):
     question: str
     tools: WorkspaceTools
+    meter: AnswerMeter
     routes: list[Route]
     # `add` keeps every specialist's result when parallel steps finish together.
     found: Annotated[list[Evidence], add]
@@ -39,8 +41,10 @@ class LangGraphEvidenceWorkflow:
         self._model = model
         self._graph = self._build()
 
-    async def gather(self, question: str, tools: WorkspaceTools) -> Evidence:
-        state = await self._graph.ainvoke({"question": question, "tools": tools, "found": []})
+    async def gather(self, question: str, tools: WorkspaceTools, meter: AnswerMeter) -> Evidence:
+        state = await self._graph.ainvoke(
+            {"question": question, "tools": tools, "meter": meter, "found": []}
+        )
         return state["evidence"]
 
     def _build(self):
@@ -61,20 +65,25 @@ class LangGraphEvidenceWorkflow:
         return graph.compile()
 
     async def _supervise(self, state: State) -> State:
-        return {"routes": await self._model.choose_routes(state["question"])}
+        with state["meter"].step(SUPERVISOR):
+            return {"routes": await self._model.choose_routes(state["question"], state["meter"])}
 
     def _choose_specialists(self, state: State) -> list[str]:
         """Returning several names is what makes LangGraph run them at the same time."""
         return [SPECIALISTS[route] for route in state["routes"]]
 
     async def _cost(self, state: State) -> State:
-        return {"found": [await state["tools"].cost_evidence()]}
+        with state["meter"].step(SPECIALISTS[Route.COST]):
+            return {"found": [await state["tools"].cost_evidence()]}
 
     async def _anomaly(self, state: State) -> State:
-        return {"found": [await state["tools"].anomaly_evidence()]}
+        with state["meter"].step(SPECIALISTS[Route.ANOMALY]):
+            return {"found": [await state["tools"].anomaly_evidence()]}
 
     async def _optimize(self, state: State) -> State:
-        return {"found": [await state["tools"].optimization_evidence(state["question"])]}
+        with state["meter"].step(SPECIALISTS[Route.OPTIMIZATION]):
+            evidence = await state["tools"].optimization_evidence(state["question"])
+            return {"found": [evidence]}
 
     async def _decline(self, _: State) -> State:
         return {"found": [Evidence((Route.OUT_OF_SCOPE,))]}

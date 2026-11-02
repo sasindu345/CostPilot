@@ -1,4 +1,4 @@
-# Phase 10: Monitoring, quality and finish
+# Phase 11: Monitoring, quality and finish
 
 **You will see:** live dashboards, measured AI quality and portfolio-ready docs.
 - [ ] OpenTelemetry tracing through the web app, API and agents

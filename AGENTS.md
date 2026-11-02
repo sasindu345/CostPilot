@@ -124,4 +124,5 @@ Do all of these before saying a phase is done:
 | `make types` | Updates the frontend's API types. Run it after changing an API |
 | `make reindex` | Rebuilds documentation search |
 | `make eval-search` | Measures search quality |
+| `make eval-assistant` | Scores the assistant with real Gemini |
 | `make sample` | Creates made-up bills in `samples/output/` |

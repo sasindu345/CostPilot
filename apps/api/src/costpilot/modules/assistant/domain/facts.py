@@ -9,7 +9,7 @@ from datetime import date
 from decimal import Decimal
 
 from costpilot.modules.analytics.contracts import Overview, ServiceComparison, UnusualCost
-from costpilot.modules.assistant.domain.models import Fact
+from costpilot.modules.assistant.domain.models import Fact, Finding
 
 MAX_LABEL_LENGTH = 60
 UNSAFE_CHARACTERS = re.compile(r"[^\w .,()/&+:-]")
@@ -37,9 +37,12 @@ class FactList:
 
     def __init__(self) -> None:
         self.facts: list[Fact] = []
+        self.findings: list[Finding] = []
 
-    def add(self, label: str, value: str) -> None:
-        self.facts.append(Fact(f"F{len(self.facts) + 1}", label, value))
+    def add(self, label: str, value: str) -> str:
+        fact_id = f"F{len(self.facts) + 1}"
+        self.facts.append(Fact(fact_id, label, value))
+        return fact_id
 
     def add_overview(self, overview: Overview, months: int) -> None:
         currency = overview.currency
@@ -63,9 +66,12 @@ class FactList:
         for item in items:
             name = safe_label(item.service)
             month = month_name(item.month)
-            self.add(f"{name} cost in {month}, flagged as unusual", money(item.cost, currency))
-            self.add(f"{name} usual monthly cost", money(item.usual_cost, currency))
-            self.add(f"{name} increase over usual", money(item.increase, currency))
+            ids = (
+                self.add(f"{name} cost in {month}, flagged as unusual", money(item.cost, currency)),
+                self.add(f"{name} usual monthly cost", money(item.usual_cost, currency)),
+                self.add(f"{name} increase over usual", money(item.increase, currency)),
+            )
+            self.findings.append(Finding(f"{name} is above its usual level in {month}", ids))
 
     def add_comparison(
         self, rows: Iterable[ServiceComparison], first: date, second: date, currency: str

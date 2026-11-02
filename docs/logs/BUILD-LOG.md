@@ -2,6 +2,57 @@
 
 A dated record of what was built. Newest entries go at the top.
 
+## 2 Nov 2026: Phase 7, trust and measurement
+
+**Built**
+
+- AI calls, tokens and time per step, saved with each answer
+- `make eval-assistant` with 15 scored questions, and a saved baseline
+- Findings format, Evidence Validator and Answer Checker, with a retry and a template answer
+- Evidence grades, coded injection checks, and "How was this answer made?"
+
+**Decided during the work**
+
+- **Answers are checked before they are shown,** so they appear all at once, not word by word.
+- **If only the writing step fails,** the user gets true figures from a template, not an error.
+
+**Found by measuring**
+
+- Answers were too cautious. "What is my most expensive service?" got "I do not have that information". The instructions now tell the AI to compare and rank facts
+- Slow answers are Gemini's response time on the free key, from 1 to 16 seconds per call. Our own steps take under 0.1 seconds. Earlier notes blamed a rate limit and then a stale connection, and neither fully explained it
+- Gemini returned one `429 RESOURCE_EXHAUSTED`, and the retry handled it
+
+**Bugs found by testing and fixed**
+
+- Answer tokens were not counted, as Gemini reports them piece by piece
+- Answers with no evidence still got grade A. The first fix did not apply, and a failing test caught it
+
+**Tested on 2 Nov 2026**
+
+- `make eval-assistant`: first 12 of 15, then 15 of 15 after the fixes. One expected route was widened to allow the cost specialist, which adds no AI call
+- 286 backend tests, 34 frontend tests, and `make e2e` 12 of 12 with real Gemini
+
+**Known limits**
+
+- The checker cannot tell if a real figure is used in the wrong place. See the technical verification report
+- The 15 questions are ours and check simple text, so the score does not prove general quality
+
+## 2 Nov 2026: Hybrid agent plan
+
+**Decided.** Hybrid specialist agents will be built after the trust layer. See decision 0010.
+
+- Phase 7 is now Trust and measurement
+- Phase 8 is the new Hybrid agents phase, with recommendations moved into it
+- Other clouds moved to Phase 9, Live deployment to Phase 10, and Monitoring to Phase 11
+- The Lambda review moved to the end of Phase 8
+- The Knowledge Agent uses AI for pure documentation questions only
+- The Cost Specialist stays Python unless test scores show a gap
+- Each question is limited to 4 AI calls
+
+**Measured.** A router call took 1 to 2 seconds and about 120 tokens. An answer with 5 document chunks used 1,347 input tokens.
+
+No app code changed by this plan.
+
 ## 2 Nov 2026: Phase 6, AI assistant
 
 **Built**
@@ -34,7 +85,7 @@ A dated record of what was built. Newest entries go at the top.
 
 **Known limits**
 
-- Answers take 15 to 25 seconds, and most of that was the routing call in these tests.
+- Answers take 15 to 25 seconds. The cause is not known yet. An earlier note blamed the routing call, but direct Gemini calls take only 1 to 2 seconds.
 - If Gemini still fails after the retry, the app shows a clear message.
 - The AI can still type a number itself. The answer checker that blocks this is Phase 7.
 

@@ -18,6 +18,7 @@ Start with the roadmap to see where the project is today.
 - [AI system](architecture/ai.md)
 - [Security](architecture/security.md)
 - [Multi-cloud](architecture/multi-cloud.md)
+- [Technical verification](architecture/technical-verification.md)
 
 ## Decisions
 
@@ -32,6 +33,7 @@ Each note explains one big decision and why we made it.
 - [0007: Keep everything on EC2 for now, and review Lambda later](decisions/0007-lambda-is-a-later-option.md)
 - [0008: Read bills with Python's csv module and Decimal](decisions/0008-read-bills-without-pandas.md)
 - [0009: Use gemini-3.5-flash-lite for answers](decisions/0009-faster-gemini-model.md)
+- [0010: Build hybrid agents after the trust layer](decisions/0010-hybrid-agents-after-trust-layer.md)
 
 ## Design
 
