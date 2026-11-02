@@ -9,32 +9,7 @@
 | **Gemini** | Understands the question and writes the explanation |
 | **Qdrant** | Finds relevant trusted documentation |
 
-## How a question flows
-
-```mermaid
-flowchart LR
-    q([Question]) --> input[Input checks]
-    input --> sup[Supervisor]
-    sup --> cost[Cost specialist]
-    sup --> anomaly[Anomaly specialist]
-    sup --> opt[Optimization specialist]
-    cost --> tools[Safe tools]
-    anomaly --> tools
-    opt --> tools
-    opt --> rag[Documentation search]
-    anomaly --> rag
-    tools --> write[Write answer]
-    rag --> write
-    write --> check[Answer checker]
-    check -->|failed, retry once| write
-    check -->|failed twice| template[Plain template answer]
-    check -->|passed| done([Answer, evidence, grade])
-    template --> done
-```
-
-The supervisor makes one AI call and can choose several specialists. LangGraph runs those specialists in parallel, and code joins their evidence and gives each fact a new id. Specialists are plain code, so a question uses **two AI calls at most**: one to choose routes, and one to write the answer.
-
-> **Built so far:** steps 1 to 4, 6 and 7 below are built. Step 5 arrives in Phase 8, and specialists are still plain code until then. See [technical verification](technical-verification.md) for what these checks cannot catch.
+> **Built so far:** all seven steps below are built. See [technical verification](technical-verification.md) for what these checks cannot catch.
 
 ## How the AI is kept honest
 
@@ -68,9 +43,11 @@ Google's terms say not to send sensitive or confidential information to the free
 - The app shows a notice when `GEMINI_TIER=free`.
 - Use a paid key before uploading real bills. No code changes are needed.
 
-## Planned hybrid agents
+## Hybrid agents
 
-Phase 8 adds specialist AI agents where they add real reasoning. Money stays in Python. See [decision 0010](../decisions/0010-hybrid-agents-after-trust-layer.md).
+Specialist AI agents run only where they add real reasoning. Money stays in Python. See [decision 0010](../decisions/0010-hybrid-agents-after-trust-layer.md).
+
+The Knowledge Agent is built but off by default, because it did not beat the baseline. With it off, the final answer reads the documents directly.
 
 ```mermaid
 flowchart TB
@@ -89,15 +66,17 @@ flowchart TB
     check --> done([Answer, evidence, grade])
 ```
 
-| Question | AI calls now | AI calls in Phase 8 |
-|---|---|---|
-| "How much did I spend?" | 2 | 2 |
-| "Why did EC2 rise?", nothing unusual | 2 | 2 |
-| "Why did EC2 rise?", a real anomaly | 2 | 3 |
-| "How can I save on S3?" | 2 | 3 |
-| "Explain Savings Plans" | 2 | 3 |
-| "Why did it rise, and how can I save?" | 2 | 4 |
-| Off-topic | 1 | 1 |
+| Question | AI calls |
+|---|---|
+| "How much did I spend?" | 2 |
+| "Why did EC2 rise?", nothing unusual | 2 |
+| "Why did EC2 rise?", a real anomaly | 3 |
+| "How can I save on S3?" | 3 |
+| "Explain Savings Plans" | 2 |
+| "Why did it rise, and how can I save?" | 4 |
+| Off-topic | 1 |
+
+A rejected answer can use one more call, within the limit.
 
 Each question is limited to 4 AI calls. If a specialist fails or the limit is reached, the answer still goes out using Python facts.
 

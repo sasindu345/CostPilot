@@ -2,6 +2,45 @@
 
 A dated record of what was built. Newest entries go at the top.
 
+## 2 Nov 2026: Phase 8, hybrid agents
+
+**Built**
+
+- Usage breakdowns by usage type and region, with a resource count only
+- Recommendation rules, provider profiles, a new `/api/recommendations` route and the Overview card
+- Supervisor upgrade, with the cloud chosen per question
+- Shared document retrieval, run once per question
+- Anomaly, Optimization and Knowledge agents, each with its own instructions
+- A limit of 4 AI calls per question, shared by parallel agents
+- A check that a number's sentence names its service
+
+**Decided during the work**
+
+- **Knowledge Agent is off by default.** It scored the same with or without AI
+- **Recommendations are built on request, not saved.** They use no AI, so saving them adds nothing
+- **gp2 to gp3 is the only rule that states a saving,** because AWS publishes the 20 percent price difference
+- **Resource names stay out of the AI,** so resource questions use a count
+
+**Bugs found by reading real answers, not by the score**
+
+- The final answer lost its documents, and said none were available
+- Internal labels such as "(F5)" and "as stated in FINDINGS" reached users
+- Correct answers with no dollar figure got grade D
+- A web address was hardcoded, and the guard blocked the commit
+
+**Tested on 2 Nov 2026**
+
+- `make eval-agents`: 10 of 10 with AI specialists, 6 of 10 without
+- `make eval-assistant`: 15 of 15, with stricter checks than Phase 7
+- Average on the standard questions moved from 2.0 to 2.23 AI calls, and from 1,258 to 1,594 input tokens
+- 327 backend tests, 34 frontend tests, and `make e2e` 12 of 12 with real Gemini
+
+**Known limits**
+
+- A wrong figure for the right service is not caught
+- We wrote both question sets, and they check for simple text
+- Time per answer ranged from about 3 to 13 seconds on average between runs, depending on Gemini
+
 ## 2 Nov 2026: Phase 7, trust and measurement
 
 **Built**
