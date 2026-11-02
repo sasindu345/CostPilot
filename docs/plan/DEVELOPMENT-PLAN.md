@@ -1,5 +1,7 @@
 # CostPilot – Development Plan
 
+> **Updated 2 Nov 2026:** Phases 7 onward were reordered to add hybrid agents. See [decision 0010](../decisions/0010-hybrid-agents-after-trust-layer.md). The roadmap is the current source of truth.
+
 ## 1. Context
 
 **Why this plan exists.** CostPilot turns confusing cloud bills into clear answers. A user uploads a bill, sees their spending on a dashboard, and asks an AI assistant questions in plain English. The numbers come from normal code, not from the AI, so they can be trusted.
@@ -47,7 +49,7 @@
 
 **Keycloak is the problem.** Its official guide says it needs about 1 GB of memory even when idle, so a 1 GB `t3.micro` server cannot run it. We need a **2 GB server (`t3.small`)**.
 
-**Memory plan for `t3.small`** (only the Keycloak figure is official; the rest are my estimates, measured in Phase 9):
+**Memory plan for `t3.small`** (only the Keycloak figure is official; the rest are my estimates, measured in Phase 10):
 
 | Service | Memory |
 |---|---|
@@ -79,7 +81,7 @@ Qdrant does not run on this server. It uses the free Qdrant Cloud plan. If memor
 
 **When the free AWS period ends**, the account may close, so the setup stays portable: everything is Docker, and nightly backups go to S3. You can then pay for AWS or move to Oracle Cloud's Always Free server (about 12 GB of memory, no time limit).
 
-**One check first.** Phase 9 starts by confirming your account really allows `t3.small`, because a micro-only account cannot run Keycloak. This takes one command.
+**One check first.** Phase 10 starts by confirming your account really allows `t3.small`, because a micro-only account cannot run Keycloak. This takes one command.
 
 ---
 
@@ -152,9 +154,9 @@ Everything after the reader, including analytics, the dashboard and the AI, neve
 | Cloud | Files we read | Phase |
 |---|---|---|
 | AWS | Cost Explorer CSV, CUR (old and new columns), FOCUS | 3 |
-| Azure, Google Cloud, Oracle | FOCUS export first (works from the shared reader) | 8 |
-| Azure, Google Cloud, Oracle | Native report formats | 8 |
-| DigitalOcean | Invoice CSV (no FOCUS export, so it needs its own reader) | 8 |
+| Azure, Google Cloud, Oracle | FOCUS export first (works from the shared reader) | 9 |
+| Azure, Google Cloud, Oracle | Native report formats | 9 |
+| DigitalOcean | Invoice CSV (no FOCUS export, so it needs its own reader) | 9 |
 
 ### How login works (explained simply)
 
@@ -319,18 +321,33 @@ Every phase ends with the same steps:
 - [x] Chat page and side panel, sharing one conversation
 - [x] Saved conversations and suggested questions
 
-### Phase 7 – Trust layer and recommendations
-**You will see:** every answer shows its evidence and grade.
-- [ ] Fact IDs and placeholder writing
-- [ ] Answer checker with a retry and a template fallback
+### Phase 7 – Trust and measurement
+**You will see:** every answer shows its evidence and grade, and quality can be measured.
+- [ ] Time every step of an answer, and find the cause of the 15 to 25 second answers
+- [ ] Record AI calls, tokens and time for each question in the audit log
+- [ ] Scored test questions, `make eval-assistant`, and a saved baseline
+- [ ] Findings format in Pydantic
+- [ ] Evidence Validator
+- [ ] Answer Checker with a retry and a template fallback, which also covers chat history
 - [ ] Evidence grades A to D
-- [ ] Protection against prompt injection in questions, bills and documents
-- [ ] Recommendation rules, with provable savings or "Needs usage data"
-- [ ] Recommendations on the Overview page
+- [ ] Coded protection against prompt injection
 - [ ] "How was this answer made?" view from the audit records
-- [ ] Review the Lambda options in decision 0007, using real memory and speed numbers
 
-### Phase 8 – Other clouds
+### Phase 8 – Hybrid agents
+**You will see:** deeper answers from specialist agents, proven against the baseline. See decision 0010.
+- [ ] Breakdown tools: usage type, region and resource
+- [ ] Recommendation rules and the Overview card
+- [ ] Provider profiles and shared document retrieval
+- [ ] Supervisor upgrade
+- [ ] Anomaly Agent: Python detector first, AI only if needed
+- [ ] Optimization Agent
+- [ ] Knowledge Agent: AI for pure documentation questions only
+- [ ] Final Response Agent, using validated findings only
+- [ ] Limit of 4 AI calls per question, with a Python fallback
+- [ ] Compare each AI agent with the baseline, and remove any that does not help
+- [ ] Review the Lambda options in decision 0007
+
+### Phase 9 – Other clouds
 **You will see:** a bill from each cloud shows up in the same dashboard.
 - [ ] FOCUS reader tested with Azure, Google Cloud and Oracle samples
 - [ ] Native readers for Azure, Google Cloud and Oracle
@@ -339,7 +356,7 @@ Every phase ends with the same steps:
 - [ ] Documentation for each cloud added to Qdrant
 - [ ] Provider-specific recommendation rules
 
-### Phase 9 – Live deployment
+### Phase 10 – Live deployment
 **You will see:** CostPilot running on the internet with HTTPS.
 - [ ] Confirm `t3.small` is free for your account
 - [ ] Set up AWS budget alerts first, so there are no surprise bills
@@ -351,7 +368,7 @@ Every phase ends with the same steps:
 - [ ] Nightly encrypted backups to S3, and a tested restore
 - [ ] Measure the real memory use
 
-### Phase 10 – Monitoring, quality and finish
+### Phase 11 – Monitoring, quality and finish
 **You will see:** live dashboards, measured AI quality and portfolio-ready docs.
 - [ ] OpenTelemetry tracing through the web app, API and agents
 - [ ] Prometheus and Grafana locally, Grafana Cloud in production

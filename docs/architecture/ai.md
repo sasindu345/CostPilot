@@ -34,6 +34,8 @@ flowchart LR
 
 The supervisor makes one AI call and can choose several specialists. LangGraph runs those specialists in parallel, and code joins their evidence and gives each fact a new id. Specialists are plain code, so a question uses **two AI calls at most**: one to choose routes, and one to write the answer.
 
+> **Built so far:** steps 1, 2, 6 and 7 below are built, and the supervisor uses AI while specialists are plain code. Steps 3, 4 and 5 arrive in Phases 7 and 8. See [technical verification](technical-verification.md).
+
 ## How the AI is kept honest
 
 1. **Tools run first.** Code fetches real numbers and gives each fact an ID, such as `F1`.
@@ -66,6 +68,39 @@ Google's terms say not to send sensitive or confidential information to the free
 - The app shows a notice when `GEMINI_TIER=free`.
 - Use a paid key before uploading real bills. No code changes are needed.
 
+## Planned hybrid agents
+
+Phase 8 adds specialist AI agents where they add real reasoning. Money stays in Python. See [decision 0010](../decisions/0010-hybrid-agents-after-trust-layer.md).
+
+```mermaid
+flowchart TB
+    q([Question]) --> sup[Supervisor: AI]
+    sup --> docs[Shared retrieval: Python, only if needed]
+    docs --> cost[Cost: Python]
+    docs --> anomaly[Anomaly: Python, then AI if something was found]
+    docs --> opt[Optimization: AI]
+    docs --> know[Knowledge: AI, documentation questions only]
+    cost --> val[Evidence Validator: Python]
+    anomaly --> val
+    opt --> val
+    know --> val
+    val --> final[Final Response: AI]
+    final --> check[Answer Checker: Python]
+    check --> done([Answer, evidence, grade])
+```
+
+| Question | AI calls now | AI calls in Phase 8 |
+|---|---|---|
+| "How much did I spend?" | 2 | 2 |
+| "Why did EC2 rise?", nothing unusual | 2 | 2 |
+| "Why did EC2 rise?", a real anomaly | 2 | 3 |
+| "How can I save on S3?" | 2 | 3 |
+| "Explain Savings Plans" | 2 | 3 |
+| "Why did it rise, and how can I save?" | 2 | 4 |
+| Off-topic | 1 | 1 |
+
+Each question is limited to 4 AI calls. If a specialist fails or the limit is reached, the answer still goes out using Python facts.
+
 ## How documentation search works
 
 | Step | File |
@@ -82,4 +117,4 @@ Google's terms say not to send sensitive or confidential information to the free
 
 ## Measuring quality
 
-From Phase 5, a set of test questions measures search quality. In Phase 10, DeepEval or Ragas adds automatic scoring, backed by human-checked test cases.
+From Phase 5, a set of test questions measures search quality. Phase 7 adds a scored test set and a baseline for answers. In Phase 11, DeepEval or Ragas adds automatic scoring, backed by human-checked test cases.

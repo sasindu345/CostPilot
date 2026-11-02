@@ -66,7 +66,7 @@ question ─► supervisor ─► anomaly_specialist ──► join_evidence ─
 
 **Yes, specialists run in parallel when a question needs it.** The supervisor returns a list of routes, and LangGraph runs all of them in the same step.
 
-**They are not separate AI agents.** Only the supervisor makes an AI call. Specialists are plain code that runs safe tools, so they give the same result each time, and a question uses two AI calls at most.
+**They are not separate AI agents yet.** Phase 8 adds real AI specialists, as in [decision 0010](../decisions/0010-hybrid-agents-after-trust-layer.md). Today only the supervisor makes an AI call before the final answer. Specialists are plain code that runs safe tools, so they give the same result each time, and a question uses two AI calls at most.
 
 **Evidence.**
 
@@ -108,7 +108,7 @@ question ─► supervisor ─► anomaly_specialist ──► join_evidence ─
 
 **Evidence from a real answer.** The answer showed "S3 rose to 18.60 USD... compared to 18.00 USD... an increase of 0.60 USD (3.3%)". All four figures match the bill.
 
-### Not built yet: Phase 7
+### Not built yet: Phases 7 and 8
 
 Please read this part closely. The protection is **strong but not complete**.
 
@@ -118,13 +118,13 @@ Please read this part closely. The protection is **strong but not complete**.
 | Chat history holds figures | On follow-up questions the AI can see numbers from earlier answers, and could copy or change them. The checker must cover this |
 | No retry or template answer | There is nothing to fall back to, because there is no checker |
 | No evidence grades | No A to D grade yet |
-| No recommendation rules | The Overview card is a placeholder |
+| No recommendation rules | The Overview card is a placeholder. This moved to Phase 8 |
 | Prompt injection relies on the AI | The "$1.00" trick was refused by the AI's own routing, not by a coded rule |
 | No "How was this answer made?" view | The audit records exist, but there is no screen |
 
 ## 6. Known weaknesses
 
-- **Search test:** we wrote the questions, so it is an easy test. Phase 10 adds a harder one.
+- **Search test:** we wrote the questions, so it is an easy test. Phase 7 adds a scored set, and Phase 11 adds automatic scoring.
 - **Bill readers:** tested with made-up files only, never a real AWS bill.
-- **Speed:** answers took 15 to 25 seconds in testing.
+- **Speed:** answers took 15 to 25 seconds in testing, but direct Gemini calls take 1 to 2 seconds. The cause is not known yet. Phase 7 measures it.
 - **Free key:** it is not suitable for real bills.

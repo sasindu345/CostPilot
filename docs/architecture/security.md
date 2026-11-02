@@ -4,18 +4,18 @@
 
 | Area | Protection | Phase |
 |---|---|---|
-| Traffic | HTTPS everywhere, through Caddy and Let's Encrypt | 9 |
+| Traffic | HTTPS everywhere, through Caddy and Let's Encrypt | 10 |
 | Login | Keycloak handles passwords. The browser only holds a random ticket in a secure cookie | 1 |
 | Data separation | Backend checks, plus PostgreSQL Row-Level Security as a second lock | 1 |
-| Stored files | Private S3 bucket with AES-256 encryption | 2, 9 |
+| Stored files | Private S3 bucket with AES-256 encryption | 2, 10 |
 | Uploads | Type, size and content checks. Protection against compressed bombs and formula tricks | 2 |
-| Secrets | `.env` locally, AWS Parameter Store in production, never in Git | 0, 9 |
+| Secrets | `.env` locally, AWS Parameter Store in production, never in Git | 0, 10 |
 | AI | Safe tools only, privacy filter, input and output checks | 6, 7 |
-| Code | Gitleaks, Bandit, Trivy and Checkov in the pipeline | 0, 9 |
+| Code | Gitleaks, Bandit, Trivy and Checkov in the pipeline | 0, 10 |
 | Supply chain | GitHub Actions are pinned to exact commits. Dependencies use lock files | 0 |
 | Containers | Run as a non-root user, on pinned image versions | 0 |
 | Network | Local ports only listen on your own computer | 0 |
-| Backups | Nightly encrypted database backup to S3, with a tested restore | 9 |
+| Backups | Nightly encrypted database backup to S3, with a tested restore | 10 |
 | Audit | Important actions and AI tool use are recorded | 1, 7 |
 
 ## Row-Level Security in simple words

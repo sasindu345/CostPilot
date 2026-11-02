@@ -2,6 +2,22 @@
 
 A dated record of what was built. Newest entries go at the top.
 
+## 2 Nov 2026: Hybrid agent plan
+
+**Decided.** Hybrid specialist agents will be built after the trust layer. See decision 0010.
+
+- Phase 7 is now Trust and measurement
+- Phase 8 is the new Hybrid agents phase, with recommendations moved into it
+- Other clouds moved to Phase 9, Live deployment to Phase 10, and Monitoring to Phase 11
+- The Lambda review moved to the end of Phase 8
+- The Knowledge Agent uses AI for pure documentation questions only
+- The Cost Specialist stays Python unless test scores show a gap
+- Each question is limited to 4 AI calls
+
+**Measured.** A router call took 1 to 2 seconds and about 120 tokens. An answer with 5 document chunks used 1,347 input tokens.
+
+No app code changed.
+
 ## 2 Nov 2026: Phase 6, AI assistant
 
 **Built**
@@ -34,7 +50,7 @@ A dated record of what was built. Newest entries go at the top.
 
 **Known limits**
 
-- Answers take 15 to 25 seconds, and most of that was the routing call in these tests.
+- Answers take 15 to 25 seconds. The cause is not known yet. An earlier note blamed the routing call, but direct Gemini calls take only 1 to 2 seconds.
 - If Gemini still fails after the retry, the app shows a clear message.
 - The AI can still type a number itself. The answer checker that blocks this is Phase 7.
 

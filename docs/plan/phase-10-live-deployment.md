@@ -1,4 +1,4 @@
-# Phase 9: Live deployment
+# Phase 10: Live deployment
 
 **You will see:** CostPilot running on the internet with HTTPS.
 - [ ] Confirm `t3.small` is free for your account
