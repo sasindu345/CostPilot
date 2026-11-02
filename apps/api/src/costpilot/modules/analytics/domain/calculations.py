@@ -61,9 +61,11 @@ def top_services(costs: Iterable[ServiceMonthCost], month: date, limit: int) -> 
     if total <= 0:
         return []
 
+    # A bill may have its own service called Other, so it joins the Other row at the end.
+    already_other = by_service.pop(OTHER_SERVICES, Decimal(0))
     ranked = sorted(by_service.items(), key=lambda pair: (-pair[1], pair[0]))
     shown = ranked[:limit]
-    rest = sum((cost for _, cost in ranked[limit:]), Decimal(0))
+    rest = already_other + sum((cost for _, cost in ranked[limit:]), Decimal(0))
     if rest != 0:
         shown.append((OTHER_SERVICES, rest))
     return [ServiceCost(name, cost, percent_of(cost, total)) for name, cost in shown]

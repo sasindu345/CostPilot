@@ -2,7 +2,7 @@
 
 **You will see:** every answer shows its evidence and grade.
 - [ ] Fact IDs and placeholder writing
-- [ ] Answer checker with a retry and a template fallback
+- [ ] Answer checker with a retry and a template fallback, which also covers numbers copied from chat history
 - [ ] Evidence grades A to D
 - [ ] Protection against prompt injection in questions, bills and documents
 - [ ] Recommendation rules, with provable savings or "Needs usage data"

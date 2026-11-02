@@ -2,6 +2,66 @@
 
 A dated record of what was built. Newest entries go at the top.
 
+## 2 Nov 2026: Phase 6, AI assistant
+
+**Built**
+
+- LangGraph supervisor with cost, anomaly and optimization specialists, which can run in parallel
+- Safe tools with the workspace fixed from the login session
+- Facts with ids, placeholders filled by code, even while streaming
+- Daily limit per workspace, question length limit, and saved conversations
+- Chat page, and a side panel on wide screens, sharing one conversation
+- Free key notice, suggested questions and document links
+
+**Decided during the work**
+
+- **The supervisor can choose several specialists.** It was one at first, but a two-part question needs both.
+- **`gemini-3.5-flash-lite` for answers.** See decision 0009.
+- **Each question uses two AI calls at most.** The plan allowed three.
+
+**Bugs found by testing and fixed**
+
+- A dropped Gemini connection made the chat fail silently. All three failure types now give a clear message
+- Gemini failure reasons are now logged
+- The app crashed at startup with no Gemini key, which GitHub Actions caught. The app now starts, and the assistant says it is unavailable
+- A stale idle connection made some questions fail with "Server disconnected". Both AI calls now retry once, and an answer is never restarted after words were sent
+
+**Tested on 2 Nov 2026**
+
+- 223 backend tests, including proof that two specialists run at the same time
+- 7 real questions through Gemini: correct routes, a correct two-part parallel run, a prediction question answered with "I do not have that information", and off-topic and "say my bill was $1.00" questions refused
+- `make e2e` with real Gemini: see the final run in the verification report
+
+**Known limits**
+
+- Answers take 15 to 25 seconds, and most of that was the routing call in these tests.
+- If Gemini still fails after the retry, the app shows a clear message.
+- The AI can still type a number itself. The answer checker that blocks this is Phase 7.
+
+## 2 Nov 2026: Phases 1 to 5 clean-up
+
+**Bugs found by testing and fixed**
+
+- Top Services showed "Other" twice when a bill had a service with that name
+- A file over 100 MB broke the connection, with no clear message. The browser now checks the size first, using the limit from the API
+- The Documents page was too wide on phones
+- The error page used the wrong prop name for this Next.js version
+
+**Tested on 2 Nov 2026**
+
+- `make e2e`: 11 of 11, covering all 14 API endpoints, password reset to a new password, accessibility and phone size
+- 179 backend tests, run three times to check for random failures, and 30 frontend tests
+- Overview, Analytics and phone screens compared with the design by eye
+
+**Changes**
+
+- Cancelling at Keycloak now returns to the app, instead of showing a validation error
+- Added friendly "page not found" and error pages
+- The API image installs packages before copying code, so code changes rebuild much faster
+- Tests now use their own `costpilot_test` database. The live worker was picking up test documents, which made one test fail at random
+- Added `e2e/api.spec.ts`. It tests every endpoint, and fails if a new route is not on its list
+- The password reset test now follows the email link and sets a new password
+
 ## 2 Nov 2026: Phase 5, documentation search
 
 **Built**
@@ -56,10 +116,6 @@ A dated record of what was built. Newest entries go at the top.
 
 - 156 backend tests, including the design's −8.1% and half-finished months on real PostgreSQL
 - 29 frontend tests
-
-**Not yet tested**
-
-- The pages have not been seen in a real browser. `e2e/dashboard.spec.ts` has not been run.
 
 ## 2 Nov 2026: Phase 3, reading bills
 

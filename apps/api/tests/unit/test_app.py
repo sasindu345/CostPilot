@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from costpilot.main import create_app
-from costpilot.shared.config import Settings
+from costpilot.shared.config import Settings, get_settings
 from costpilot.shared.errors import register_error_handlers
 from costpilot.shared.exceptions import AppError
 
@@ -49,3 +49,12 @@ def test_unexpected_error_hides_internal_details() -> None:
 
     assert response.status_code == 500
     assert "secret database detail" not in response.text
+
+
+def test_cancelling_at_keycloak_returns_to_the_app() -> None:
+    client = TestClient(create_app(), follow_redirects=False)
+
+    response = client.get("/api/auth/callback?error=access_denied")
+
+    assert response.status_code == 302
+    assert response.headers["location"] == get_settings().app_public_url

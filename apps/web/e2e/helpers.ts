@@ -8,11 +8,17 @@ export async function emailCount(request: APIRequestContext, email: string): Pro
   return (await response.json()).messages_count;
 }
 
-async function verificationLink(request: APIRequestContext, email: string): Promise<string> {
-  await expect.poll(() => emailCount(request, email)).toBeGreaterThan(0);
+/** Waits for email number `position`, counting from the oldest, and returns its Keycloak link. */
+export async function emailLink(
+  request: APIRequestContext,
+  email: string,
+  position = 1,
+): Promise<string> {
+  await expect.poll(() => emailCount(request, email)).toBeGreaterThanOrEqual(position);
   const search = await request.get(`${MAILPIT_URL}/api/v1/search?query=to:${email}`);
   const { messages } = await search.json();
-  const message = await request.get(`${MAILPIT_URL}/api/v1/message/${messages[0].ID}`);
+  const target = messages[messages.length - position];
+  const message = await request.get(`${MAILPIT_URL}/api/v1/message/${target.ID}`);
   const { Text: body } = await message.json();
   const link = body.match(/https?:\/\/\S+action-token\S+/)?.[0];
   expect(link).toBeTruthy();
@@ -31,7 +37,7 @@ export async function signUp(page: Page, request: APIRequestContext): Promise<st
   await page.getByRole("button", { name: "Register" }).click();
   await expect(page.getByText(/verify your email/i).first()).toBeVisible();
 
-  await page.goto(await verificationLink(request, email));
+  await page.goto(await emailLink(request, email));
   await page.locator("#password-new").fill(PASSWORD);
   await page.locator("#password-confirm").fill(PASSWORD);
   await page.getByRole("button", { name: "Submit" }).click();

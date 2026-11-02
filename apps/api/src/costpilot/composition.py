@@ -9,6 +9,15 @@ from costpilot.modules.analytics.infrastructure.numpy_unusual_cost_detector impo
     NumpyUnusualCostDetector,
 )
 from costpilot.modules.analytics.infrastructure.postgres_store import PostgresAnalyticsStore
+from costpilot.modules.assistant.application.assistant_service import AssistantService
+from costpilot.modules.assistant.infrastructure.gemini_chat_model import GeminiChatModel
+from costpilot.modules.assistant.infrastructure.langgraph_workflow import (
+    LangGraphEvidenceWorkflow,
+)
+from costpilot.modules.assistant.infrastructure.postgres_store import (
+    PostgresConversationStore,
+    PostgresUsageLimiter,
+)
 from costpilot.modules.audit.infrastructure.postgres_audit_log import PostgresAuditLog
 from costpilot.modules.billing.application.import_service import BillImportService
 from costpilot.modules.billing.infrastructure.postgres_store import PostgresBillingStore
@@ -155,4 +164,28 @@ def build_knowledge_search(settings: Settings) -> KnowledgeSearchService:
         index=_build_vector_index(settings),
         limit=settings.search_limit,
         min_score=settings.search_min_score,
+    )
+
+
+def build_assistant_service(settings: Settings, database: Database) -> AssistantService:
+    model = GeminiChatModel(
+        api_key=settings.gemini_api_key,
+        answer_model=settings.gemini_answer_model,
+        router_model=settings.gemini_router_model,
+        timeout_seconds=settings.gemini_timeout_seconds,
+        retries=settings.gemini_retries,
+    )
+    return AssistantService(
+        store=PostgresConversationStore(database),
+        limiter=PostgresUsageLimiter(database),
+        model=model,
+        workflow=LangGraphEvidenceWorkflow(model),
+        analytics=build_analytics_service(settings, database),
+        knowledge=build_knowledge_search(settings),
+        audit_log=PostgresAuditLog(database),
+        daily_limit=settings.assistant_daily_limit,
+        max_question_length=settings.assistant_max_question_length,
+        history_messages=settings.assistant_history_messages,
+        conversation_limit=settings.assistant_conversation_limit,
+        today=today_utc,
     )

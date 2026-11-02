@@ -1,7 +1,9 @@
 FROM python:3.13-slim AS build
 RUN pip install --no-cache-dir uv==0.13.6
 WORKDIR /app
+# Packages come first, so a code change does not download them all again.
 COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev --no-install-project
 COPY src ./src
 RUN uv sync --frozen --no-dev --no-editable
 

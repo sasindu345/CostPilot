@@ -295,10 +295,10 @@ Every phase ends with the same steps:
 **You will see:** your design working with real calculated data.
 - [x] Analytics calculations: totals, changes, top services, trends, period comparison
 - [x] Unusual spending detection
-- [ ] Overview page, matching your design with the fixes in section 6
-- [ ] Analytics page with filters
-- [ ] Empty, loading and error states
-- [ ] Mobile and accessibility review
+- [x] Overview page, matching your design with the fixes in section 6
+- [x] Analytics page with filters
+- [x] Empty, loading and error states
+- [x] Mobile and accessibility review
 
 ### Phase 5 – Documentation search (RAG)
 **You will see:** a test search returns the right AWS advice.
@@ -311,13 +311,13 @@ Every phase ends with the same steps:
 
 ### Phase 6 – AI assistant
 **You will see:** ask a question and get a live, streaming answer about your bill.
-- [ ] Gemini connection with limits on usage per workspace, plus retries
-- [ ] Privacy filter: only approved summary fields reach the AI
-- [ ] Safe tools that cannot accept a workspace ID
-- [ ] LangGraph supervisor with cost, anomaly and optimization specialists
-- [ ] Streaming answers
-- [ ] Chat page and side panel, sharing one conversation
-- [ ] Saved conversations and suggested questions
+- [x] Gemini connection with limits on usage per workspace, plus retries
+- [x] Privacy filter: only approved summary fields reach the AI
+- [x] Safe tools that cannot accept a workspace ID
+- [x] LangGraph supervisor with cost, anomaly and optimization specialists
+- [x] Streaming answers
+- [x] Chat page and side panel, sharing one conversation
+- [x] Saved conversations and suggested questions
 
 ### Phase 7 – Trust layer and recommendations
 **You will see:** every answer shows its evidence and grade.

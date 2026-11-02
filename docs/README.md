@@ -31,6 +31,7 @@ Each note explains one big decision and why we made it.
 - [0006: Use PostgreSQL for background jobs](decisions/0006-postgres-job-queue.md)
 - [0007: Keep everything on EC2 for now, and review Lambda later](decisions/0007-lambda-is-a-later-option.md)
 - [0008: Read bills with Python's csv module and Decimal](decisions/0008-read-bills-without-pandas.md)
+- [0009: Use gemini-3.5-flash-lite for answers](decisions/0009-faster-gemini-model.md)
 
 ## Design
 
