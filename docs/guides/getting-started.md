@@ -38,7 +38,7 @@ make up
 
 Your Keycloak admin password is `KEYCLOAK_ADMIN_PASSWORD` in `.env`.
 
-Open http://localhost:3010 and click **Register**. The verification email appears in the test inbox at http://localhost:8025.
+Open http://localhost:3010 and click **Register**. After signing in, click **Try sample data** to fill the dashboard with made-up bills. The verification email appears in the test inbox at http://localhost:8025.
 
 `make check` needs the database, so run `make up` first.
 

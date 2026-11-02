@@ -10,7 +10,7 @@ This is the one place to see what is done and what remains. Update it at the end
 | 1 | [Login and app shell](phase-01-login-and-app-shell.md) | Sign up, sign in, real layout | ✅ |
 | 2 | [Document upload](phase-02-document-upload.md) | Upload a file and watch its status | ✅ |
 | 3 | [Reading bills (AWS first)](phase-03-reading-bills-aws-first.md) | Bills turned into clean records | ✅ |
-| 4 | [Dashboard and analytics](phase-04-dashboard-and-analytics.md) | The design working with real data | ⬜ |
+| 4 | [Dashboard and analytics](phase-04-dashboard-and-analytics.md) | The design working with real data | 🔄 Waiting for browser check |
 | 5 | [Documentation search](phase-05-documentation-search-rag.md) | Search finds the right cloud advice | ⬜ |
 | 6 | [AI assistant](phase-06-ai-assistant.md) | Live answers about your bill | ⬜ |
 | 7 | [Trust layer and recommendations](phase-07-trust-layer-and-recommendations.md) | Every answer shows its evidence | ⬜ |

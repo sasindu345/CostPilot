@@ -293,8 +293,8 @@ Every phase ends with the same steps:
 
 ### Phase 4 – Dashboard and analytics
 **You will see:** your design working with real calculated data.
-- [ ] Analytics calculations: totals, changes, top services, trends, period comparison
-- [ ] Unusual spending detection
+- [x] Analytics calculations: totals, changes, top services, trends, period comparison
+- [x] Unusual spending detection
 - [ ] Overview page, matching your design with the fixes in section 6
 - [ ] Analytics page with filters
 - [ ] Empty, loading and error states

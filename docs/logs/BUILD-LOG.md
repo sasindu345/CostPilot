@@ -2,6 +2,32 @@
 
 A dated record of what was built. Newest entries go at the top.
 
+## 2 Nov 2026: Phase 4, dashboard and analytics (waiting for browser check)
+
+**Built**
+
+- Exact calculations: totals, change, trends, top services with an Other row, and month comparison
+- Unusual spending detection with NumPy, using each service's own usual level
+- Overview page with the corrections from `docs/design/ui-spec.md`
+- Analytics page with period, cost type, provider and currency filters
+- Sample data button, phone navigation, and a table view for the chart
+
+**Decided during the work**
+
+- **Cards are labelled by month,** such as "Oct 2026". "This Month" would be wrong when the newest bill is from last month.
+- **Half-finished months** compare with the same days of the month before. Summary files cannot do that, so the percentage shows "Not available" and no guess is made.
+- **A month with no bill stays empty.** It is not shown as $0.
+- **Recommendations card** only says they are coming. It shows no made-up savings.
+
+**Tested on 2 Nov 2026**
+
+- 156 backend tests, including the design's −8.1% and half-finished months on real PostgreSQL
+- 29 frontend tests
+
+**Not yet tested**
+
+- The pages have not been seen in a real browser. `e2e/dashboard.spec.ts` has not been run.
+
 ## 2 Nov 2026: Phase 3, reading bills
 
 **Built**

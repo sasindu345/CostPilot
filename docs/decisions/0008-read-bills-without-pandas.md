@@ -4,7 +4,7 @@
 
 **Situation.** The brief says Pandas should process uploaded bills. Pandas normally turns numbers into binary decimals, which causes small rounding errors, and loads whole files into memory.
 
-**Decision.** Read bills row by row with Python's `csv` module and exact `Decimal` values. PostgreSQL adds up the totals. Pandas and NumPy stay in the plan for Phase 4, for finding unusual spending.
+**Decision.** Read bills row by row with Python's `csv` module and exact `Decimal` values. PostgreSQL adds up the totals. NumPy finds unusual spending in Phase 4. Pandas turned out not to be needed, so it was left out, which also saves memory.
 
 **Why.** Totals stay exact, and a large bill uses little memory, which matters on a 2 GB server.
 
