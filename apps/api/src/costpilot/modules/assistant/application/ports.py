@@ -4,19 +4,24 @@ from typing import Any, Protocol
 from uuid import UUID
 
 from costpilot.modules.assistant.application.workspace_tools import WorkspaceTools
+from costpilot.modules.assistant.domain.findings import FindingDraft
 from costpilot.modules.assistant.domain.metrics import AnswerMeter
 from costpilot.modules.assistant.domain.models import (
     Conversation,
     Evidence,
     Message,
     Role,
-    Route,
+    RoutePlan,
     SourceLink,
 )
 
 
 class ChatModel(Protocol):
-    async def choose_routes(self, question: str, meter: AnswerMeter) -> list[Route]: ...
+    async def choose_routes(self, question: str, meter: AnswerMeter) -> RoutePlan: ...
+
+    async def find_findings(
+        self, instructions: str, prompt: str, meter: AnswerMeter
+    ) -> list[FindingDraft]: ...
 
     def stream_answer(
         self, system: str, history: Sequence[tuple[str, str]], prompt: str, meter: AnswerMeter

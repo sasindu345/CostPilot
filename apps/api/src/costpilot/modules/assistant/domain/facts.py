@@ -8,8 +8,14 @@ from collections.abc import Iterable
 from datetime import date
 from decimal import Decimal
 
-from costpilot.modules.analytics.contracts import Overview, ServiceComparison, UnusualCost
-from costpilot.modules.assistant.domain.models import Fact, Finding
+from costpilot.modules.analytics.contracts import (
+    Overview,
+    ServiceComparison,
+    UnusualCost,
+    UsageChange,
+)
+from costpilot.modules.assistant.domain.models import DocumentPassage, Fact, Finding
+from costpilot.modules.recommendations.contracts import Recommendation
 
 MAX_LABEL_LENGTH = 60
 UNSAFE_CHARACTERS = re.compile(r"[^\w .,()/&+:-]")
@@ -39,10 +45,46 @@ class FactList:
         self.facts: list[Fact] = []
         self.findings: list[Finding] = []
 
-    def add(self, label: str, value: str) -> str:
+    def add(self, label: str, value: str, subject: str = "") -> str:
         fact_id = f"F{len(self.facts) + 1}"
-        self.facts.append(Fact(fact_id, label, value))
+        self.facts.append(Fact(fact_id, label, value, subject))
         return fact_id
+
+    def add_latest(self, overview: Overview) -> None:
+        """A short summary, for specialists that do not need the whole history."""
+        latest = month_name(overview.latest_month)
+        self.add(f"Cost in {latest}", money(overview.latest_cost, overview.currency))
+        for service in overview.top_services:
+            name = safe_label(service.name)
+            self.add(f"{name} cost in {latest}", money(service.cost, overview.currency), name)
+
+    def add_usage_changes(
+        self, changes: Iterable[UsageChange], first: date, second: date, currency: str
+    ) -> None:
+        """Usage types and regions may reach the AI. Resource names never do, only a count."""
+        for change in changes:
+            name = safe_label(change.service)
+            detail = f"{name} {safe_label(change.usage_type)} in {safe_label(change.region)}"
+            self.add(f"{detail}, {month_name(first)}", money(change.first_cost, currency), name)
+            self.add(f"{detail}, {month_name(second)}", money(change.second_cost, currency), name)
+            self.add(f"{detail}, number of resources", f"{change.resources} resources", name)
+
+    def add_recommendations(self, items: Iterable[Recommendation]) -> list[DocumentPassage]:
+        """Provable savings become facts. Rule reasons become evidence, with their source."""
+        passages = []
+        for item in items:
+            ids: tuple[str, ...] = ()
+            if item.monthly_saving is not None:
+                label = f"Provable monthly saving: {item.title}"
+                ids = (self.add(label, money(item.monthly_saving, item.currency)),)
+            note = "" if ids else " (saving needs usage data)"
+            urls = (item.source_url,) if item.source_url else ()
+            self.findings.append(Finding(f"{item.title}{note}", ids, urls))
+            if item.source_url:
+                passages.append(
+                    DocumentPassage(item.source_title or item.title, item.source_url, item.reason)
+                )
+        return passages
 
     def add_overview(self, overview: Overview, months: int) -> None:
         currency = overview.currency
@@ -59,17 +101,21 @@ class FactList:
                 self.add(f"Cost in {month_name(point.month)}", money(point.cost, currency))
         for service in overview.top_services:
             name = safe_label(service.name)
-            self.add(f"{name} cost in {latest}", money(service.cost, currency))
-            self.add(f"{name} share of {latest}", percent(service.share_percent))
+            self.add(f"{name} cost in {latest}", money(service.cost, currency), name)
+            self.add(f"{name} share of {latest}", percent(service.share_percent), name)
 
     def add_unusual(self, items: Iterable[UnusualCost], currency: str) -> None:
         for item in items:
             name = safe_label(item.service)
             month = month_name(item.month)
             ids = (
-                self.add(f"{name} cost in {month}, flagged as unusual", money(item.cost, currency)),
-                self.add(f"{name} usual monthly cost", money(item.usual_cost, currency)),
-                self.add(f"{name} increase over usual", money(item.increase, currency)),
+                self.add(
+                    f"{name} cost in {month}, flagged as unusual",
+                    money(item.cost, currency),
+                    name,
+                ),
+                self.add(f"{name} usual monthly cost", money(item.usual_cost, currency), name),
+                self.add(f"{name} increase over usual", money(item.increase, currency), name),
             )
             self.findings.append(Finding(f"{name} is above its usual level in {month}", ids))
 
@@ -78,8 +124,8 @@ class FactList:
     ) -> None:
         for row in rows:
             name = safe_label(row.service)
-            self.add(f"{name} cost in {month_name(first)}", money(row.first_cost, currency))
-            self.add(f"{name} cost in {month_name(second)}", money(row.second_cost, currency))
-            self.add(f"{name} change", money(row.difference, currency))
+            self.add(f"{name} cost in {month_name(first)}", money(row.first_cost, currency), name)
+            self.add(f"{name} cost in {month_name(second)}", money(row.second_cost, currency), name)
+            self.add(f"{name} change", money(row.difference, currency), name)
             if row.percent is not None:
-                self.add(f"{name} percent change", percent(row.percent))
+                self.add(f"{name} percent change", percent(row.percent), name)

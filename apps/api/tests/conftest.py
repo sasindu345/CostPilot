@@ -23,6 +23,7 @@ TEST_DEFAULTS = {
     "SESSION_COOKIE_NAME": "test_session",
     "SESSION_COOKIE_SECURE": "false",
     "SESSION_LIFETIME_HOURS": "8",
+    "AWS_DOCS_URL": "https://docs.aws.amazon.com",
     "QDRANT_URL": "http://qdrant.test",
     "GEMINI_EMBEDDING_MODEL": "test-model",
     "GEMINI_ANSWER_MODEL": "test-model",

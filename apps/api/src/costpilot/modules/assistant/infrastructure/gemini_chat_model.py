@@ -9,8 +9,9 @@ from langchain_google_genai.chat_models import GoogleAPIError
 from pydantic import BaseModel, SecretStr
 
 from costpilot.modules.assistant.domain.errors import ModelUnavailableError
+from costpilot.modules.assistant.domain.findings import FindingDraft
 from costpilot.modules.assistant.domain.metrics import AnswerMeter
-from costpilot.modules.assistant.domain.models import Role, Route
+from costpilot.modules.assistant.domain.models import Role, Route, RoutePlan
 from costpilot.modules.assistant.domain.prompts import ROUTER_INSTRUCTIONS
 
 logger = structlog.get_logger()
@@ -24,6 +25,11 @@ MODEL_FAILURES = (GoogleGenerativeAIError, GoogleAPIError, httpx.HTTPError)
 
 class RouteChoice(BaseModel):
     routes: list[Route]
+    provider: str | None = None
+
+
+class FindingList(BaseModel):
+    findings: list[FindingDraft]
 
 
 def clean_routes(routes: list[Route]) -> list[Route]:
@@ -61,22 +67,41 @@ class GeminiChatModel:
             retries=self._retries,
         )
 
-    async def choose_routes(self, question: str, meter: AnswerMeter) -> list[Route]:
+    async def choose_routes(self, question: str, meter: AnswerMeter) -> RoutePlan:
         self._router = self._router or self._client(self._router_model)
-        structured = self._router.with_structured_output(RouteChoice, include_raw=True)
         messages = [SystemMessage(ROUTER_INSTRUCTIONS), HumanMessage(question)]
+        choice = await self._structured(self._router, RouteChoice, messages, "route", meter)
+        routes = list(dict.fromkeys(choice.routes)) if choice else []
+        return RoutePlan(clean_routes(routes), choice.provider if choice else None)
+
+    async def find_findings(
+        self, instructions: str, prompt: str, meter: AnswerMeter
+    ) -> list[FindingDraft]:
+        self._answers = self._answers or self._client(self._answer_model)
+        messages = [SystemMessage(instructions), HumanMessage(prompt)]
+        result = await self._structured(self._answers, FindingList, messages, "specialist", meter)
+        return result.findings if result else []
+
+    async def _structured[T: BaseModel](
+        self,
+        client: ChatGoogleGenerativeAI,
+        schema: type[T],
+        messages: list[BaseMessage],
+        step: str,
+        meter: AnswerMeter,
+    ) -> T | None:
+        """Pydantic checks the reply. A reply that does not fit the format counts as no reply."""
+        structured = client.with_structured_output(schema, include_raw=True)
         for attempt in range(1, ATTEMPTS + 1):
             try:
                 result = await structured.ainvoke(messages)
                 break
             except MODEL_FAILURES as error:
-                self._log_failure("route", attempt, error)
+                self._log_failure(step, attempt, error)
                 if attempt == ATTEMPTS:
                     raise ModelUnavailableError from error
         self._record_usage(meter, result["raw"])
-        choice = result["parsed"]
-        routes = list(dict.fromkeys(choice.routes)) if choice else []
-        return clean_routes(routes)
+        return result["parsed"]
 
     async def stream_answer(
         self,

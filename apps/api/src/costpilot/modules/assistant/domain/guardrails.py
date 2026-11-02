@@ -16,6 +16,7 @@ INJECTION = re.compile(
     r"|<\s*/?\s*(system|facts|documents|limitations)\s*>",
     re.IGNORECASE | re.DOTALL,
 )
+SENTENCE_END = re.compile(r"(?<=[.!?])\s+|\n+")
 TYPED_NUMBERS = (
     re.compile(r"[$€£¥]\s*\d"),
     re.compile(
@@ -37,18 +38,41 @@ def typed_numbers(text: str) -> list[str]:
     return [m[0] for pattern in TYPED_NUMBERS for m in pattern.finditer(without_placeholders)]
 
 
+def _subject_word(subject: str) -> str:
+    """ "EC2-Instances" is matched as "ec2", so "your EC2 cost" counts as naming it."""
+    return re.split(r"[-\s]", subject.strip().lower(), maxsplit=1)[0]
+
+
+def misplaced_facts(answer: str, facts: Iterable[Fact]) -> list[str]:
+    """Find a number used in a sentence that does not name what the number is about."""
+    subjects = {fact.id: _subject_word(fact.subject) for fact in facts if fact.subject}
+    misplaced = []
+    for sentence in SENTENCE_END.split(answer):
+        for fact_id in PLACEHOLDER.findall(sentence):
+            word = subjects.get(fact_id)
+            if word and word not in sentence.lower():
+                misplaced.append(fact_id)
+    return misplaced
+
+
 @dataclass(frozen=True)
 class AnswerCheck:
     typed: list[str]
     unknown_ids: list[str]
+    misplaced: list[str]
 
     @property
     def passed(self) -> bool:
-        return not self.typed and not self.unknown_ids
+        return not self.typed and not self.unknown_ids and not self.misplaced
 
 
 def check_answer(answer: str, facts: Iterable[Fact]) -> AnswerCheck:
     """Runs on the AI's raw text, so a number copied from chat history is caught too."""
-    known = {fact.id for fact in facts}
+    fact_list = list(facts)
+    known = {fact.id for fact in fact_list}
     used = PLACEHOLDER.findall(answer)
-    return AnswerCheck(typed_numbers(answer), [fact_id for fact_id in used if fact_id not in known])
+    return AnswerCheck(
+        typed_numbers(answer),
+        [fact_id for fact_id in used if fact_id not in known],
+        misplaced_facts(answer, fact_list),
+    )

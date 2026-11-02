@@ -32,6 +32,7 @@ const TESTED_ROUTES = [
   "GET /api/analytics/overview",
   "GET /api/analytics/compare",
   "GET /api/analytics/unusual",
+  "GET /api/recommendations",
   "GET /api/assistant/info",
   "GET /api/assistant/conversations",
   "POST /api/assistant/conversations",
@@ -70,6 +71,7 @@ test.describe("without signing in", () => {
       request.get("/api/analytics/overview"),
       request.get("/api/analytics/compare?first=2026-09-01&second=2026-10-01"),
       request.get("/api/analytics/unusual"),
+      request.get("/api/recommendations"),
       request.get("/api/assistant/info"),
       request.get("/api/assistant/conversations"),
       request.post("/api/assistant/conversations"),
@@ -77,7 +79,7 @@ test.describe("without signing in", () => {
       request.post(`/api/assistant/conversations/${id}/messages`, { data: { question: "Hi" } }),
     ]);
 
-    expect(responses.map((response) => response.status())).toEqual(Array(16).fill(401));
+    expect(responses.map((response) => response.status())).toEqual(Array(17).fill(401));
     expect((await (await request.get("/api/me")).json()).error.code).toBe("not_authenticated");
   });
 
@@ -231,6 +233,10 @@ test("a signed-in user can use every endpoint", async ({ page, request }) => {
     expect((await api.delete(`/api/documents/${documentId}`)).status()).toBe(404);
   });
 
+  await test.step("GET /api/recommendations is empty with no bills", async () => {
+    expect(await (await api.get("/api/recommendations")).json()).toEqual([]);
+  });
+
   await test.step("POST /api/documents/sample gives the design's figures", async () => {
     const response = await api.post("/api/documents/sample");
     expect(response.status()).toBe(201);
@@ -239,6 +245,9 @@ test("a signed-in user can use every endpoint", async ({ page, request }) => {
     expect(overview.total).toBe("1245.60");
     expect(overview.change.percent).toBe("-8.1");
     expect((await api.post("/api/documents/sample")).status()).toBe(409);
+    const recommendations = await (await api.get("/api/recommendations")).json();
+    expect(recommendations.length).toBeGreaterThan(0);
+    expect(recommendations.every((item: { source_url: string }) => item.source_url)).toBe(true);
   });
 
   await test.step("assistant endpoints handle bad input without using the AI", async () => {

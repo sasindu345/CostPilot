@@ -1,0 +1,28 @@
+# Harder questions that need real reasoning, on a bill with a hidden cause: three new
+# m5.2xlarge servers in eu-west-1 in October. Run with `make eval-agents`.
+questions:
+  - question: "Why did my EC2 cost rise in October?"
+    include: ["m5.2xlarge", "eu-west-1"]
+  - question: "Which usage type drove my cost increase, and where?"
+    include: ["m5.2xlarge", "eu-west-1"]
+  - question: "Was the rise from existing servers or new ones?"
+    include: ["m5.2xlarge"]
+    exclude: ["t3.medium increased"]
+  - question: "How can I save on my EBS storage?"
+    include: ["gp3", "10.00 USD"]
+    sources: ["EBS General Purpose SSD volumes"]
+  - question: "What should I do first to cut my bill?"
+    include: ["gp3"]
+  - question: "Which of my services could use a Reserved Instance or Savings Plan?"
+    include: ["RDS"]
+  - question: "What is the difference between Savings Plans and Reserved Instances?"
+    include: ["commit"]
+    sources: ["What are Savings Plans", "EC2 Reserved Instances"]
+  - question: "How does S3 Intelligent-Tiering work?"
+    include: ["tier"]
+    sources: ["S3 Intelligent-Tiering"]
+  - question: "When should I use Spot Instances?"
+    include: ["interrupt"]
+    sources: ["EC2 Spot Instances"]
+  - question: "Why did EC2 rise, and how can I save on storage?"
+    include: ["m5.2xlarge", "gp3"]

@@ -6,10 +6,13 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 
 MILLISECONDS = 1000
+# The supervisor and the final answer always need one call each.
+RESERVED_CALLS = 2
 
 
 @dataclass
 class AnswerMeter:
+    ai_call_limit: int = 4
     ai_calls: int = 0
     input_tokens: int = 0
     output_tokens: int = 0
@@ -17,6 +20,17 @@ class AnswerMeter:
 
     def __post_init__(self) -> None:
         self._started = time.perf_counter()
+        self._reserved = RESERVED_CALLS
+
+    def reserve_specialist(self) -> bool:
+        """Parallel specialists ask here first, so together they cannot pass the limit."""
+        if self._reserved >= self.ai_call_limit:
+            return False
+        self._reserved += 1
+        return True
+
+    def can_retry(self) -> bool:
+        return self.ai_calls < self.ai_call_limit
 
     def add_ai_call(self, input_tokens: int = 0, output_tokens: int = 0) -> None:
         self.ai_calls += 1

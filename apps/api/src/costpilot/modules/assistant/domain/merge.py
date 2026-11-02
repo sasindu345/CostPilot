@@ -17,7 +17,7 @@ def merge_evidence(results: Iterable[Evidence]) -> Evidence:
         for fact in item.facts:
             key = (fact.label, fact.value)
             if key not in new_ids:
-                new_ids[key] = facts.add(fact.label, fact.value)
+                new_ids[key] = facts.add(fact.label, fact.value, fact.subject)
             renamed[fact.id] = new_ids[key]
         for finding in item.findings:
             ids = tuple(renamed.get(fact_id, fact_id) for fact_id in finding.fact_ids)

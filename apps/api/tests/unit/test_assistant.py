@@ -7,7 +7,7 @@ from uuid import uuid4
 
 import pytest
 
-from costpilot.modules.analytics.contracts import Overview, UnusualCost
+from costpilot.modules.analytics.contracts import Overview, UnusualCost, UsageChange
 from costpilot.modules.analytics.domain.models import (
     MonthChange,
     MonthCost,
@@ -18,6 +18,12 @@ from costpilot.modules.assistant.application.assistant_service import (
     MODEL_DOWN_ANSWER,
     OUT_OF_SCOPE_ANSWER,
     AssistantService,
+)
+from costpilot.modules.assistant.application.specialists import (
+    ANOMALY,
+    KNOWLEDGE,
+    OPTIMIZATION,
+    SpecialistAgents,
 )
 from costpilot.modules.assistant.application.workspace_tools import (
     DOCUMENTS_DOWN,
@@ -42,6 +48,7 @@ from costpilot.modules.assistant.domain.models import (
     Message,
     Role,
     Route,
+    RoutePlan,
 )
 from costpilot.modules.assistant.domain.placeholders import UNKNOWN_FACT, PlaceholderFiller
 from costpilot.modules.assistant.domain.prompts import evidence_prompt
@@ -102,6 +109,21 @@ class FakeAnalytics:
     async def has_line_items(self, workspace_id):
         return self.has_detail
 
+    async def service_costs(self, workspace_id, filters):
+        return []
+
+    async def usage_changes(self, workspace_id, filters, currency, first, second):
+        return [
+            UsageChange(
+                "EC2-Instances",
+                "BoxUsage:t3.large",
+                "us-east-1",
+                Decimal("100"),
+                Decimal("300"),
+                4,
+            )
+        ]
+
 
 class FakeKnowledge:
     def __init__(self, result=None):
@@ -115,9 +137,28 @@ class FakeKnowledge:
         return self.result
 
 
+class FakeRecommendations:
+    def __init__(self, items=()):
+        self.items = list(items)
+
+    async def for_workspace(self, workspace_id):
+        return self.items
+
+
 class FakeModel:
-    def __init__(self, route=Route.COST, chunks=("Total: ", "{{F1}}."), error=None, retry=None):
+    def __init__(
+        self,
+        route=Route.COST,
+        chunks=("Total: ", "{{F1}}."),
+        error=None,
+        retry=None,
+        findings=(),
+        provider=None,
+    ):
         self.route = route
+        self.findings = findings
+        self.provider = provider
+        self.specialist_calls = []
         self.chunks = chunks
         self.retry = retry
         self.error = error
@@ -126,7 +167,16 @@ class FakeModel:
     async def choose_routes(self, question, meter):
         if self.error == "route":
             raise ModelUnavailableError
-        return self.route if isinstance(self.route, list) else [self.route]
+        return RoutePlan(
+            self.route if isinstance(self.route, list) else [self.route], self.provider
+        )
+
+    async def find_findings(self, instructions, prompt, meter):
+        self.specialist_calls.append((instructions, prompt))
+        meter.add_ai_call(100, 10)
+        if self.error == "specialist":
+            raise ModelUnavailableError
+        return list(self.findings)
 
     async def stream_answer(self, system, history, prompt, meter):
         self.prompts.append(prompt)
@@ -183,21 +233,37 @@ class FakeAuditLog:
         self.events.append((action, details))
 
 
-def service(model=None, *, analytics=None, knowledge=None, store=None, limiter=None, audit=None):
+ALL_AGENTS = (ANOMALY, OPTIMIZATION, KNOWLEDGE)
+
+
+def service(
+    model=None,
+    *,
+    analytics=None,
+    knowledge=None,
+    store=None,
+    limiter=None,
+    audit=None,
+    recommendations=None,
+    agents=ALL_AGENTS,
+    limit=4,
+):
     model = model or FakeModel()
     return AssistantService(
         store=store or FakeStore(),
         limiter=limiter or FakeLimiter(),
         model=model,
-        workflow=LangGraphEvidenceWorkflow(model),
+        workflow=LangGraphEvidenceWorkflow(model, SpecialistAgents(model, agents)),
         analytics=analytics or FakeAnalytics(),
         knowledge=knowledge or FakeKnowledge(),
+        recommendations=recommendations or FakeRecommendations(),
         audit_log=audit or FakeAuditLog(),
         daily_limit=50,
         max_question_length=100,
         history_messages=6,
         conversation_limit=20,
         answer_attempts=2,
+        ai_call_limit=limit,
         today=lambda: OCT,
     )
 
@@ -298,7 +364,7 @@ async def test_tools_only_ever_use_the_signed_in_workspace():
 
 
 def test_no_tool_accepts_a_workspace():
-    for name in ("cost_evidence", "anomaly_evidence", "optimization_evidence"):
+    for name in ("cost_evidence", "anomaly_evidence", "optimization_evidence", "search_documents"):
         parameters = getattr(WorkspaceTools, name).__code__.co_varnames
         assert not any("workspace" in parameter for parameter in parameters[1:])
 
@@ -308,7 +374,7 @@ async def test_supervisor_sends_anomaly_questions_to_the_right_specialist():
 
     await run(service(model))
 
-    assert "flagged as unusual" in model.prompts[0]
+    assert "flagged as unusual" in model.specialist_calls[0][1]
 
 
 async def test_optimization_questions_use_documents_and_list_their_sources():
@@ -319,7 +385,7 @@ async def test_optimization_questions_use_documents_and_list_their_sources():
     events = await run(service(model, knowledge=knowledge, store=store), "How can I save?")
 
     assert knowledge.seen == [("How can I save?", "aws")]
-    assert "S3 lifecycle" in model.prompts[0]
+    assert "S3 lifecycle" in model.specialist_calls[0][1]
     assert events[-1].sources[0].url == "https://docs.test/s3"
     assert store.saved[-1][2][0].url == "https://docs.test/s3"
 
@@ -336,17 +402,20 @@ async def test_a_two_part_question_runs_both_specialists_at_the_same_time():
             await asyncio.wait_for(release.wait(), 1)
             return Evidence((Route.ANOMALY,), [Fact("F1", "EC2 usual cost", "100.00 USD")])
 
-        async def optimization_evidence(self, question):
+        async def optimization_evidence(self, passages, search_limits):
             started.append("optimization")
             if len(started) == 2:
                 release.set()
             await asyncio.wait_for(release.wait(), 1)
             return Evidence((Route.OPTIMIZATION,), [Fact("F1", "S3 cost", "18.60 USD")])
 
-    workflow = LangGraphEvidenceWorkflow(FakeModel(route=[Route.ANOMALY, Route.OPTIMIZATION]))
+    model = FakeModel(route=[Route.ANOMALY, Route.OPTIMIZATION])
+    workflow = LangGraphEvidenceWorkflow(model, SpecialistAgents(model, ()))
 
     evidence = await workflow.gather(
-        "Why up, and how to save?", TrackedTools(uuid4(), None, None), AnswerMeter()
+        "Why up, and how to save?",
+        TrackedTools(uuid4(), FakeAnalytics(), FakeKnowledge(), FakeRecommendations()),
+        AnswerMeter(),
     )
 
     assert sorted(started) == ["anomaly", "optimization"]
@@ -421,7 +490,7 @@ async def test_answers_still_work_when_documentation_search_is_down():
     events = await run(service(model, knowledge=knowledge))
 
     assert DOCUMENTS_DOWN in model.prompts[0]
-    assert answer_text(events) == "Total: 1,245.60 USD."
+    assert answer_text(events) == "Total: 248.60 USD."
 
 
 async def test_gemini_being_down_gives_a_clear_message_that_is_saved():

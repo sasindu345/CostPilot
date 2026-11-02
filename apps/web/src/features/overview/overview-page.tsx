@@ -13,6 +13,7 @@ import { formatMonth } from "@/lib/format";
 
 import { EmptyOverview } from "./empty-overview";
 import { RecentDocuments } from "./recent-documents";
+import { RecommendationsCard } from "./recommendations-card";
 import { StatCards } from "./stat-cards";
 
 const DEFAULT_MONTHS = 6;
@@ -48,12 +49,7 @@ export function OverviewPage() {
             </div>
             <div className="grid gap-4 lg:grid-cols-2">
               <RecentDocuments />
-              <Card title="AI Recommendations">
-                <p className="text-muted">
-                  Recommendations will appear here, with their evidence, once the AI assistant is
-                  ready.
-                </p>
-              </Card>
+              <RecommendationsCard />
             </div>
           </div>
           <ChatPanel className="hidden max-h-[var(--token-chat-height)] 2xl:flex" />

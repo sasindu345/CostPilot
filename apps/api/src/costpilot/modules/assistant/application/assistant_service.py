@@ -45,6 +45,7 @@ from costpilot.modules.assistant.domain.templates import template_answer
 from costpilot.modules.audit.contracts import AuditLog
 from costpilot.modules.identity.contracts import CurrentUser
 from costpilot.modules.knowledge.contracts import KnowledgeSearch
+from costpilot.modules.recommendations.contracts import RecommendationReader
 
 logger = structlog.get_logger()
 
@@ -76,12 +77,14 @@ class AssistantService:
         workflow: EvidenceWorkflow,
         analytics: AnalyticsReader,
         knowledge: KnowledgeSearch,
+        recommendations: RecommendationReader,
         audit_log: AuditLog,
         daily_limit: int,
         max_question_length: int,
         history_messages: int,
         conversation_limit: int,
         answer_attempts: int,
+        ai_call_limit: int,
         today: Callable[[], date],
     ) -> None:
         self._store = store
@@ -90,12 +93,14 @@ class AssistantService:
         self._workflow = workflow
         self._analytics = analytics
         self._knowledge = knowledge
+        self._recommendations = recommendations
         self._audit_log = audit_log
         self._daily_limit = daily_limit
         self._max_question_length = max_question_length
         self._history_messages = history_messages
         self._conversation_limit = conversation_limit
         self._answer_attempts = answer_attempts
+        self._ai_call_limit = ai_call_limit
         self._today = today
 
     def suggestions(self) -> tuple[str, ...]:
@@ -146,8 +151,10 @@ class AssistantService:
             return
 
         yield ChatEvent("status", "Checking your bills")
-        meter = AnswerMeter()
-        tools = WorkspaceTools(workspace_id, self._analytics, self._knowledge)
+        meter = AnswerMeter(ai_call_limit=self._ai_call_limit)
+        tools = WorkspaceTools(
+            workspace_id, self._analytics, self._knowledge, self._recommendations
+        )
         try:
             gathered = await self._workflow.gather(question, tools, meter)
             has_line_detail = await tools.has_line_detail()
@@ -201,6 +208,8 @@ class AssistantService:
         prompt = evidence_prompt(question, evidence)
         lines = history_lines(history)
         for attempt in range(1, self._answer_attempts + 1):
+            if attempt > 1 and not meter.can_retry():
+                return template_answer(evidence), attempt - 1, True
             try:
                 with meter.step("write_answer"):
                     chunks = self._model.stream_answer(ANSWER_INSTRUCTIONS, lines, prompt, meter)
@@ -212,7 +221,10 @@ class AssistantService:
                 filler = PlaceholderFiller(evidence.facts)
                 return filler.feed(raw) + filler.finish(), attempt, False
             logger.warning(
-                "answer_rejected", typed=check.typed[:5], unknown_ids=check.unknown_ids[:5]
+                "answer_rejected",
+                typed=check.typed[:5],
+                unknown_ids=check.unknown_ids[:5],
+                misplaced=check.misplaced[:5],
             )
             prompt = f"{prompt}\n\n{CORRECTION}"
         return template_answer(evidence), self._answer_attempts, True

@@ -26,6 +26,7 @@ from costpilot.modules.analytics.domain.models import (
     ServiceCost,
     ServiceMonthCost,
     UnusualCost,
+    UsageChange,
 )
 
 
@@ -51,11 +52,13 @@ class AnalyticsService:
         store: AnalyticsStore,
         detector: UnusualCostDetector,
         top_service_limit: int,
+        usage_change_limit: int,
         today: Callable[[], date],
     ) -> None:
         self._store = store
         self._detector = detector
         self._top_service_limit = top_service_limit
+        self._usage_change_limit = usage_change_limit
         self._today = today
 
     async def overview(self, workspace_id: UUID, filters: Filters) -> Overview | None:
@@ -103,6 +106,23 @@ class AnalyticsService:
         is_partial, _ = self._coverage(latest, last_day)
         checked_month = previous_month(latest) if is_partial else latest
         return self._detector.find(selected, checked_month)
+
+    async def service_costs(self, workspace_id: UUID, filters: Filters) -> list[ServiceMonthCost]:
+        selected, _ = await self._selected_costs(workspace_id, filters)
+        return selected
+
+    async def usage_changes(
+        self, workspace_id: UUID, filters: Filters, currency: str, first: date, second: date
+    ) -> list[UsageChange]:
+        return await self._store.usage_changes(
+            workspace_id,
+            first,
+            second,
+            filters.cost_type,
+            currency,
+            filters.provider,
+            self._usage_change_limit,
+        )
 
     async def has_line_items(self, workspace_id: UUID) -> bool:
         return await self._store.has_line_items(workspace_id)

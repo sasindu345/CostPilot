@@ -10,6 +10,7 @@ from costpilot.modules.analytics.infrastructure.numpy_unusual_cost_detector impo
 )
 from costpilot.modules.analytics.infrastructure.postgres_store import PostgresAnalyticsStore
 from costpilot.modules.assistant.application.assistant_service import AssistantService
+from costpilot.modules.assistant.application.specialists import SpecialistAgents
 from costpilot.modules.assistant.infrastructure.gemini_chat_model import GeminiChatModel
 from costpilot.modules.assistant.infrastructure.langgraph_workflow import (
     LangGraphEvidenceWorkflow,
@@ -41,6 +42,9 @@ from costpilot.modules.knowledge.infrastructure.gemini_embedder import GeminiEmb
 from costpilot.modules.knowledge.infrastructure.html_page_loader import HtmlPageLoader
 from costpilot.modules.knowledge.infrastructure.langchain_splitter import LangChainTextSplitter
 from costpilot.modules.knowledge.infrastructure.qdrant_index import QdrantVectorIndex
+from costpilot.modules.recommendations.application.recommendation_service import (
+    RecommendationService,
+)
 from costpilot.shared.config import Settings
 from costpilot.shared.database import Database
 
@@ -95,7 +99,17 @@ def build_analytics_service(settings: Settings, database: Database) -> Analytics
             min_increase_amount=settings.unusual_min_increase_amount,
         ),
         top_service_limit=settings.top_service_limit,
+        usage_change_limit=settings.usage_change_limit,
         today=today_utc,
+    )
+
+
+def build_recommendation_service(settings: Settings, database: Database) -> RecommendationService:
+    return RecommendationService(
+        analytics=build_analytics_service(settings, database),
+        min_monthly_cost=settings.recommendation_min_monthly_cost,
+        steady_ratio=settings.recommendation_steady_ratio,
+        docs_urls={"aws": settings.aws_docs_url},
     )
 
 
@@ -179,14 +193,18 @@ def build_assistant_service(settings: Settings, database: Database) -> Assistant
         store=PostgresConversationStore(database),
         limiter=PostgresUsageLimiter(database),
         model=model,
-        workflow=LangGraphEvidenceWorkflow(model),
+        workflow=LangGraphEvidenceWorkflow(
+            model, SpecialistAgents(model, settings.assistant_ai_specialists)
+        ),
         analytics=build_analytics_service(settings, database),
         knowledge=build_knowledge_search(settings),
+        recommendations=build_recommendation_service(settings, database),
         audit_log=PostgresAuditLog(database),
         daily_limit=settings.assistant_daily_limit,
         max_question_length=settings.assistant_max_question_length,
         history_messages=settings.assistant_history_messages,
         conversation_limit=settings.assistant_conversation_limit,
         answer_attempts=settings.assistant_answer_attempts,
+        ai_call_limit=settings.assistant_ai_call_limit,
         today=today_utc,
     )

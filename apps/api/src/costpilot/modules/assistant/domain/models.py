@@ -11,6 +11,7 @@ class Route(StrEnum):
     COST = "cost"
     ANOMALY = "anomaly"
     OPTIMIZATION = "optimization"
+    KNOWLEDGE = "knowledge"
     OUT_OF_SCOPE = "out_of_scope"
 
 
@@ -26,6 +27,15 @@ class Fact:
     id: str
     label: str
     value: str
+    subject: str = ""
+
+
+@dataclass(frozen=True)
+class RoutePlan:
+    """The supervisor's decision: which specialists to run, and for which cloud."""
+
+    routes: list[Route]
+    provider: str | None = None
 
 
 @dataclass(frozen=True)
