@@ -323,15 +323,15 @@ Every phase ends with the same steps:
 
 ### Phase 7 – Trust and measurement
 **You will see:** every answer shows its evidence and grade, and quality can be measured.
-- [ ] Time every step of an answer, and find the cause of the 15 to 25 second answers
-- [ ] Record AI calls, tokens and time for each question in the audit log
-- [ ] Scored test questions, `make eval-assistant`, and a saved baseline
-- [ ] Findings format in Pydantic
-- [ ] Evidence Validator
-- [ ] Answer Checker with a retry and a template fallback, which also covers chat history
-- [ ] Evidence grades A to D
-- [ ] Coded protection against prompt injection
-- [ ] "How was this answer made?" view from the audit records
+- [x] Time every step of an answer, and find the cause of the 15 to 25 second answers
+- [x] Record AI calls, tokens and time for each question in the audit log
+- [x] Scored test questions, `make eval-assistant`, and a saved baseline
+- [x] Findings format in Pydantic
+- [x] Evidence Validator
+- [x] Answer Checker with a retry and a template fallback, which also covers chat history
+- [x] Evidence grades A to D
+- [x] Coded protection against prompt injection
+- [x] "How was this answer made?" view from the audit records
 
 ### Phase 8 – Hybrid agents
 **You will see:** deeper answers from specialist agents, proven against the baseline. See decision 0010.

@@ -53,6 +53,7 @@ Open http://localhost:3010 and click **Register**. After signing in, click **Try
 | `make e2e` | Tests the full user journey in Chrome |
 | `make reindex` | Rebuilds documentation search. Needs a Gemini key |
 | `make eval-search` | Measures search quality. Needs a Gemini key |
+| `make eval-assistant` | Scores the assistant with real Gemini, using about 30 AI calls |
 | `make sample` | Creates a made-up bill |
 | `make down` | Stops everything |
 

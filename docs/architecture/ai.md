@@ -34,7 +34,7 @@ flowchart LR
 
 The supervisor makes one AI call and can choose several specialists. LangGraph runs those specialists in parallel, and code joins their evidence and gives each fact a new id. Specialists are plain code, so a question uses **two AI calls at most**: one to choose routes, and one to write the answer.
 
-> **Built so far:** steps 1, 2, 6 and 7 below are built, and the supervisor uses AI while specialists are plain code. Steps 3, 4 and 5 arrive in Phases 7 and 8. See [technical verification](technical-verification.md).
+> **Built so far:** steps 1 to 4, 6 and 7 below are built. Step 5 arrives in Phase 8, and specialists are still plain code until then. See [technical verification](technical-verification.md) for what these checks cannot catch.
 
 ## How the AI is kept honest
 

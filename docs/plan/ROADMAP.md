@@ -13,7 +13,7 @@ This is the one place to see what is done and what remains. Update it at the end
 | 4 | [Dashboard and analytics](phase-04-dashboard-and-analytics.md) | The design working with real data | ✅ |
 | 5 | [Documentation search](phase-05-documentation-search-rag.md) | Search finds the right cloud advice | ✅ |
 | 6 | [AI assistant](phase-06-ai-assistant.md) | Live answers about your bill | ✅ |
-| 7 | [Trust and measurement](phase-07-trust-and-measurement.md) | Every answer shows its evidence, and quality can be measured | ⬜ |
+| 7 | [Trust and measurement](phase-07-trust-and-measurement.md) | Every answer shows its evidence, and quality can be measured | ✅ |
 | 8 | [Hybrid agents](phase-08-hybrid-agents.md) | Deeper answers from specialist agents, proven against a baseline | ⬜ |
 | 9 | [Other clouds](phase-09-other-clouds.md) | Azure, Google Cloud, Oracle, DigitalOcean | ⬜ |
 | 10 | [Live deployment](phase-10-live-deployment.md) | Running on the internet with HTTPS | ⬜ |
@@ -34,9 +34,10 @@ This is the one place to see what is done and what remains. Update it at the end
 
 | Command | What it proves |
 |---|---|
-| `make check` | 223 backend tests, 34 frontend tests, style, architecture and security rules. Needs `make up` |
+| `make check` | 286 backend tests, 34 frontend tests, style, architecture and security rules. Needs `make up` |
 | `make e2e` | 12 browser and API tests, including every API endpoint, a real Gemini answer, accessibility and phone size |
 | `make eval-search` | Search quality. It was 10 of 10 |
+| `make eval-assistant` | Whole assistant, with real Gemini. It was 15 of 15, and uses about 30 AI calls |
 
 ## Manual setup you will need
 
@@ -50,7 +51,7 @@ Code cannot do these for you.
 | Phase 10 | Create a free Qdrant Cloud cluster, then add `QDRANT_URL` and `QDRANT_API_KEY` to GitHub secrets and the server |
 | Phase 10 | Choose a free DuckDNS name for HTTPS |
 | Phase 10 | Choose a real email service for Keycloak, as Mailpit is only for testing |
-| Phase 7 | Check your free limits at https://aistudio.google.com/rate-limit, so the test questions stay within them |
+| Phase 8 | Check your free limits at https://aistudio.google.com/rate-limit. One 429 rate-limit error was seen in testing |
 | Any time | Add `wijewardanasj.23@uom.lk` to your GitHub account |
 
 ## Open items
