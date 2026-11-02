@@ -6,11 +6,13 @@ requires-python = ">=3.13,<3.14"
 dependencies = [
   "alembic>=1.20.1",
   "asyncpg>=0.32.0",
+  "boto3>=1.43.123",
   "cryptography>=50.0.2",
   "fastapi>=0.120",
   "httpx2>=2.16.0",
   "pydantic-settings>=2.6",
   "pyjwt[crypto]>=2.15.1",
+  "python-multipart>=0.0.33",
   "sqlalchemy[asyncio]>=2.0",
   "structlog>=25.1",
   "uvicorn[standard]>=0.38",
@@ -21,6 +23,7 @@ dev = [
   "bandit>=1.8",
   "httpx2>=2.16.0",
   "import-linter>=2.5",
+  "moto[s3]>=5.2.5",
   "pytest>=8.4",
   "pytest-asyncio>=1.4.1.post1",
   "ruff>=0.14",
@@ -48,7 +51,7 @@ target-version = "py313"
 select = ["E", "F", "I", "B", "UP", "S", "C4", "SIM", "RUF"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101", "S105", "S106"]
+"tests/**" = ["S101", "S105", "S106", "S108"]
 "migrations/versions/*" = ["S608"]
 
 [tool.bandit]
@@ -87,6 +90,7 @@ source_modules = [
   "costpilot.modules.audit.domain",
 ]
 forbidden_modules = [
+  "boto3",
   "cryptography",
   "fastapi",
   "httpx2",

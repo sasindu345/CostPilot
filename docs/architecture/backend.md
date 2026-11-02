@@ -6,7 +6,9 @@ The backend is in `apps/api`, using Python and FastAPI.
 
 ```
 apps/api/src/costpilot/
-  main.py            Connects everything together
+  main.py            Starts the web API
+  worker.py          Starts the background worker
+  composition.py     Connects modules to real tools
   shared/            Settings, logging and errors, used by all modules
   modules/
     billing/
@@ -51,6 +53,23 @@ A module may only import another module through its `contracts.py` file. Everyth
 | Modules only use each other's contracts | `tests/architecture/test_module_boundaries.py` |
 
 When a new library is added that the domain must not use, such as SQLAlchemy, add it to `forbidden_modules` in `pyproject.toml`.
+
+## The background worker
+
+Reading a bill is slow, so it does not happen during the upload.
+
+1. The upload saves the file, then saves the document and a job in one transaction.
+2. `worker.py` claims the next job with `FOR UPDATE SKIP LOCKED`, so two workers never take the same job.
+3. `JobRunner` does the work and records the result.
+
+| What goes wrong | What happens |
+|---|---|
+| The file is bad | It fails at once, and the user sees the reason |
+| A temporary problem | It retries, waiting longer each time, up to `JOB_MAX_ATTEMPTS` |
+| The worker crashes | The job goes back in the queue after `JOB_STALE_MINUTES` |
+| The document was deleted | The job is skipped |
+
+The `jobs` table has no Row-Level Security, because the worker must see every workspace. It only holds IDs and error class names, never user data.
 
 ## Settings and errors
 

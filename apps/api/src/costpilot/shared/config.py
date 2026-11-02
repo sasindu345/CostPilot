@@ -38,6 +38,19 @@ class Settings(BaseSettings):
     login_cookie_name: str = "costpilot_login"
     login_lifetime_seconds: int = 600
 
+    storage_backend: Literal["local", "s3"]
+    storage_local_path: str
+    s3_bucket: str = ""
+    aws_region: str = ""
+
+    max_upload_mb: int = 100
+    max_unpacked_mb: int = 1024
+    document_list_limit: int = 100
+    worker_poll_seconds: float = 2
+    job_max_attempts: int = 3
+    job_retry_seconds: int = 30
+    job_stale_minutes: int = 15
+
     def _database_url(self, username: str, password: SecretStr) -> URL:
         return URL.create(
             "postgresql+asyncpg",

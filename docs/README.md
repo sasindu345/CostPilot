@@ -29,6 +29,7 @@ Each note explains one big decision and why we made it.
 - [0004: Use S3's built-in encryption](decisions/0004-s3-built-in-encryption.md)
 - [0005: The AI writes placeholders, not numbers](decisions/0005-ai-writes-placeholders.md)
 - [0006: Use PostgreSQL for background jobs](decisions/0006-postgres-job-queue.md)
+- [0007: Keep everything on EC2 for now, and review Lambda later](decisions/0007-lambda-is-a-later-option.md)
 
 ## Design
 

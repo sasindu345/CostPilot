@@ -1,6 +1,6 @@
 -include .env
 
-.PHONY: help setup up down logs dev-api dev-web migrate e2e check test sample
+.PHONY: help setup up down logs dev-api dev-web migrate e2e types check test sample
 
 help: ## Show this list
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  make %-10s %s\n", $$1, $$2}'
@@ -37,6 +37,11 @@ check: ## Run all tests, style checks and rule checks
 test: ## Run tests only
 	cd apps/api && uv run pytest
 	cd apps/web && pnpm test
+
+types: ## Update the frontend's API types from the backend
+	cd apps/api && uv run python scripts/export_openapi.py ../web/openapi.json
+	cd apps/web && pnpm exec openapi-typescript openapi.json --output src/lib/api-types.ts
+	rm apps/web/openapi.json
 
 e2e: ## Test the full user journey in a real browser
 	cd apps/web && E2E_BASE_URL=$(APP_PUBLIC_URL) MAILPIT_URL=http://localhost:$(MAILPIT_UI_PORT) E2E_BROWSER_CHANNEL=chrome pnpm e2e

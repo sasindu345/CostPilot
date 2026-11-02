@@ -328,6 +328,7 @@ Every phase ends with the same steps:
 - [ ] Recommendation rules, with provable savings or "Needs usage data"
 - [ ] Recommendations on the Overview page
 - [ ] "How was this answer made?" view from the audit records
+- [ ] Review the Lambda options in decision 0007, using real memory and speed numbers
 
 ### Phase 8 – Other clouds
 **You will see:** a bill from each cloud shows up in the same dashboard.

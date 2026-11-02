@@ -22,6 +22,8 @@ TEST_DEFAULTS = {
     "SESSION_COOKIE_NAME": "test_session",
     "SESSION_COOKIE_SECURE": "false",
     "SESSION_LIFETIME_HOURS": "8",
+    "STORAGE_BACKEND": "local",
+    "STORAGE_LOCAL_PATH": "/tmp/costpilot-test-uploads",
 }
 
 if not (Path(__file__).parents[3] / ".env").exists():

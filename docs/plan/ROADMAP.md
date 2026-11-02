@@ -30,6 +30,7 @@ This is the one place to see what is done and what remains. Update it at the end
 
 ## Open items
 
+- After Phase 7, review the Lambda options in [decision 0007](../decisions/0007-lambda-is-a-later-option.md).
 - The `phase-0-baseline` branch shows a red pipeline run, because the `npm` security fix is on `phase-1-login`. Merging `phase-1-login` into `main` carries everything.
 - Phase 9 starts by confirming `t3.small` is free on your AWS account. A micro-only account cannot run Keycloak.
 - Add `wijewardanasj.23@uom.lk` to your GitHub account so commits count on your profile.

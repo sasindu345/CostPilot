@@ -64,7 +64,7 @@ api  →  application  →  domain  ←  infrastructure
 | `api` | Routes and request or response shapes | Business logic |
 
 - One module may only import another module through its `contracts.py` file.
-- `main.py` is the only place that connects everything together.
+- `composition.py` is the only place that connects modules to real tools.
 - `lint-imports` and `tests/architecture/` fail the build if these rules are broken.
 
 On the frontend, each screen lives in `apps/web/src/features/<name>/`. Features do not import each other. Shared parts go in `src/components/` and `src/lib/`.
@@ -121,4 +121,5 @@ Do all of these before saying a phase is done:
 | `make check` | Runs all tests, style checks and rule checks |
 | `make test` | Runs tests only |
 | `make e2e` | Tests the full user journey in Chrome |
-| `make sample` | Creates a made-up bill in `samples/output/` |
+| `make types` | Updates the frontend's API types. Run it after changing an API |
+| `make sample` | Creates made-up bills in `samples/output/` |

@@ -78,6 +78,7 @@ services:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: "5432"
       KEYCLOAK_INTERNAL_URL: http://keycloak:8080
+      STORAGE_LOCAL_PATH: /app/uploads
     depends_on:
       postgres:
         condition: service_healthy
@@ -87,8 +88,24 @@ services:
       context: apps/api
     env_file: .env
     environment: *backend-addresses
+    volumes:
+      - uploads_data:/app/uploads
     ports:
       - 127.0.0.1:${API_PORT:?set in .env}:8000
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  worker:
+    build:
+      context: apps/api
+    command: [python, -m, costpilot.worker]
+    healthcheck:
+      disable: true
+    env_file: .env
+    environment: *backend-addresses
+    volumes:
+      - uploads_data:/app/uploads
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -106,3 +123,4 @@ services:
 volumes:
   postgres_data:
   qdrant_data:
+  uploads_data:

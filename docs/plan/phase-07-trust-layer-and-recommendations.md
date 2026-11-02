@@ -8,6 +8,7 @@
 - [ ] Recommendation rules, with provable savings or "Needs usage data"
 - [ ] Recommendations on the Overview page
 - [ ] "How was this answer made?" view from the audit records
+- [ ] Review the Lambda options in decision 0007, using real memory and speed numbers
 
 ## Finish this phase
 
