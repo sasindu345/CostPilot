@@ -50,7 +50,7 @@ types: ## Update the frontend's API types from the backend
 	rm apps/web/openapi.json
 
 e2e: ## Test the full user journey in a real browser
-	cd apps/web && E2E_BASE_URL=$(APP_PUBLIC_URL) MAILPIT_URL=http://localhost:$(MAILPIT_UI_PORT) E2E_BROWSER_CHANNEL=chrome pnpm e2e
+	cd apps/web && E2E_BASE_URL=$(APP_PUBLIC_URL) E2E_API_URL=http://localhost:$(API_PORT) MAILPIT_URL=http://localhost:$(MAILPIT_UI_PORT) E2E_BROWSER_CHANNEL=chrome pnpm e2e
 
 sample: ## Create a made-up bill in samples/output
 	python3 samples/generate_sample_bill.py

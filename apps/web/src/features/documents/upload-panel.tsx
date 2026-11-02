@@ -3,18 +3,26 @@
 import { Upload } from "lucide-react";
 import { useRef, useState } from "react";
 
+import { useCurrentUser } from "@/lib/current-user";
 import { useUploadDocument } from "@/lib/documents";
 
 const ACCEPTED_FILES = ".csv,.gz";
+const BYTES_PER_MB = 1024 * 1024;
 
 export function UploadPanel() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [sizeError, setSizeError] = useState<string>();
   const upload = useUploadDocument();
+  const { data: user } = useCurrentUser();
 
   function sendFiles(files: FileList | null) {
     const file = files?.[0];
-    if (file) {
+    setSizeError(undefined);
+    upload.reset();
+    if (user && file && file.size > user.max_upload_mb * BYTES_PER_MB) {
+      setSizeError(`That file is too large. The limit is ${user.max_upload_mb} MB.`);
+    } else if (file) {
       upload.mutate(file);
     }
     if (inputRef.current) {
@@ -59,9 +67,9 @@ export function UploadPanel() {
           {upload.isPending ? "Uploading…" : "Choose file"}
         </button>
       </div>
-      {upload.error && (
+      {(sizeError ?? upload.error) && (
         <p role="alert" className="mt-3 rounded-control bg-danger-tint px-4 py-2 text-danger">
-          {upload.error.message}
+          {sizeError ?? upload.error?.message}
         </p>
       )}
     </section>

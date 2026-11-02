@@ -304,6 +304,8 @@ export interface components {
             role: string;
             /** Account Url */
             account_url: string;
+            /** Max Upload Mb */
+            max_upload_mb: number;
         };
         /** MonthCostResponse */
         MonthCostResponse: {
@@ -450,9 +452,9 @@ export interface operations {
     };
     callback_api_auth_callback_get: {
         parameters: {
-            query: {
-                code: string;
-                state: string;
+            query?: {
+                code?: string | null;
+                state?: string | null;
             };
             header?: never;
             path?: never;

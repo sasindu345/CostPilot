@@ -17,6 +17,7 @@ class MeResponse(BaseModel):
     workspace_name: str
     role: str
     account_url: str
+    max_upload_mb: int
 
 
 class LogoutResponse(BaseModel):
@@ -75,7 +76,7 @@ async def logout(
 
 
 @router.get("/me")
-def me(user: SignedInUser, auth: Auth) -> MeResponse:
+def me(user: SignedInUser, auth: Auth, settings: AppSettings) -> MeResponse:
     return MeResponse(
         user_id=user.user_id,
         email=user.email,
@@ -84,4 +85,5 @@ def me(user: SignedInUser, auth: Auth) -> MeResponse:
         workspace_name=user.workspace_name,
         role=user.role,
         account_url=auth.account_url(),
+        max_upload_mb=settings.max_upload_mb,
     )

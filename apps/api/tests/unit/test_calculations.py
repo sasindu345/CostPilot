@@ -76,6 +76,29 @@ def test_top_services_add_up_to_the_total_with_an_other_row():
     assert rows[-1].cost == Decimal("38.60")
 
 
+def test_a_service_named_other_joins_the_other_row_instead_of_repeating_it():
+    costs = [
+        cost(OCT, "EC2", "120.00"),
+        cost(OCT, "RDS", "65.00"),
+        cost(OCT, "S3", "18.60"),
+        cost(OCT, "Other", "45.00"),
+    ]
+
+    rows = top_services(costs, OCT, limit=3)
+
+    assert [row.name for row in rows] == ["EC2", "RDS", "S3", "Other"]
+    assert rows[-1].cost == Decimal("45.00")
+
+
+def test_a_service_named_other_is_added_to_the_smaller_services():
+    costs = [*DESIGN_MONTH, cost(OCT, "Other", "1.00")]
+
+    rows = top_services(costs, OCT, limit=3)
+
+    assert [row.name for row in rows].count("Other") == 1
+    assert rows[-1].cost == Decimal("39.60")
+
+
 def test_no_other_row_when_everything_fits():
     rows = top_services(DESIGN_MONTH, OCT, limit=5)
 

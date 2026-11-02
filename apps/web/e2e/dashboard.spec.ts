@@ -22,6 +22,7 @@ test("a new user sees correct figures from sample data", async ({ page, request 
     await expect(page.getByText("8.1% lower")).toBeVisible();
     await expect(page.getByText("EC2-Instances")).toBeVisible();
     await expect(page.getByText("$120.00")).toBeVisible();
+    await expect(page.getByText("Other", { exact: true })).toHaveCount(1);
     await expect(page.getByText("sample-aws-bill.csv")).toBeVisible();
     await expectNoAccessibilityProblems(page);
   });
@@ -47,7 +48,7 @@ test("a new user sees correct figures from sample data", async ({ page, request 
   await test.step("it works on a phone", async () => {
     await page.setViewportSize({ width: 390, height: 800 });
     await page.getByRole("link", { name: "Documents" }).click();
-    await expect(page.getByRole("heading", { name: "Documents" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Documents", exact: true })).toBeVisible();
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );

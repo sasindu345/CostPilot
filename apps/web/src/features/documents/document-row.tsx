@@ -30,9 +30,9 @@ export function DocumentRow({ document }: { document: Document }) {
 
   return (
     <li className="border-b border-border last:border-b-0">
-      <div className="flex items-center gap-4 p-4">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 p-4">
         <FileText aria-hidden className="size-6 shrink-0 text-brand" />
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 basis-40">
           <p className="truncate font-medium">{document.file_name}</p>
           <p className="text-sm text-muted">
             {formatDateTime(document.created_at)} · {formatFileSize(document.size_bytes)}

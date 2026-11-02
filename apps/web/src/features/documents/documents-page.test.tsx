@@ -98,6 +98,25 @@ describe("DocumentsPage", () => {
     );
   });
 
+  it("refuses an oversized file before uploading it", async () => {
+    const calls: string[] = [];
+    mockApi((url, init) => {
+      calls.push(`${init?.method ?? "GET"} ${url}`);
+      return url === "/api/me" ? json({ max_upload_mb: 1 }) : json([]);
+    });
+    renderPage();
+    await screen.findByText("No documents yet");
+    await vi.waitFor(() => expect(calls).toContain("GET /api/me"));
+    await new Promise((resolve) => setTimeout(resolve));
+
+    const file = new File(["a,b"], "huge.csv", { type: "text/csv" });
+    Object.defineProperty(file, "size", { value: 2 * 1024 * 1024 });
+    fireEvent.change(screen.getByLabelText("Choose a billing file"), { target: { files: [file] } });
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("The limit is 1 MB.");
+    expect(calls).not.toContain("POST /api/documents");
+  });
+
   it("offers a retry when the list cannot be loaded", async () => {
     mockApi(() => json({}, 500));
     renderPage();

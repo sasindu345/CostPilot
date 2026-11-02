@@ -4,7 +4,7 @@ import { signUp } from "./helpers";
 
 const GOOD_BILL = "Service,EC2($)\n2026-09-01,100.00\n2026-10-01,150.00\n";
 const NOT_A_BILL = "name,age\nAnn,30\n";
-const UPLOAD_LIMIT_MB = 100;
+const API_URL = process.env.E2E_API_URL;
 
 function billFile(name: string, content: string | Buffer, mimeType = "text/csv") {
   return { multipart: { file: { name, mimeType, buffer: Buffer.from(content) } } };
@@ -111,6 +111,7 @@ test("a signed-in user can use every endpoint", async ({ page, request }) => {
     expect(me.role).toBe("owner");
     expect(me.workspace_name).toBe("My workspace");
     expect(me.account_url).toContain("/account");
+    expect(me.max_upload_mb).toBeGreaterThan(0);
   });
 
   await test.step("a new workspace is empty", async () => {
@@ -143,10 +144,12 @@ test("a signed-in user can use every endpoint", async ({ page, request }) => {
     expect(noFile.status()).toBe(422);
   });
 
-  await test.step("an oversized upload is refused", async () => {
-    const tooBig = Buffer.alloc((UPLOAD_LIMIT_MB + 2) * 1024 * 1024, "a");
-    const response = await api.post("/api/documents", billFile("huge.csv", tooBig));
+  await test.step("the API refuses an oversized upload", async () => {
+    const { max_upload_mb: limit } = await (await api.get("/api/me")).json();
+    const tooBig = Buffer.alloc((limit + 2) * 1024 * 1024, "a");
+    const response = await api.post(`${API_URL}/api/documents`, billFile("huge.csv", tooBig));
     expect(response.status()).toBe(413);
+    expect((await response.json()).error.code).toBe("file_too_large");
   });
 
   await test.step("a file we cannot read fails with a reason", async () => {

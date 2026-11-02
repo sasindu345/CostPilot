@@ -295,10 +295,10 @@ Every phase ends with the same steps:
 **You will see:** your design working with real calculated data.
 - [x] Analytics calculations: totals, changes, top services, trends, period comparison
 - [x] Unusual spending detection
-- [ ] Overview page, matching your design with the fixes in section 6
-- [ ] Analytics page with filters
-- [ ] Empty, loading and error states
-- [ ] Mobile and accessibility review
+- [x] Overview page, matching your design with the fixes in section 6
+- [x] Analytics page with filters
+- [x] Empty, loading and error states
+- [x] Mobile and accessibility review
 
 ### Phase 5 – Documentation search (RAG)
 **You will see:** a test search returns the right AWS advice.

@@ -4,6 +4,21 @@ A dated record of what was built. Newest entries go at the top.
 
 ## 2 Nov 2026: Phases 1 to 5 clean-up
 
+**Bugs found by testing and fixed**
+
+- Top Services showed "Other" twice when a bill had a service with that name
+- A file over 100 MB broke the connection, with no clear message. The browser now checks the size first, using the limit from the API
+- The Documents page was too wide on phones
+- The error page used the wrong prop name for this Next.js version
+
+**Tested on 2 Nov 2026**
+
+- `make e2e`: 11 of 11, covering all 14 API endpoints, password reset to a new password, accessibility and phone size
+- 179 backend tests, run three times to check for random failures, and 30 frontend tests
+- Overview, Analytics and phone screens compared with the design by eye
+
+**Changes**
+
 - Cancelling at Keycloak now returns to the app, instead of showing a validation error
 - Added friendly "page not found" and error pages
 - The API image installs packages before copying code, so code changes rebuild much faster
@@ -65,10 +80,6 @@ A dated record of what was built. Newest entries go at the top.
 
 - 156 backend tests, including the design's −8.1% and half-finished months on real PostgreSQL
 - 29 frontend tests
-
-**Not yet tested**
-
-- The pages have not been seen in a real browser. `e2e/dashboard.spec.ts` has not been run.
 
 ## 2 Nov 2026: Phase 3, reading bills
 

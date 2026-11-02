@@ -10,7 +10,7 @@ This is the one place to see what is done and what remains. Update it at the end
 | 1 | [Login and app shell](phase-01-login-and-app-shell.md) | Sign up, sign in, real layout | ✅ |
 | 2 | [Document upload](phase-02-document-upload.md) | Upload a file and watch its status | ✅ |
 | 3 | [Reading bills (AWS first)](phase-03-reading-bills-aws-first.md) | Bills turned into clean records | ✅ |
-| 4 | [Dashboard and analytics](phase-04-dashboard-and-analytics.md) | The design working with real data | 🔄 Waiting for browser check |
+| 4 | [Dashboard and analytics](phase-04-dashboard-and-analytics.md) | The design working with real data | ✅ |
 | 5 | [Documentation search](phase-05-documentation-search-rag.md) | Search finds the right cloud advice | ✅ |
 | 6 | [AI assistant](phase-06-ai-assistant.md) | Live answers about your bill | ⬜ |
 | 7 | [Trust layer and recommendations](phase-07-trust-layer-and-recommendations.md) | Every answer shows its evidence | ⬜ |
@@ -28,6 +28,28 @@ This is the one place to see what is done and what remains. Update it at the end
 | Qdrant Cloud free | Paused after 1 week idle, deleted after 4 | Weekly job keeps it awake; `make reindex` rebuilds it |
 | Your Mac's disk | About 2 GB free of 228 GB | Docker builds and browser tests can fail. Free up space before Phase 5 |
 | GitHub, private repo | 2,000 Actions minutes, 500 MB image storage | Keep only the latest two images |
+
+## How to check everything
+
+| Command | What it proves |
+|---|---|
+| `make check` | 179 backend tests, 30 frontend tests, style, architecture and security rules. Needs `make up` |
+| `make e2e` | 11 browser and API tests, including every API endpoint, accessibility and phone size |
+| `make eval-search` | Search quality. It was 10 of 10 |
+
+## Manual setup you will need
+
+Code cannot do these for you.
+
+| When | What to do |
+|---|---|
+| Before real bills | Turn on billing for your Gemini key and set `GEMINI_TIER=paid`. See `docs/guides/getting-started.md` |
+| To check the bill readers | Upload a real AWS Cost Explorer CSV, and a CUR or FOCUS file if you have one. Remove account IDs if you share them |
+| Phase 9 | Confirm `t3.small` is free on your AWS account, then add a budget alert |
+| Phase 9 | Create a free Qdrant Cloud cluster, then add `QDRANT_URL` and `QDRANT_API_KEY` to GitHub secrets and the server |
+| Phase 9 | Choose a free DuckDNS name for HTTPS |
+| Phase 9 | Choose a real email service for Keycloak, as Mailpit is only for testing |
+| Any time | Add `wijewardanasj.23@uom.lk` to your GitHub account |
 
 ## Open items
 
