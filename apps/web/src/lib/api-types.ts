@@ -399,6 +399,12 @@ export interface components {
             created_at: string;
             /** Sources */
             sources: components["schemas"]["SourceResponse"][];
+            /** Grade */
+            grade: string | null;
+            /** Trace */
+            trace: {
+                [key: string]: unknown;
+            };
         };
         /** MonthCostResponse */
         MonthCostResponse: {

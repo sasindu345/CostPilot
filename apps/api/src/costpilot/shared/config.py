@@ -56,6 +56,7 @@ class Settings(BaseSettings):
     assistant_max_question_length: int = 1000
     assistant_history_messages: int = 6
     assistant_conversation_limit: int = 20
+    assistant_answer_attempts: int = 2
     knowledge_sources_path: str = "../../knowledge/sources.yaml"
     knowledge_questions_path: str = "../../knowledge/search-questions.yaml"
     knowledge_collection: str = "cloud_docs"

@@ -1,7 +1,7 @@
 import json
 from collections.abc import AsyncIterator
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Request, status
@@ -43,6 +43,8 @@ class MessageResponse(BaseModel):
     content: str
     created_at: datetime
     sources: list[SourceResponse]
+    grade: str | None
+    trace: dict[str, Any]
 
     @classmethod
     def of(cls, item: Message) -> "MessageResponse":
@@ -52,6 +54,8 @@ class MessageResponse(BaseModel):
             content=item.content,
             created_at=item.created_at,
             sources=[SourceResponse(title=s.title, url=s.url) for s in item.sources],
+            grade=item.grade,
+            trace=item.trace,
         )
 
 

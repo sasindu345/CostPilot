@@ -1,6 +1,6 @@
 -include .env
 
-.PHONY: help setup up down logs dev-api dev-web migrate e2e types reindex eval-search check test sample
+.PHONY: help setup up down logs dev-api dev-web migrate e2e types reindex eval-search eval-assistant check test sample
 
 help: ## Show this list
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  make %-10s %s\n", $$1, $$2}'
@@ -43,6 +43,10 @@ reindex: ## Rebuild the documentation search. Safe to run again
 
 eval-search: ## Measure how well documentation search works
 	cd apps/api && uv run python scripts/eval_search.py
+
+eval-assistant: ## Score the assistant with real Gemini, and save the baseline
+	cd apps/api && uv run pytest tests/integration/test_row_level_security.py
+	cd apps/api && POSTGRES_DB=costpilot_test uv run python scripts/eval_assistant.py
 
 types: ## Update the frontend's API types from the backend
 	cd apps/api && uv run python scripts/export_openapi.py ../web/openapi.json

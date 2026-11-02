@@ -10,6 +10,7 @@ import {
   useMessages,
   useRefreshChat,
   useStartConversation,
+  type AnswerTrace,
   type Source,
 } from "@/lib/assistant";
 
@@ -30,14 +31,61 @@ function Sources({ sources }: { sources: Source[] }) {
   );
 }
 
+const GRADE_MEANINGS: Record<string, string> = {
+  A: "Full evidence",
+  B: "Good evidence, with a small gap",
+  C: "Limited evidence",
+  D: "Not enough evidence",
+};
+const MILLISECONDS = 1000;
+
+function AnswerDetails({ grade, trace }: { grade?: string | null; trace?: AnswerTrace }) {
+  const { routes = [], facts = [], limitations = [], checks, metrics } = trace ?? {};
+  const seconds = ((metrics?.total_ms ?? 0) / MILLISECONDS).toFixed(1);
+
+  return (
+    <div className="mt-2 border-t border-border pt-2 text-sm">
+      {grade && (
+        <p className="font-medium">
+          Evidence grade {grade}: {GRADE_MEANINGS[grade]}
+        </p>
+      )}
+      <details>
+        <summary className="cursor-pointer text-muted">How was this answer made?</summary>
+        <ul className="mt-1 grid gap-1">
+          {routes.length > 0 && <li>Specialists: {routes.join(", ")}</li>}
+          {facts.map((fact) => (
+            <li key={fact.label}>
+              {fact.label}: {fact.value}
+            </li>
+          ))}
+          {limitations.map((limitation) => (
+            <li key={limitation}>Limit: {limitation}</li>
+          ))}
+          {checks?.blocked_by_guardrail && <li>Blocked by a safety rule, with no AI used</li>}
+          {checks?.used_template && <li>Written by code, as the AI answer failed its check</li>}
+          {checks?.answer_attempts !== undefined && !checks.used_template && (
+            <li>Passed the number check on attempt {checks.answer_attempts}</li>
+          )}
+          <li>
+            {metrics?.ai_calls ?? 0} AI calls in {seconds} seconds
+          </li>
+        </ul>
+      </details>
+    </div>
+  );
+}
+
 function Bubble({
   isUser,
   text,
   sources = [],
+  children,
 }: {
   isUser: boolean;
   text: string;
   sources?: Source[];
+  children?: React.ReactNode;
 }) {
   const style = isUser
     ? "ml-8 bg-brand text-brand-foreground"
@@ -46,6 +94,7 @@ function Bubble({
     <div className={`rounded-control px-4 py-3 ${style}`}>
       <p className="whitespace-pre-wrap">{text}</p>
       <Sources sources={sources} />
+      {children}
     </div>
   );
 }
@@ -145,7 +194,11 @@ export function ChatPanel({ className = "" }: { className?: string }) {
             isUser={message.role === "user"}
             text={message.content}
             sources={message.sources}
-          />
+          >
+            {message.role === "assistant" && (
+              <AnswerDetails grade={message.grade} trace={message.trace as AnswerTrace} />
+            )}
+          </Bubble>
         ))}
         {pending && (
           <>

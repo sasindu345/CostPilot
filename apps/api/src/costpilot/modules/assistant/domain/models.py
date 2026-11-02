@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import StrEnum
+from typing import Any
 from uuid import UUID
 
 
@@ -41,11 +42,21 @@ class DocumentPassage:
 
 
 @dataclass(frozen=True)
+class Finding:
+    """A claim, and the facts or documents that prove it."""
+
+    claim: str
+    fact_ids: tuple[str, ...] = ()
+    document_urls: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
 class Evidence:
     routes: tuple[Route, ...]
     facts: list[Fact] = field(default_factory=list)
     passages: list[DocumentPassage] = field(default_factory=list)
     limitations: list[str] = field(default_factory=list)
+    findings: list[Finding] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -62,6 +73,8 @@ class Message:
     content: str
     created_at: datetime
     sources: list[SourceLink] = field(default_factory=list)
+    grade: str | None = None
+    trace: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
