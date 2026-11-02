@@ -17,6 +17,9 @@ class AnalyticsStore(Protocol):
 
     async def providers(self, workspace_id: UUID) -> list[str]: ...
 
+    async def has_line_items(self, workspace_id: UUID) -> bool:
+        """Do any counted files have line-by-line detail, or only monthly totals?"""
+
     async def last_usage_day(self, workspace_id: UUID, month: date) -> date | None:
         """The last day of a month that has usage. None if the file only has monthly totals."""
 

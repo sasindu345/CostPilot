@@ -104,6 +104,9 @@ class AnalyticsService:
         checked_month = previous_month(latest) if is_partial else latest
         return self._detector.find(selected, checked_month)
 
+    async def has_line_items(self, workspace_id: UUID) -> bool:
+        return await self._store.has_line_items(workspace_id)
+
     async def _selected_costs(
         self, workspace_id: UUID, filters: Filters
     ) -> tuple[list[ServiceMonthCost], list[str]]:

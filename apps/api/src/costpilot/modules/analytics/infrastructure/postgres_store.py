@@ -20,6 +20,9 @@ EFFECTIVE_COSTS = text("""
     GROUP BY 1, 2, 3
 """)
 PROVIDERS = text("SELECT DISTINCT provider_name FROM monthly_summaries ORDER BY 1")
+HAS_LINE_ITEMS = text(
+    "SELECT EXISTS (SELECT 1 FROM document_periods WHERE is_active AND detail_level = 'line_item')"
+)
 LAST_USAGE_DAY = text("""
     SELECT max(c.charge_period_end) - interval '1 second' AS last_moment
     FROM cost_records c
@@ -76,6 +79,10 @@ class PostgresAnalyticsStore:
     async def providers(self, workspace_id: UUID) -> list[str]:
         async with self._database.transaction(workspace_id=workspace_id) as db:
             return list((await db.execute(PROVIDERS)).scalars())
+
+    async def has_line_items(self, workspace_id: UUID) -> bool:
+        async with self._database.transaction(workspace_id=workspace_id) as db:
+            return (await db.execute(HAS_LINE_ITEMS)).scalar_one()
 
     async def last_usage_day(self, workspace_id: UUID, month: date) -> date | None:
         async with self._database.transaction(workspace_id=workspace_id) as db:

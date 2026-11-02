@@ -25,6 +25,8 @@ TEST_DEFAULTS = {
     "SESSION_LIFETIME_HOURS": "8",
     "QDRANT_URL": "http://qdrant.test",
     "GEMINI_EMBEDDING_MODEL": "test-model",
+    "GEMINI_ANSWER_MODEL": "test-model",
+    "GEMINI_ROUTER_MODEL": "test-model",
     "STORAGE_BACKEND": "local",
     "STORAGE_LOCAL_PATH": "/tmp/costpilot-test-uploads",
 }

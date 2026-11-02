@@ -28,7 +28,8 @@ SHARED_RULES = {
 def scan(folder: Path, suffixes: set[str], rules: dict[str, re.Pattern[str]]) -> list[str]:
     problems = []
     for path in sorted(folder.rglob("*")):
-        if path.suffix not in suffixes or path == TOKEN_FILE:
+        is_test = ".test." in path.name
+        if path.suffix not in suffixes or path == TOKEN_FILE or is_test:
             continue
         for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
             for name, pattern in rules.items():

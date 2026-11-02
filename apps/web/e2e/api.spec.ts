@@ -32,6 +32,11 @@ const TESTED_ROUTES = [
   "GET /api/analytics/overview",
   "GET /api/analytics/compare",
   "GET /api/analytics/unusual",
+  "GET /api/assistant/info",
+  "GET /api/assistant/conversations",
+  "POST /api/assistant/conversations",
+  "GET /api/assistant/conversations/{conversation_id}/messages",
+  "POST /api/assistant/conversations/{conversation_id}/messages",
 ];
 
 test.describe("without signing in", () => {
@@ -65,9 +70,14 @@ test.describe("without signing in", () => {
       request.get("/api/analytics/overview"),
       request.get("/api/analytics/compare?first=2026-09-01&second=2026-10-01"),
       request.get("/api/analytics/unusual"),
+      request.get("/api/assistant/info"),
+      request.get("/api/assistant/conversations"),
+      request.post("/api/assistant/conversations"),
+      request.get(`/api/assistant/conversations/${id}/messages`),
+      request.post(`/api/assistant/conversations/${id}/messages`, { data: { question: "Hi" } }),
     ]);
 
-    expect(responses.map((response) => response.status())).toEqual(Array(11).fill(401));
+    expect(responses.map((response) => response.status())).toEqual(Array(16).fill(401));
     expect((await (await request.get("/api/me")).json()).error.code).toBe("not_authenticated");
   });
 
@@ -229,6 +239,28 @@ test("a signed-in user can use every endpoint", async ({ page, request }) => {
     expect(overview.total).toBe("1245.60");
     expect(overview.change.percent).toBe("-8.1");
     expect((await api.post("/api/documents/sample")).status()).toBe(409);
+  });
+
+  await test.step("assistant endpoints handle bad input without using the AI", async () => {
+    const info = await (await api.get("/api/assistant/info")).json();
+    expect(info.suggestions.length).toBeGreaterThan(0);
+    expect(await (await api.get("/api/assistant/conversations")).json()).toEqual([]);
+
+    const created = await api.post("/api/assistant/conversations");
+    expect(created.status()).toBe(201);
+    const { id } = await created.json();
+    const messagesPath = `/api/assistant/conversations/${id}/messages`;
+    expect(await (await api.get(messagesPath)).json()).toEqual([]);
+
+    const empty = await api.post(messagesPath, { data: { question: "   " } });
+    expect(empty.status()).toBe(422);
+    const tooLong = await api.post(messagesPath, { data: { question: "x".repeat(1001) } });
+    expect(tooLong.status()).toBe(422);
+    const noQuestion = await api.post(messagesPath, { data: {} });
+    expect(noQuestion.status()).toBe(422);
+    const unknown = `/api/assistant/conversations/${crypto.randomUUID()}/messages`;
+    expect((await api.get(unknown)).status()).toBe(404);
+    expect((await api.post(unknown, { data: { question: "Hi" } })).status()).toBe(404);
   });
 
   await test.step("POST /api/auth/logout ends the session", async () => {

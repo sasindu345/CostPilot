@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { ChatPanel } from "@/components/assistant/chat-panel";
 import { Card } from "@/components/card";
 import { SpendingChart } from "@/components/charts/spending-chart";
 import { TopServices } from "@/components/charts/top-services";
@@ -34,25 +35,28 @@ export function OverviewPage() {
       {error && <ErrorPanel message={error.message} onRetry={() => refetch()} />}
       {overview === null && <EmptyOverview />}
       {overview && (
-        <div className="grid gap-4">
-          <StatCards overview={overview} months={months} />
-          <div className="grid gap-4 lg:grid-cols-[3fr_2fr]">
-            <Card title="Monthly Cloud Spending">
-              <SpendingChart overview={overview} />
-            </Card>
-            <Card title={`Top Services (${formatMonth(overview.latest_month)})`}>
-              <TopServices overview={overview} />
-            </Card>
+        <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_var(--token-assistant-panel-width)]">
+          <div className="grid min-w-0 content-start gap-4">
+            <StatCards overview={overview} months={months} />
+            <div className="grid gap-4 lg:grid-cols-[3fr_2fr]">
+              <Card title="Monthly Cloud Spending">
+                <SpendingChart overview={overview} />
+              </Card>
+              <Card title={`Top Services (${formatMonth(overview.latest_month)})`}>
+                <TopServices overview={overview} />
+              </Card>
+            </div>
+            <div className="grid gap-4 lg:grid-cols-2">
+              <RecentDocuments />
+              <Card title="AI Recommendations">
+                <p className="text-muted">
+                  Recommendations will appear here, with their evidence, once the AI assistant is
+                  ready.
+                </p>
+              </Card>
+            </div>
           </div>
-          <div className="grid gap-4 lg:grid-cols-2">
-            <RecentDocuments />
-            <Card title="AI Recommendations">
-              <p className="text-muted">
-                Recommendations will appear here, with their evidence, once the AI assistant is
-                ready.
-              </p>
-            </Card>
-          </div>
+          <ChatPanel className="hidden max-h-[var(--token-chat-height)] 2xl:flex" />
         </div>
       )}
     </section>

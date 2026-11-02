@@ -44,4 +44,6 @@
 
   /* Layout */
   --token-sidebar-width: 16rem;
+  --token-assistant-panel-width: 24rem;
+  --token-chat-height: 70vh;
 }
