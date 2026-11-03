@@ -28,6 +28,8 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      # The server pulls the private images with this job's own token. GitHub cancels it when the job ends.
+      packages: read
     env:
       IMAGE_TAG: ${{ github.event.workflow_run.head_sha || github.sha }}
       IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/costpilot
@@ -59,6 +61,8 @@ jobs:
           aws s3 cp --only-show-errors --sse AES256 bundle.tar.gz "s3://$S3_BUCKET/deploy/$IMAGE_TAG.tar.gz"
 
       - name: Run the deploy script on the server
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           release="/opt/costpilot/releases/$IMAGE_TAG"
           commands=$(jq -n \
@@ -66,13 +70,16 @@ jobs:
             --arg bundle "s3://$S3_BUCKET/deploy/$IMAGE_TAG.tar.gz" \
             --arg region "$AWS_REGION" \
             --arg run "$release/deploy.sh $IMAGE_PREFIX $IMAGE_TAG $PARAMETER_PATH" \
+            --arg login "printf %s $GHCR_TOKEN | docker login ghcr.io --username $GITHUB_ACTOR --password-stdin" \
             '{commands: [
               "set -eu",
               "mkdir -p \($release)",
               "aws s3 cp --only-show-errors --region \($region) \($bundle) /tmp/costpilot-bundle.tar.gz",
               "tar -xzf /tmp/costpilot-bundle.tar.gz -C \($release)",
               "rm /tmp/costpilot-bundle.tar.gz",
-              "\($run)"
+              "\($login)",
+              "\($run)",
+              "docker logout ghcr.io"
             ], executionTimeout: ["1200"]}')
           command_id=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \

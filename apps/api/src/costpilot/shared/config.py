@@ -52,6 +52,8 @@ class Settings(BaseSettings):
     digitalocean_docs_url: str
     qdrant_url: str
     qdrant_api_key: SecretStr = SecretStr("")
+    # Qdrant Cloud is far away, and uploading a batch of vectors can take longer than 5 seconds.
+    qdrant_timeout_seconds: int = 30
     gemini_api_key: SecretStr = SecretStr("")
     gemini_embedding_model: str
     gemini_answer_model: str

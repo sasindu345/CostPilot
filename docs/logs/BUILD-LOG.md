@@ -2,6 +2,15 @@
 
 A dated record of what was built. Newest entries go at the top.
 
+## 3 Nov 2026: AWS infrastructure created
+
+- Terraform created 23 resources in `ap-south-1`: a `t3.small` server at `43.205.14.236`, its fixed address, network rules, the private bucket, both roles and the GitHub login. The server finished first-boot setup: Docker, Compose v5.7.0, 2 GB swap and security updates
+- The $1 budget alert exists. Your AWS user may create it but not read its tags, so it lives outside Terraform now
+- 42 production settings are in Parameter Store, encrypted. The email settings are still empty
+- Qdrant Cloud holds all 36 pages. Search hit rate: 100%. The Qdrant timeout is now 30 seconds, as 5 was too short for uploads to the cloud
+- GitHub has every variable the Deploy workflow needs, plus the Qdrant secrets for the weekly keep-awake job
+- No GitHub token is needed for images. Each deploy logs in with the job's own short-lived token
+
 ## 3 Nov 2026: Phase 11, monitoring, quality and finish
 
 **Built**

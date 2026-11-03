@@ -185,6 +185,7 @@ def _build_vector_index(settings: Settings) -> QdrantVectorIndex:
     client = AsyncQdrantClient(
         url=settings.qdrant_url,
         api_key=settings.qdrant_api_key.get_secret_value() or None,
+        timeout=settings.qdrant_timeout_seconds,
     )
     return QdrantVectorIndex(
         client=client,

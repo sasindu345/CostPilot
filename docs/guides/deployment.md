@@ -135,7 +135,7 @@ This makes `infra/production/settings`, which Git ignores, with new passwords an
 infra/production/put-settings.sh infra/production/settings
 ```
 
-For `registry/GHCR_TOKEN`, make a classic GitHub token with only `read:packages`. The server uses it to pull images while the repository is private. It is never given to the app.
+You do not need a GitHub token for the images. Each deploy logs the server in to GHCR with that job's own token, and GitHub cancels it when the job ends. The token does appear in the Systems Manager command history, but by then it no longer works.
 
 ## Step 8: Connect GitHub
 
