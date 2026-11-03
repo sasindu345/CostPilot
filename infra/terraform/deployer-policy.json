@@ -5,12 +5,23 @@
       "Sid": "CostPilotRoles",
       "Effect": "Allow",
       "Action": [
-        "iam:CreateRole", "iam:DeleteRole", "iam:GetRole", "iam:UpdateRole",
-        "iam:UpdateAssumeRolePolicy", "iam:TagRole", "iam:UntagRole",
-        "iam:PutRolePolicy", "iam:GetRolePolicy", "iam:DeleteRolePolicy",
-        "iam:ListRolePolicies", "iam:ListAttachedRolePolicies",
-        "iam:AttachRolePolicy", "iam:DetachRolePolicy",
-        "iam:ListInstanceProfilesForRole", "iam:PassRole"
+        "iam:CreateRole",
+        "iam:DeleteRole",
+        "iam:GetRole",
+        "iam:UpdateRole",
+        "iam:UpdateAssumeRolePolicy",
+        "iam:TagRole",
+        "iam:UntagRole",
+        "iam:ListRoleTags",
+        "iam:PutRolePolicy",
+        "iam:GetRolePolicy",
+        "iam:DeleteRolePolicy",
+        "iam:ListRolePolicies",
+        "iam:AttachRolePolicy",
+        "iam:DetachRolePolicy",
+        "iam:ListAttachedRolePolicies",
+        "iam:ListInstanceProfilesForRole",
+        "iam:PassRole"
       ],
       "Resource": "arn:aws:iam::<ACCOUNT_ID>:role/costpilot-*"
     },
@@ -18,9 +29,14 @@
       "Sid": "CostPilotInstanceProfile",
       "Effect": "Allow",
       "Action": [
-        "iam:CreateInstanceProfile", "iam:DeleteInstanceProfile", "iam:GetInstanceProfile",
-        "iam:AddRoleToInstanceProfile", "iam:RemoveRoleFromInstanceProfile",
-        "iam:TagInstanceProfile"
+        "iam:CreateInstanceProfile",
+        "iam:DeleteInstanceProfile",
+        "iam:GetInstanceProfile",
+        "iam:AddRoleToInstanceProfile",
+        "iam:RemoveRoleFromInstanceProfile",
+        "iam:TagInstanceProfile",
+        "iam:UntagInstanceProfile",
+        "iam:ListInstanceProfileTags"
       ],
       "Resource": "arn:aws:iam::<ACCOUNT_ID>:instance-profile/costpilot-*"
     },
@@ -28,26 +44,46 @@
       "Sid": "GitHubLogin",
       "Effect": "Allow",
       "Action": [
-        "iam:CreateOpenIDConnectProvider", "iam:GetOpenIDConnectProvider",
-        "iam:DeleteOpenIDConnectProvider", "iam:TagOpenIDConnectProvider",
+        "iam:CreateOpenIDConnectProvider",
+        "iam:GetOpenIDConnectProvider",
+        "iam:DeleteOpenIDConnectProvider",
+        "iam:TagOpenIDConnectProvider",
+        "iam:UntagOpenIDConnectProvider",
+        "iam:ListOpenIDConnectProviderTags",
         "iam:UpdateOpenIDConnectProviderThumbprint"
       ],
       "Resource": "arn:aws:iam::<ACCOUNT_ID>:oidc-provider/token.actions.githubusercontent.com"
     },
     {
+      "Sid": "CostPilotBucket",
+      "Effect": "Allow",
+      "Action": "s3:*",
+      "Resource": [
+        "arn:aws:s3:::costpilot-<ACCOUNT_ID>",
+        "arn:aws:s3:::costpilot-<ACCOUNT_ID>/*"
+      ]
+    },
+    {
       "Sid": "ProductionSettings",
       "Effect": "Allow",
       "Action": [
-        "ssm:PutParameter", "ssm:GetParameter", "ssm:GetParameters",
-        "ssm:GetParametersByPath", "ssm:DeleteParameter",
-        "ssm:AddTagsToResource", "ssm:ListTagsForResource"
+        "ssm:PutParameter",
+        "ssm:GetParameter",
+        "ssm:GetParameters",
+        "ssm:GetParametersByPath",
+        "ssm:DeleteParameter",
+        "ssm:AddTagsToResource",
+        "ssm:ListTagsForResource"
       ],
       "Resource": "arn:aws:ssm:<REGION>:<ACCOUNT_ID>:parameter/costpilot/*"
     },
     {
       "Sid": "ServerTerminalAndCommands",
       "Effect": "Allow",
-      "Action": ["ssm:StartSession", "ssm:SendCommand"],
+      "Action": [
+        "ssm:StartSession",
+        "ssm:SendCommand"
+      ],
       "Resource": [
         "arn:aws:ec2:<REGION>:<ACCOUNT_ID>:instance/*",
         "arn:aws:ssm:<REGION>::document/AWS-StartPortForwardingSession",
@@ -59,16 +95,27 @@
       "Sid": "ReadOnlySystemsManager",
       "Effect": "Allow",
       "Action": [
-        "ssm:DescribeParameters", "ssm:DescribeInstanceInformation", "ssm:DescribeSessions",
-        "ssm:GetCommandInvocation", "ssm:ListCommandInvocations",
-        "ssm:TerminateSession", "ssm:ResumeSession"
+        "ssm:DescribeParameters",
+        "ssm:DescribeInstanceInformation",
+        "ssm:DescribeSessions",
+        "ssm:GetConnectionStatus",
+        "ssm:GetCommandInvocation",
+        "ssm:ListCommandInvocations",
+        "ssm:TerminateSession",
+        "ssm:ResumeSession"
       ],
       "Resource": "*"
     },
     {
       "Sid": "BudgetAlert",
       "Effect": "Allow",
-      "Action": ["budgets:ViewBudget", "budgets:ModifyBudget"],
+      "Action": [
+        "budgets:ViewBudget",
+        "budgets:ModifyBudget",
+        "budgets:TagResource",
+        "budgets:UntagResource",
+        "budgets:ListTagsForResource"
+      ],
       "Resource": "arn:aws:budgets::<ACCOUNT_ID>:budget/costpilot-*"
     }
   ]

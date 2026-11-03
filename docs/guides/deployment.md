@@ -63,9 +63,10 @@ Terraform runs as your AWS CLI user. Besides EC2 and S3, it must be able to crea
 
 Sign in to the AWS console as the account owner, then:
 
-1. Open **IAM → Users → your user → Add permissions → Create inline policy → JSON**.
+1. Open **IAM → Policies → Create policy → JSON**. (It is too long to add straight onto the user: those inline policies stop at 2,048 characters.)
 2. Paste `infra/terraform/deployer-policy.json`. Replace `<ACCOUNT_ID>` with your 12-digit account ID and `<REGION>` with your region, such as `ap-south-1`.
-3. Name it `CostPilotDeployer` and save.
+3. Name it `CostPilotDeployer` and create it.
+4. Open **IAM → Users → your user → Add permissions → Attach policies directly**, tick `CostPilotDeployer`, and save.
 
 The policy only reaches resources whose names start with `costpilot`.
 
