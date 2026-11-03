@@ -50,6 +50,10 @@ services:
       KEYCLOAK_SMTP_HOST: ${KEYCLOAK_SMTP_HOST:?set in .env}
       KEYCLOAK_SMTP_PORT: ${KEYCLOAK_SMTP_PORT:?set in .env}
       KEYCLOAK_SMTP_FROM: ${KEYCLOAK_SMTP_FROM:?set in .env}
+      KEYCLOAK_SMTP_AUTH: ${KEYCLOAK_SMTP_AUTH:?set in .env}
+      KEYCLOAK_SMTP_STARTTLS: ${KEYCLOAK_SMTP_STARTTLS:?set in .env}
+      KEYCLOAK_SMTP_USER: ${KEYCLOAK_SMTP_USER}
+      KEYCLOAK_SMTP_PASSWORD: ${KEYCLOAK_SMTP_PASSWORD}
       APP_PUBLIC_URL: ${APP_PUBLIC_URL:?set in .env}
     volumes:
       - ./infra/keycloak/realm-costpilot.json:/opt/keycloak/data/import/realm-costpilot.json:ro

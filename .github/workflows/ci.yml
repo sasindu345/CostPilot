@@ -78,21 +78,85 @@ jobs:
       - run: pnpm test
       - run: pnpm build
 
+  infrastructure:
+    name: Infrastructure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: 1.15.6
+      - name: Check Terraform
+        run: |
+          terraform fmt -check -recursive infra/terraform
+          terraform -chdir=infra/terraform init -backend=false -input=false
+          terraform -chdir=infra/terraform validate
+      - name: Scan Terraform, Dockerfiles and workflows for security problems
+        uses: bridgecrewio/checkov-action@99bb2caf247dfd9f03cf984373bc6043d4e32ebf # v12.1347.0
+        with:
+          config_file: .checkov.yaml
+      - name: Check the server scripts
+        run: shellcheck infra/production/*.sh infra/postgres/*.sh
+      - name: Check the production Compose file
+        working-directory: infra/production
+        run: |
+          cp settings.example .env
+          IMAGE_PREFIX=ghcr.io/example/costpilot IMAGE_TAG=check docker compose config --quiet
+
   images:
     name: Docker images
     runs-on: ubuntu-latest
-    needs: [backend, frontend]
+    needs: [backend, frontend, infrastructure]
+    permissions:
+      contents: read
+      packages: write
+    env:
+      IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/costpilot
+      SOURCE_LABEL: org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Build images
         run: |
-          docker build --tag costpilot-api apps/api
-          docker build --tag costpilot-web \
+          docker build --label "$SOURCE_LABEL" --tag "$IMAGE_PREFIX-api:$GITHUB_SHA" apps/api
+          docker build --label "$SOURCE_LABEL" --tag "$IMAGE_PREFIX-web:$GITHUB_SHA" \
             --build-arg API_INTERNAL_URL=http://api:8000 apps/web
+          docker build --label "$SOURCE_LABEL" --tag "$IMAGE_PREFIX-keycloak:$GITHUB_SHA" \
+            --build-context styles=apps/web/src/styles \
+            --file infra/keycloak/Dockerfile infra/keycloak
       - name: Scan images for known problems
         run: |
-          for image in costpilot-api costpilot-web; do
+          for name in api web keycloak; do
             docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
               aquasec/trivy:0.76.1 image --severity HIGH,CRITICAL \
-              --ignore-unfixed --exit-code 1 "$image"
+              --ignore-unfixed --exit-code 1 "$IMAGE_PREFIX-$name:$GITHUB_SHA"
           done
+      # Only main is published. The Deploy workflow starts when this run passes.
+      - name: Publish images to GHCR
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "$GHCR_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+          for name in api web keycloak; do
+            docker push --quiet "$IMAGE_PREFIX-$name:$GITHUB_SHA"
+          done
+      # Private repositories get 500 MB of free image storage, so keep only recent versions.
+      - name: Remove old images
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5.0.0
+        with:
+          package-name: costpilot-api
+          package-type: container
+          min-versions-to-keep: 3
+      - if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5.0.0
+        with:
+          package-name: costpilot-web
+          package-type: container
+          min-versions-to-keep: 3
+      - if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5.0.0
+        with:
+          package-name: costpilot-keycloak
+          package-type: container
+          min-versions-to-keep: 3

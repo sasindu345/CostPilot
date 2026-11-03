@@ -1,0 +1,11 @@
+[Unit]
+Description=Nightly CostPilot database backup
+
+[Timer]
+OnCalendar=*-*-* 03:00:00 UTC
+RandomizedDelaySec=15m
+# If the server was off at 03:00, run the backup when it starts.
+Persistent=true
+
+[Install]
+WantedBy=timers.target

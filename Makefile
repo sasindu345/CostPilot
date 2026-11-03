@@ -4,7 +4,7 @@ STANDARD_EVAL = ../../knowledge/assistant-questions.yaml src/costpilot/modules/d
 KNOWLEDGE_EVAL = ../../knowledge/assistant-knowledge-questions.yaml tests/fixtures/billing/eval-bill.csv
 HARD_EVAL = ../../knowledge/assistant-hard-questions.yaml tests/fixtures/billing/eval-bill.csv
 
-.PHONY: help setup up down logs dev-api dev-web migrate e2e types reindex eval-search eval-assistant eval-agents eval-knowledge check test sample
+.PHONY: help setup up down logs dev-api dev-web migrate e2e types reindex eval-search eval-assistant eval-agents eval-knowledge check test sample backup-check infra-check
 
 help: ## Show this list
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  make %-10s %s\n", $$1, $$2}'
@@ -72,3 +72,12 @@ e2e: ## Test the full user journey in a real browser
 
 sample: ## Create a made-up bill in samples/output
 	python3 samples/generate_sample_bill.py
+
+backup-check: ## Back up the local databases, restore them into copies, and compare every table
+	@dir=$$(mktemp -d); ./infra/production/backup.sh "$$dir" && ./infra/production/restore.sh check "$$dir"/*; status=$$?; rm -rf "$$dir"; exit $$status
+
+infra-check: ## Check the Terraform files and server scripts
+	terraform -chdir=infra/terraform fmt -check
+	terraform -chdir=infra/terraform init -backend=false -input=false > /dev/null
+	terraform -chdir=infra/terraform validate
+	docker run --rm -v "$$PWD:/mnt" -w /mnt koalaman/shellcheck:v0.11.0 infra/production/*.sh infra/postgres/*.sh

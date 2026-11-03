@@ -16,7 +16,11 @@
     "host": "${KEYCLOAK_SMTP_HOST}",
     "port": "${KEYCLOAK_SMTP_PORT}",
     "from": "${KEYCLOAK_SMTP_FROM}",
-    "fromDisplayName": "CostPilot"
+    "fromDisplayName": "CostPilot",
+    "auth": "${KEYCLOAK_SMTP_AUTH}",
+    "user": "${KEYCLOAK_SMTP_USER}",
+    "password": "${KEYCLOAK_SMTP_PASSWORD}",
+    "starttls": "${KEYCLOAK_SMTP_STARTTLS}"
   },
   "clients": [
     {

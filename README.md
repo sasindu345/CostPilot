@@ -4,7 +4,7 @@
 
 ![CostPilot overview design](docs/design/overview-mockup.png)
 
-> **Status:** Phases 0 to 9 are built: five clouds, hybrid AI agents and a trust layer. Live deployment comes next. The design above is the target, not the current app. See the [roadmap](docs/plan/ROADMAP.md) for what is built and what remains.
+> **Status:** Phases 0 to 9 are built: five clouds, hybrid AI agents and a trust layer. The live deployment code is ready and waits on AWS setup. The design above is the target, not the current app. See the [roadmap](docs/plan/ROADMAP.md) for what is built and what remains.
 
 ## The problem
 
@@ -144,6 +144,8 @@ flowchart TB
     postgres -->|nightly backup| s3
     github[GitHub Actions] -->|tested images| ec2
 ```
+
+There is no SSH port. GitHub deploys through AWS Systems Manager, with no stored AWS keys. See the [deployment guide](docs/guides/deployment.md) and [decision 0011](docs/decisions/0011-deployment-design.md).
 
 ## Tech stack
 

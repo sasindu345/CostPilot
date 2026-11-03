@@ -1,0 +1,14 @@
+# Checkov scans Terraform, Dockerfiles and GitHub workflows for security problems.
+# Any skipped check is written next to the code it applies to, with the reason.
+directory:
+  - .
+framework:
+  - terraform
+  - dockerfile
+  - github_actions
+skip-path:
+  - node_modules
+  - .venv
+  - .terraform
+compact: true
+quiet: true

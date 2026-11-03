@@ -1,0 +1,72 @@
+# Production settings. Never put real values in this example file.
+# 1. python3 scripts/sync_env.py infra/production/settings.example infra/production/settings
+#    This makes infra/production/settings, ignored by Git, with new passwords and keys filled in.
+# 2. Fill in the blanks in that file.
+# 3. infra/production/put-settings.sh infra/production/settings
+
+# ---- Your web address ----
+DOMAIN=<name>.duckdns.org
+# Let's Encrypt sends certificate warnings here.
+ACME_EMAIL=
+APP_PUBLIC_URL=https://<name>.duckdns.org
+API_INTERNAL_URL=http://api:8000
+LOG_LEVEL=INFO
+
+# ---- PostgreSQL ----
+POSTGRES_USER=costpilot_admin
+POSTGRES_PASSWORD=
+POSTGRES_APP_USER=costpilot_app
+POSTGRES_APP_PASSWORD=
+POSTGRES_DB=costpilot
+KEYCLOAK_DB_PASSWORD=
+
+# ---- Keycloak ----
+KEYCLOAK_ADMIN_USER=admin
+KEYCLOAK_ADMIN_PASSWORD=
+# The admin console port, reached only through the AWS tunnel.
+KEYCLOAK_ADMIN_PORT=8080
+KEYCLOAK_REALM=costpilot
+KEYCLOAK_CLIENT_ID=costpilot-api
+KEYCLOAK_CLIENT_SECRET=
+KEYCLOAK_PUBLIC_URL=https://<name>.duckdns.org/auth
+# Your email service. Brevo's free plan is one option. See docs/guides/deployment.md.
+KEYCLOAK_SMTP_HOST=
+KEYCLOAK_SMTP_PORT=587
+KEYCLOAK_SMTP_FROM=
+KEYCLOAK_SMTP_AUTH=true
+KEYCLOAK_SMTP_STARTTLS=true
+KEYCLOAK_SMTP_USER=
+KEYCLOAK_SMTP_PASSWORD=
+
+# ---- Login sessions ----
+SESSION_ENCRYPTION_KEY=
+SESSION_COOKIE_NAME=costpilot_session
+SESSION_LIFETIME_HOURS=8
+
+# ---- File storage ----
+# From `terraform output bucket_name`.
+S3_BUCKET=
+AWS_REGION=
+STORAGE_LOCAL_PATH=/app/uploads
+
+# ---- Documentation search: Qdrant Cloud ----
+QDRANT_URL=
+QDRANT_API_KEY=
+AWS_DOCS_URL=https://docs.aws.amazon.com
+AZURE_DOCS_URL=https://learn.microsoft.com/en-us/azure
+GCP_DOCS_URL=https://docs.cloud.google.com
+OCI_DOCS_URL=https://docs.oracle.com/en-us/iaas
+DIGITALOCEAN_DOCS_URL=https://docs.digitalocean.com
+
+# ---- Gemini ----
+GEMINI_API_KEY=
+# Use paid before any real bill is uploaded.
+GEMINI_TIER=free
+GEMINI_ANSWER_MODEL=gemini-3.5-flash-lite
+GEMINI_ROUTER_MODEL=gemini-3.5-flash-lite
+GEMINI_EMBEDDING_MODEL=gemini-embedding-2
+
+# ---- Pulling images from GHCR while the repository is private ----
+# A GitHub token with only the read:packages permission. Kept away from the app.
+registry/GHCR_USER=
+registry/GHCR_TOKEN=

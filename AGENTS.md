@@ -128,3 +128,5 @@ Do all of these before saying a phase is done:
 | `make eval-agents` | Compares hard questions with and without AI specialists |
 | `make eval-knowledge` | Compares documentation questions with and without the Knowledge Agent |
 | `make sample` | Creates made-up bills in `samples/output/` |
+| `make backup-check` | Proves a database backup restores in full |
+| `make infra-check` | Checks the Terraform files and server scripts |

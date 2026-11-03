@@ -16,7 +16,7 @@ This is the one place to see what is done and what remains. Update it at the end
 | 7 | [Trust and measurement](phase-07-trust-and-measurement.md) | Every answer shows its evidence, and quality can be measured | ✅ |
 | 8 | [Hybrid agents](phase-08-hybrid-agents.md) | Deeper answers from specialist agents, proven against a baseline | ✅ |
 | 9 | [Other clouds](phase-09-other-clouds.md) | Azure, Google Cloud, Oracle, DigitalOcean | ✅ |
-| 10 | [Live deployment](phase-10-live-deployment.md) | Running on the internet with HTTPS | ⬜ |
+| 10 | [Live deployment](phase-10-live-deployment.md) | Running on the internet with HTTPS | 🔄 Code done. Waiting on your AWS setup |
 | 11 | [Monitoring, quality and finish](phase-11-monitoring-quality-and-finish.md) | Dashboards, measured AI quality, final docs | ⬜ |
 
 ## Limits to keep in mind
@@ -34,11 +34,13 @@ This is the one place to see what is done and what remains. Update it at the end
 
 | Command | What it proves |
 |---|---|
-| `make check` | 359 backend tests, 34 frontend tests, style, architecture and security rules. Needs `make up` |
+| `make check` | 365 backend tests, 34 frontend tests, style, architecture and security rules. Needs `make up` |
 | `make e2e` | 12 browser and API tests, including every API endpoint, a real Gemini answer, accessibility and phone size |
 | `make eval-search` | Search quality across five clouds. It was 18 of 18 |
 | `make eval-assistant` | Whole assistant, with real Gemini. It was 15 of 15, and uses about 30 AI calls |
 | `make eval-knowledge` | Documentation questions with and without the Knowledge Agent. It was 6 of 6 both ways |
+| `make backup-check` | Backs up the local databases, restores them into copies and compares every table |
+| `make infra-check` | Terraform files and server scripts are valid |
 | `make eval-agents` | Hard questions with and without AI specialists. It was 10 of 10 against 6 of 10, and uses about 50 AI calls |
 
 ## Manual setup you will need
@@ -49,10 +51,11 @@ Code cannot do these for you.
 |---|---|
 | Before real bills | Turn on billing for your Gemini key and set `GEMINI_TIER=paid`. See `docs/guides/getting-started.md` |
 | To check the bill readers | Upload a real bill from any cloud you use. See `docs/guides/cloud-bills.md`. Remove account IDs if you share them |
-| Phase 10 | Confirm `t3.small` is free on your AWS account, then add a budget alert |
-| Phase 10 | Create a free Qdrant Cloud cluster, then add `QDRANT_URL` and `QDRANT_API_KEY` to GitHub secrets and the server |
-| Phase 10 | Choose a free DuckDNS name for HTTPS |
+| Phase 10 | Follow `docs/guides/deployment.md`: check `t3.small` is free, apply the budget alert, then the server |
+| Phase 10 | Create a free Qdrant Cloud cluster and run `make reindex` against it. Add `QDRANT_URL` and `QDRANT_API_KEY` to GitHub secrets |
+| Phase 10 | Choose a free DuckDNS name and point it at the server |
 | Phase 10 | Choose a real email service for Keycloak, as Mailpit is only for testing |
+| Phase 10 | Fill in production settings, copy them to Parameter Store, and add the GitHub variables |
 | Phase 8 | Check your free limits at https://aistudio.google.com/rate-limit. One 429 rate-limit error was seen in testing |
 | Any time | Add `wijewardanasj.23@uom.lk` to your GitHub account |
 
@@ -60,5 +63,5 @@ Code cannot do these for you.
 
 - Review the Lambda options again in Phase 10, with real server numbers. See [decision 0007](../decisions/0007-lambda-is-a-later-option.md).
 - The `phase-0-baseline` branch shows a red pipeline run, because the `npm` security fix is on `phase-1-login`. Merging `phase-1-login` into `main` carries everything.
-- Phase 10 starts by confirming `t3.small` is free on your AWS account. A micro-only account cannot run Keycloak.
+- Phase 10 is finished once the server is live and its real memory use is measured.
 - Add `wijewardanasj.23@uom.lk` to your GitHub account so commits count on your profile.

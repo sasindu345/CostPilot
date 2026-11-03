@@ -34,6 +34,7 @@ Each note explains one big decision and why we made it.
 - [0008: Read bills with Python's csv module and Decimal](decisions/0008-read-bills-without-pandas.md)
 - [0009: Use gemini-3.5-flash-lite for answers](decisions/0009-faster-gemini-model.md)
 - [0010: Build hybrid agents after the trust layer](decisions/0010-hybrid-agents-after-trust-layer.md)
+- [0011: How CostPilot is deployed](decisions/0011-deployment-design.md)
 
 ## Design
 
@@ -45,6 +46,7 @@ Each note explains one big decision and why we made it.
 - [Getting started](guides/getting-started.md)
 - [Keycloak beginner's guide](guides/keycloak-beginners-guide.md)
 - [Getting a bill from each cloud](guides/cloud-bills.md)
+- [Putting CostPilot online](guides/deployment.md)
 
 ## Background
 
