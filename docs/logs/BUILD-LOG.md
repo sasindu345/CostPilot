@@ -2,6 +2,92 @@
 
 A dated record of what was built. Newest entries go at the top.
 
+## 3 Nov 2026: AWS infrastructure created
+
+- Terraform created 23 resources in `ap-south-1`: a `t3.small` server at `43.205.14.236`, its fixed address, network rules, the private bucket, both roles and the GitHub login. The server finished first-boot setup: Docker, Compose v5.7.0, 2 GB swap and security updates
+- The $1 budget alert exists. Your AWS user may create it but not read its tags, so it lives outside Terraform now
+- 42 production settings are in Parameter Store, encrypted. The email settings are still empty
+- Qdrant Cloud holds all 36 pages. Search hit rate: 100%. The Qdrant timeout is now 30 seconds, as 5 was too short for uploads to the cloud
+- GitHub has every variable the Deploy workflow needs, plus the Qdrant secrets for the weekly keep-awake job
+- No GitHub token is needed for images. Each deploy logs in with the job's own short-lived token
+
+## 3 Nov 2026: Phase 11, monitoring, quality and finish
+
+**Built**
+
+- OpenTelemetry traces and metrics for the API, the worker, every agent step, every Gemini call, and the web app. Off unless an OTLP address is set
+- `make monitoring`: Grafana, Prometheus and Tempo in one local container, with a CostPilot dashboard built by `scripts/build_dashboard.py`
+- Download my data: every workspace record as one JSON file, with money kept exact
+- Delete my account: removes the workspace, bills, chats, stored files and the Keycloak login. You confirm by typing your email
+- A nightly clean-up: audit events after 365 days, chats after 180 days, failed jobs after 30 days, and expired sessions
+- `make eval-quality`: a second Gemini model grades answers against 12 reference answers
+- `make load-test`: 25 users on the dashboards at once, with k6
+- A Content Security Policy and other security headers for the web app
+- `make screenshots`, the security review, the monitoring guide and the demo walkthrough
+
+**Bugs found**
+
+- The grader caught a false answer: "Which month cost the most?" said October, but it was September. No wrong number was typed, so the number checks could not see it. Code now names the highest and lowest months
+- Request metrics were labelled by full address, so each document made a new series. They now use the route pattern
+- After deleting an account the page stayed on the app. It now goes to sign-in
+- Tracing every request made the slowest 5% about 100 ms slower under load. Production keeps 1 in 5 traces
+
+**Tested on 3 Nov 2026**
+
+- 380 backend tests, 36 frontend tests, and 13 of 13 browser journeys, with the security policy on
+- A trace of one answer: supervisor 2.07 s (almost all Gemini), cost specialist 9 ms, final answer 1.66 s
+- `make eval-quality`: 10 of 12, then 9 of 12 after the fix. The month question went from 1 to 5. Of the three later failures, two were the grader marking down extra true detail
+- `make load-test`: about 57 requests a second and 0 errors in every setup. The slowest 5% took 360 ms without tracing and 412 ms with production sampling
+- `pip-audit` and `pnpm audit`: no known vulnerabilities
+
+**Phase 10 follow-up**
+
+- Your AWS user can use EC2 and S3, but not IAM, Systems Manager or Budgets. Terraform plans 23 resources but cannot create the two roles. `infra/terraform/deployer-policy.json` lists the permissions to add
+- The budget is now optional, and the server image is found through EC2 rather than Systems Manager
+- GitHub now has the `production` environment, plus the `AWS_REGION`, `S3_BUCKET` and `PARAMETER_PATH` variables
+
+**Not yet done**
+
+- The 12 reference answers are not human-checked yet
+- Production monitoring needs a Grafana Cloud account
+
+## 3 Nov 2026: Phase 10, live deployment (code)
+
+**Built**
+
+- Terraform for one `t3.small` server: encrypted disk, swap, automatic security updates, a fixed address, and only ports 80 and 443 open
+- No SSH. Systems Manager runs deploys and opens terminals
+- One private S3 bucket with encryption, versioning, HTTPS-only access and expiry rules
+- Narrow permissions for the server, and a GitHub deploy role that only the `production` environment can use
+- A $1 monthly budget alert, counted after free credits
+- Production Compose with a memory limit on every service, Caddy for HTTPS, and Keycloak in production mode at `/auth`
+- A production Keycloak image with the green theme built in
+- Settings in Parameter Store. The GHCR token is kept apart from the app's settings
+- CI publishes images to GHCR from `main`, then the Deploy workflow runs `deploy.sh` on the server
+- Nightly backups of both databases to S3, with row counts saved beside them, and `restore.sh` to check or replace
+- The API refuses to start in production with unsafe settings, such as HTTP addresses or local file storage
+
+**Bugs found by rehearsing on the laptop**
+
+- Caddy did not block the Keycloak admin console, because a `handle` block runs before `respond`. The block now sits inside the `/auth` route
+- Keycloak said it was ready about 10 seconds before the realm loaded, so the first sign-ins got 503 errors. Its health check now waits for the realm
+- The worker used 81% of its 256 MB limit at rest. The limit is now 384 MB
+- The web app only listened on the container's own address, so a health check on 127.0.0.1 would fail. It now listens on every address
+
+**Tested on 3 Nov 2026**
+
+- The full production stack on the laptop: HTTPS through Caddy, a new user signed in through production Keycloak, a secure session cookie, and `/api/me`
+- Admin paths return 404 on the public address and work through the tunnel port
+- `make backup-check` on the dev data: 14 app tables with 7,193 rows, and 101 Keycloak tables with 2,134 rows, all restored exactly
+- Memory at rest: Keycloak 556 MB, worker 208 MB, API 197 MB, Postgres 52 MB, web 40 MB, Caddy 15 MB. About 1.07 GB in all
+- Checkov: 0 failed. 9 skips across 6 checks, each with its reason in the code
+- 365 backend tests, 34 frontend tests, and `make e2e` 12 of 12. One test failed once, straight after a restart, then passed twice
+
+**Not yet done**
+
+- Nothing has run on AWS yet. Steps 1 to 8 of `docs/guides/deployment.md` need your account
+- Real memory use on the server is not measured yet. Each deploy prints it
+
 ## 3 Nov 2026: Phase 9, other clouds
 
 **Built**

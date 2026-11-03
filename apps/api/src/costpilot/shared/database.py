@@ -5,7 +5,12 @@ from contextlib import asynccontextmanager
 from uuid import UUID
 
 from sqlalchemy import URL, text
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 
 SET_CONTEXT = text(
     "SELECT set_config('app.user_id', :user_id, true), "
@@ -35,6 +40,10 @@ class Database:
         async with self._sessions() as session, session.begin():
             await set_context(session, user_id=user_id, workspace_id=workspace_id)
             yield session
+
+    @property
+    def engine(self) -> AsyncEngine:
+        return self._engine
 
     async def close(self) -> None:
         await self._engine.dispose()

@@ -1,8 +1,13 @@
-"""Create or update .env from .env.example. Safe to run again: it never changes a value you set."""
+"""Create or update .env from .env.example. Safe to run again: it never changes a value you set.
+
+Also makes production settings:
+    sync_env.py infra/production/settings.example infra/production/settings
+"""
 
 import base64
 import os
 import secrets
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -34,19 +39,19 @@ def read_values(path: Path) -> dict[str, str]:
     return {key: value for key, value in pairs if not key.startswith("#")}
 
 
-def main() -> None:
-    current = read_values(ENV)
+def main(example: Path = EXAMPLE, env: Path = ENV) -> None:
+    current = read_values(env)
     lines = []
-    for line in EXAMPLE.read_text().splitlines():
+    for line in example.read_text().splitlines():
         if "=" not in line or line.startswith("#"):
             lines.append(line)
             continue
         name, default = line.split("=", 1)
         lines.append(f"{name}={current.get(name) or default or new_value(name)}")
-    ENV.write_text("\n".join(lines) + "\n")
-    ENV.chmod(0o600)
-    print("Updated .env")
+    env.write_text("\n".join(lines) + "\n")
+    env.chmod(0o600)
+    print(f"Updated {env.name}")
 
 
 if __name__ == "__main__":
-    main()
+    main(*(Path(arg) for arg in sys.argv[1:3]))

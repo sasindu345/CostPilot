@@ -50,6 +50,10 @@ services:
       KEYCLOAK_SMTP_HOST: ${KEYCLOAK_SMTP_HOST:?set in .env}
       KEYCLOAK_SMTP_PORT: ${KEYCLOAK_SMTP_PORT:?set in .env}
       KEYCLOAK_SMTP_FROM: ${KEYCLOAK_SMTP_FROM:?set in .env}
+      KEYCLOAK_SMTP_AUTH: ${KEYCLOAK_SMTP_AUTH:?set in .env}
+      KEYCLOAK_SMTP_STARTTLS: ${KEYCLOAK_SMTP_STARTTLS:?set in .env}
+      KEYCLOAK_SMTP_USER: ${KEYCLOAK_SMTP_USER}
+      KEYCLOAK_SMTP_PASSWORD: ${KEYCLOAK_SMTP_PASSWORD}
       APP_PUBLIC_URL: ${APP_PUBLIC_URL:?set in .env}
     volumes:
       - ./infra/keycloak/realm-costpilot.json:/opt/keycloak/data/import/realm-costpilot.json:ro
@@ -80,6 +84,8 @@ services:
       KEYCLOAK_INTERNAL_URL: http://keycloak:8080
       STORAGE_LOCAL_PATH: /app/uploads
       QDRANT_URL: http://qdrant:6333
+      # Empty unless `make monitoring` sets it.
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
     depends_on:
       postgres:
         condition: service_healthy
@@ -116,10 +122,22 @@ services:
       context: apps/web
       args:
         API_INTERNAL_URL: ${API_INTERNAL_URL:?set in .env}
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
     ports:
       - 127.0.0.1:${WEB_PORT:?set in .env}:3000
     depends_on:
       - api
+
+  # Grafana with Prometheus, Tempo and Loki in one image. Only starts with `make monitoring`.
+  monitoring:
+    image: grafana/otel-lgtm:0.39.0
+    profiles: [monitoring]
+    ports:
+      - 127.0.0.1:${GRAFANA_PORT:?set in .env}:3000
+    volumes:
+      - ./infra/monitoring/dashboards.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/costpilot.yaml:ro
+      - ./infra/monitoring/costpilot-dashboard.json:/otel-lgtm/costpilot-dashboard.json:ro
 
 volumes:
   postgres_data:

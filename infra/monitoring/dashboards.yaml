@@ -1,0 +1,7 @@
+# Loads the CostPilot dashboard into the local Grafana.
+apiVersion: 1
+providers:
+  - name: CostPilot
+    type: file
+    options:
+      path: /otel-lgtm/costpilot-dashboard.json

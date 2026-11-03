@@ -1,0 +1,31 @@
+#!/bin/bash
+# Runs once, the first time the server starts. Deployments do the rest.
+set -euo pipefail
+
+# Docker, plus automatic security updates.
+dnf install -y docker dnf-automatic
+systemctl enable --now docker
+sed -i 's/^upgrade_type.*/upgrade_type = security/; s/^apply_updates.*/apply_updates = yes/' /etc/dnf/automatic.conf
+systemctl enable --now dnf-automatic.timer
+
+# Amazon Linux does not include Docker Compose, so fetch a fixed version and check it.
+COMPOSE_VERSION=v5.7.0
+COMPOSE_SHA256=7758048ad38e580f22559603312874fec8bb638d021a9e64182385fc17cc12a2
+mkdir -p /usr/local/lib/docker/cli-plugins
+curl -fsSL -o /usr/local/lib/docker/cli-plugins/docker-compose \
+  "https://github.com/docker/compose/releases/download/$${COMPOSE_VERSION}/docker-compose-linux-x86_64"
+echo "$${COMPOSE_SHA256}  /usr/local/lib/docker/cli-plugins/docker-compose" | sha256sum --check
+chmod 755 /usr/local/lib/docker/cli-plugins/docker-compose
+
+# Swap is a safety buffer, so a memory spike slows the server instead of stopping a service.
+if [ ! -f /swapfile ]; then
+  dd if=/dev/zero of=/swapfile bs=1M count=$((${swap_gb} * 1024))
+  chmod 600 /swapfile
+  mkswap /swapfile
+  echo "/swapfile none swap sw 0 0" >> /etc/fstab
+fi
+swapon -a
+echo "vm.swappiness=10" > /etc/sysctl.d/90-costpilot.conf
+sysctl --system
+
+install -d -m 700 /opt/costpilot

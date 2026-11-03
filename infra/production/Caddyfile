@@ -1,0 +1,33 @@
+# Caddy is the front door. It gets a free HTTPS certificate from Let's Encrypt,
+# turns HTTP into HTTPS, and sends each path to the right service.
+{
+	email {$ACME_EMAIL}
+}
+
+{$DOMAIN} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+
+	handle /api/* {
+		reverse_proxy api:8000
+	}
+
+	handle /auth/* {
+		# The Keycloak admin console and admin realm are never public.
+		# Use the AWS tunnel in docs/guides/deployment.md instead.
+		@admin path /auth/admin /auth/admin/* /auth/realms/master /auth/realms/master/*
+		respond @admin 404
+		reverse_proxy keycloak:8080
+	}
+
+	handle {
+		header X-Frame-Options DENY
+		reverse_proxy web:3000
+	}
+}

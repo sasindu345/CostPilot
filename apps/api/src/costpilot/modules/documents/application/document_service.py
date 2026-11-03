@@ -92,6 +92,17 @@ class DocumentService:
         except OSError:
             logger.exception("stored_file_not_deleted", document_id=str(document_id))
 
+    async def workspace_file_keys(self, user: CurrentUser) -> list[str]:
+        return await self._repository.list_storage_keys(user.workspace_id)
+
+    async def delete_files(self, keys: list[str]) -> None:
+        """Deletes each stored file. One failure does not stop the rest."""
+        for key in keys:
+            try:
+                await self._storage.delete(key)
+            except Exception:
+                logger.exception("stored_file_not_deleted", storage_key=key)
+
     async def reprocess(self, user: CurrentUser, document_id: UUID) -> Document:
         document = await self.get(user, document_id)
         if not await self._repository.queue_again(user.workspace_id, document_id):

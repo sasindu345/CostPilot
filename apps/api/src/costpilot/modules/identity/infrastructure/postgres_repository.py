@@ -34,6 +34,41 @@ FIND_SESSION = text(
     "WHERE s.token_hash = :token_hash AND s.expires_at > :now"
 )
 DELETE_SESSION = text("DELETE FROM sessions WHERE token_hash = :token_hash")
+FIND_SUBJECT = text("SELECT keycloak_subject FROM users WHERE id = :user_id")
+COUNT_MEMBERS = text(
+    "SELECT count(*) AS members, count(*) FILTER (WHERE user_id = :user_id) AS mine "
+    "FROM memberships WHERE workspace_id = :workspace_id"
+)
+DELETE_WORKSPACE = text("DELETE FROM workspaces WHERE id = :workspace_id")
+DELETE_USER = text("DELETE FROM users WHERE id = :user_id")
+
+
+def _rows(table: str, hidden: str = "", order: str = "created_at") -> str:
+    """All of one table's rows in the workspace, as a JSON list. Internal columns are left out."""
+    # Only called below, with fixed table and column names.
+    columns = f"to_jsonb(t) - 'workspace_id'{hidden}"
+    query = f"SELECT coalesce(jsonb_agg({columns} ORDER BY t.{order}), '[]') FROM {table} t"  # noqa: S608  # nosec B608
+    return f"({query} WHERE t.workspace_id = :workspace_id)"
+
+
+# One statement, so the export is a consistent snapshot. Numbers stay exact, because
+# PostgreSQL writes NUMERIC values straight into the JSON text.
+EXPORT_WORKSPACE = text(f"""
+    SELECT jsonb_build_object(
+        'format', 'costpilot-export-1',
+        'exported_at', now(),
+        'user', (SELECT to_jsonb(u) - 'keycloak_subject' FROM users u WHERE u.id = :user_id),
+        'workspace', (SELECT to_jsonb(w) FROM workspaces w WHERE w.id = :workspace_id),
+        'documents', {_rows("documents", " - 'storage_key'")},
+        'document_periods', {_rows("document_periods", order="billing_month")},
+        'cost_records', {_rows("cost_records", order="id")},
+        'monthly_summaries', {_rows("monthly_summaries", order="billing_month")},
+        'conversations', {_rows("conversations")},
+        'messages', {_rows("messages")},
+        'assistant_usage', {_rows("assistant_usage", order="day")},
+        'audit_events', {_rows("audit_events")}
+    )::text
+""")  # noqa: S608  # nosec B608 - the table and column names are fixed in this file
 
 OWNER_ROLE = "owner"
 DEFAULT_WORKSPACE_NAME = "My workspace"
@@ -99,6 +134,28 @@ class PostgresIdentityRepository:
     async def delete_session(self, token_hash: bytes) -> None:
         async with self._database.transaction() as db:
             await db.execute(DELETE_SESSION, {"token_hash": token_hash})
+
+    async def export_workspace(self, user: CurrentUser) -> str:
+        async with self._database.transaction(
+            user_id=user.user_id, workspace_id=user.workspace_id
+        ) as db:
+            params = {"user_id": user.user_id, "workspace_id": user.workspace_id}
+            return (await db.execute(EXPORT_WORKSPACE, params)).scalar_one()
+
+    async def find_subject(self, user: CurrentUser) -> str:
+        async with self._database.transaction(user_id=user.user_id) as db:
+            return (await db.execute(FIND_SUBJECT, {"user_id": user.user_id})).scalar_one()
+
+    async def delete_account(self, user: CurrentUser) -> None:
+        async with self._database.transaction(
+            user_id=user.user_id, workspace_id=user.workspace_id
+        ) as db:
+            params = {"workspace_id": user.workspace_id, "user_id": user.user_id}
+            counts = (await db.execute(COUNT_MEMBERS, params)).one()
+            if counts.members == 1 and counts.mine == 1:
+                # Deleting the workspace removes its bills, chats and audit events too.
+                await db.execute(DELETE_WORKSPACE, params)
+            await db.execute(DELETE_USER, {"user_id": user.user_id})
 
     async def _create_workspace(self, db: AsyncSession, user_id: UUID) -> tuple[UUID, str]:
         workspace_id = uuid4()

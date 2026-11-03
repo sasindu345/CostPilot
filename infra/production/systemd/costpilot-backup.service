@@ -1,0 +1,9 @@
+[Unit]
+Description=CostPilot database backup to S3
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/costpilot/current
+ExecStart=/opt/costpilot/current/backup.sh

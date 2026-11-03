@@ -360,22 +360,22 @@ Every phase ends with the same steps:
 **You will see:** CostPilot running on the internet with HTTPS.
 - [ ] Confirm `t3.small` is free for your account
 - [ ] Set up AWS budget alerts first, so there are no surprise bills
-- [ ] Terraform: EC2, network rules, private S3 bucket, narrow permissions
-- [ ] Checkov and Trivy scans in the pipeline
-- [ ] Production Compose with memory limits and swap
-- [ ] Caddy HTTPS, Keycloak in production mode, Parameter Store secrets
-- [ ] Images pushed to GHCR, with automatic deployment from GitHub Actions
-- [ ] Nightly encrypted backups to S3, and a tested restore
+- [x] Terraform: EC2, network rules, private S3 bucket, narrow permissions
+- [x] Checkov and Trivy scans in the pipeline
+- [x] Production Compose with memory limits and swap
+- [x] Caddy HTTPS, Keycloak in production mode, Parameter Store secrets
+- [x] Images pushed to GHCR, with automatic deployment from GitHub Actions
+- [x] Nightly encrypted backups to S3, and a tested restore
 - [ ] Measure the real memory use
 
 ### Phase 11 – Monitoring, quality and finish
 **You will see:** live dashboards, measured AI quality and portfolio-ready docs.
-- [ ] OpenTelemetry tracing through the web app, API and agents
-- [ ] Prometheus and Grafana locally, Grafana Cloud in production
-- [ ] AI quality tests with DeepEval or Ragas, plus human-checked test cases
-- [ ] Data retention, account deletion and data export
-- [ ] Final security review and load test
-- [ ] Final README with screenshots and a demo walkthrough
+- [x] OpenTelemetry tracing through the web app, API and agents
+- [x] Prometheus and Grafana locally, Grafana Cloud in production
+- [x] AI quality tests with our own grader instead of DeepEval or Ragas (decision 0012). Human checks of the reference answers are still to do
+- [x] Data retention, account deletion and data export
+- [x] Final security review and load test
+- [x] Final README with screenshots and a demo walkthrough
 
 **Later ideas (not in this plan):** connect directly to a cloud account with read-only access. This would give real usage data, so right-sizing savings could finally be proven.
 

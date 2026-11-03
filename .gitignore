@@ -9,6 +9,8 @@
 *.crt
 secrets/
 credentials*
+# Filled-in production settings
+infra/production/settings
 !**/credentials.py
 
 # ---- Billing data: real bills never go in Git ----

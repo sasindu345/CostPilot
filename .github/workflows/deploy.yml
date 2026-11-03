@@ -1,0 +1,109 @@
+name: Deploy
+
+# Runs after CI passes on main. Run it by hand on main to deploy the latest main again.
+# Nothing happens until the GitHub variables in docs/guides/deployment.md are set.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions: {}
+
+# One deployment at a time. A newer one waits for the current one to finish.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to the server
+    if: >
+      vars.AWS_DEPLOY_ROLE_ARN != '' && (
+        (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+        github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+      # The server pulls the private images with this job's own token. GitHub cancels it when the job ends.
+      packages: read
+    env:
+      IMAGE_TAG: ${{ github.event.workflow_run.head_sha || github.sha }}
+      IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/costpilot
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      S3_BUCKET: ${{ vars.S3_BUCKET }}
+      INSTANCE_ID: ${{ vars.AWS_INSTANCE_ID }}
+      PARAMETER_PATH: ${{ vars.PARAMETER_PATH || '/costpilot/prod' }}
+      APP_URL: ${{ vars.APP_URL }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.IMAGE_TAG }}
+
+      # GitHub proves who it is to AWS. No AWS keys are stored in GitHub.
+      - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Upload the deploy files
+        run: |
+          # The tag ends up in a command on the server, so it must be a plain commit SHA.
+          [[ $IMAGE_TAG =~ ^[0-9a-f]{40}$ ]] || { echo "Image tag must be a full commit SHA"; exit 1; }
+          mkdir bundle
+          cp -r infra/production/. bundle/
+          cp infra/postgres/init-roles.sh bundle/
+          rm -f bundle/settings.example bundle/put-settings.sh
+          tar -czf bundle.tar.gz -C bundle .
+          aws s3 cp --only-show-errors --sse AES256 bundle.tar.gz "s3://$S3_BUCKET/deploy/$IMAGE_TAG.tar.gz"
+
+      - name: Run the deploy script on the server
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          release="/opt/costpilot/releases/$IMAGE_TAG"
+          commands=$(jq -n \
+            --arg release "$release" \
+            --arg bundle "s3://$S3_BUCKET/deploy/$IMAGE_TAG.tar.gz" \
+            --arg region "$AWS_REGION" \
+            --arg run "$release/deploy.sh $IMAGE_PREFIX $IMAGE_TAG $PARAMETER_PATH" \
+            --arg login "printf %s $GHCR_TOKEN | docker login ghcr.io --username $GITHUB_ACTOR --password-stdin" \
+            '{commands: [
+              "set -eu",
+              "mkdir -p \($release)",
+              "aws s3 cp --only-show-errors --region \($region) \($bundle) /tmp/costpilot-bundle.tar.gz",
+              "tar -xzf /tmp/costpilot-bundle.tar.gz -C \($release)",
+              "rm /tmp/costpilot-bundle.tar.gz",
+              "\($login)",
+              "\($run)",
+              "docker logout ghcr.io"
+            ], executionTimeout: ["1200"]}')
+          command_id=$(aws ssm send-command \
+            --instance-ids "$INSTANCE_ID" \
+            --document-name AWS-RunShellScript \
+            --comment "Deploy $IMAGE_TAG" \
+            --parameters "$commands" \
+            --query Command.CommandId --output text)
+          echo "COMMAND_ID=$command_id" >> "$GITHUB_ENV"
+
+      - name: Wait for the deploy to finish
+        run: |
+          for _ in $(seq 1 120); do
+            status=$(aws ssm get-command-invocation --command-id "$COMMAND_ID" \
+              --instance-id "$INSTANCE_ID" --query Status --output text 2>/dev/null || echo Pending)
+            case $status in
+              Pending | InProgress | Delayed) sleep 10 ;;
+              *) break ;;
+            esac
+          done
+          aws ssm get-command-invocation --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID" \
+            --query '[StandardOutputContent, StandardErrorContent]' --output text
+          echo "Deploy status: $status"
+          [ "$status" = Success ]
+
+      - name: Check the live site
+        if: env.APP_URL != ''
+        run: curl --fail --silent --show-error --max-time 30 --retry 5 --retry-delay 10 "$APP_URL/api/health"

@@ -3,8 +3,9 @@
 from decimal import Decimal
 from functools import lru_cache
 from typing import Literal
+from urllib.parse import urlsplit
 
-from pydantic import SecretStr
+from pydantic import SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL
 
@@ -51,10 +52,13 @@ class Settings(BaseSettings):
     digitalocean_docs_url: str
     qdrant_url: str
     qdrant_api_key: SecretStr = SecretStr("")
+    # Qdrant Cloud is far away, and uploading a batch of vectors can take longer than 5 seconds.
+    qdrant_timeout_seconds: int = 30
     gemini_api_key: SecretStr = SecretStr("")
     gemini_embedding_model: str
     gemini_answer_model: str
     gemini_router_model: str
+    gemini_judge_model: str
     gemini_tier: Literal["free", "paid"] = "free"
     gemini_timeout_seconds: float = 30
     gemini_retries: int = 2
@@ -104,6 +108,29 @@ class Settings(BaseSettings):
     job_max_attempts: int = 3
     job_retry_seconds: int = 30
     job_stale_minutes: int = 15
+    otel_exporter_otlp_endpoint: str = ""
+    otel_metric_interval_seconds: int = 30
+    retention_audit_days: int = 365
+    retention_conversation_days: int = 180
+    retention_failed_job_days: int = 30
+    retention_interval_hours: float = 24
+
+    @model_validator(mode="after")
+    def _check_production(self) -> "Settings":
+        """Refuse to start in production with settings that are only safe on a laptop."""
+        if self.app_env != "production":
+            return self
+        problems = []
+        if not self.session_cookie_secure:
+            problems.append("SESSION_COOKIE_SECURE must be true")
+        if self.storage_backend != "s3" or not self.s3_bucket or not self.aws_region:
+            problems.append("STORAGE_BACKEND must be s3, with S3_BUCKET and AWS_REGION set")
+        for name in ("app_public_url", "keycloak_public_url"):
+            if urlsplit(getattr(self, name)).scheme != "https":
+                problems.append(f"{name.upper()} must use HTTPS")
+        if problems:
+            raise ValueError("Unsafe production settings: " + "; ".join(problems))
+        return self
 
     def _database_url(self, username: str, password: SecretStr) -> URL:
         return URL.create(
