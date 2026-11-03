@@ -101,7 +101,7 @@ jobs:
         working-directory: infra/production
         run: |
           # Fill every empty example value, so only real mistakes in the file fail this check.
-          sed -E 's/^([A-Z_/]+)=$/\1=check/' settings.example > .env
+          sed -E '/^[a-z]+\//d; s/^([A-Z_]+)=$/\1=check/' settings.example > .env
           IMAGE_PREFIX=ghcr.io/example/costpilot IMAGE_TAG=check docker compose config --quiet
 
   images:
