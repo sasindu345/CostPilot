@@ -1,8 +1,10 @@
 # Copy this file to terraform.tfvars and fill it in. terraform.tfvars is ignored by Git.
-aws_region        = "ap-south-1"
-bucket_name       = "costpilot-<your-account-id>"   # lower case, numbers and dashes only
-github_repository = "<owner>/CostPilot"            # not the full URL
-alert_email       = "<your-email>"
+aws_region           = "ap-south-1"
+bucket_name          = "costpilot-<your-account-id>" # lower case, numbers and dashes only
+github_repository    = "<owner>/CostPilot"           # not the full URL
+github_owner_id      = "<owner-id>"                   # gh api repos/<owner>/<repo> --jq .owner.id
+github_repository_id = "<repository-id>"              # gh api repos/<owner>/<repo> --jq .id
+alert_email          = "<your-email>"
 
 # Optional. The defaults are in variables.tf.
 # create_budget      = false   # if your AWS user may not create budgets
