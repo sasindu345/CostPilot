@@ -1,0 +1,2 @@
+SubscriptionId,UsageDateTime,MeterCategory,MeterSubCategory,MeterName,Location,InstanceId,UsageQuantity,UnitOfMeasure,PreTaxCost,Currency
+sub-2,2026-10-01,Storage,Standard Page Blob,Disks,eastus,/subscriptions/sub-2/disk-1,10,1 GB/Month,4.00,USD

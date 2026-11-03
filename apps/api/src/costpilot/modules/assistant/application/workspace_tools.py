@@ -76,12 +76,12 @@ class WorkspaceTools:
         )
 
     async def search_documents(
-        self, question: str, provider: str | None
+        self, question: str, providers: list[str]
     ) -> tuple[list[DocumentPassage], list[str]]:
         """Runs once per question, and the specialists share the result."""
         overview = await self._overview()
-        default = overview.providers[0] if overview and overview.providers else DEFAULT_PROVIDER
-        result = await self._knowledge.search(question, provider or default)
+        in_use = overview.providers if overview and overview.providers else [DEFAULT_PROVIDER]
+        result = await self._knowledge.search(question, providers or in_use)
         if not result.is_available:
             return [], [DOCUMENTS_DOWN]
         if not result.passages:

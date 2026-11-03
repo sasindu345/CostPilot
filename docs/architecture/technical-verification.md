@@ -1,6 +1,6 @@
 # Technical verification
 
-What is built at the end of Phase 8, and the evidence for it. Checked on 2 Nov 2026 against the running system.
+What is built at the end of Phase 9, and the evidence for it. Checked on 2 Nov 2026 against the running system.
 
 ## 1. Documents and chunking
 
@@ -26,6 +26,22 @@ What is built at the end of Phase 8, and the evidence for it. Checked on 2 Nov 2
 | Largest sources | RDS storage 34, S3 storage classes 18, RDS reserved 11 |
 | Search test | 10 of 10 questions found an expected source |
 | Second `make reindex` | 0 indexed, 18 unchanged, so no quota was used |
+
+**Other clouds, added in Phase 9.** 18 more official pages from Azure, Google Cloud, Oracle and DigitalOcean. Each site keeps its article in a different place, so the loader was tuned and checked on every page:
+
+| Problem found | Fix |
+|---|---|
+| Azure pages started with menus | Read every `main div.content` block |
+| Google pages started with breadcrumbs | Read `.devsite-article-body` first |
+| Oracle repeated nested articles up to seven times | Skip a match inside another match |
+| DigitalOcean added a note "For AI agents" | Drop it as page furniture |
+
+The AWS pages were checked to be unchanged by these fixes: a reindex found 18 unchanged.
+
+| Check | Result |
+|---|---|
+| Chunks stored | 308, from 36 pages across 5 clouds |
+| Search test | 18 of 18, including 8 questions on the new clouds |
 
 ## 2. Seeing it in the Qdrant dashboard
 
@@ -109,7 +125,7 @@ Tests prove that specialists overlap in time, documents are fetched once, the ca
 | Second lock | PostgreSQL Row-Level Security | migrations |
 | Trusted sources only | Allowed sites only, and redirects are checked | `knowledge/domain/sources.py` |
 | Weak matches dropped | Minimum search score | `search_min_score` |
-| Cloud filter | AWS advice is never used for another cloud | `qdrant_index.py` |
+| Cloud filter | Advice comes only from the clouds the question or bill is about. One search covers several clouds | `qdrant_index.py` |
 | Off-topic refused | Route `out_of_scope`, with no answer call | `langgraph_workflow.py` |
 | Honest gaps | Missing detail is listed as a limitation | `workspace_tools.py` |
 | Usage limits | Daily limit and question length | `assistant_service.py` |
@@ -176,6 +192,6 @@ From `knowledge/assistant-baseline.json`, on the sample bill with `gemini-3.5-fl
 ## 6. Known weaknesses
 
 - **Test questions:** we wrote them, and they check for simple text, so 15 of 15 does not prove general quality. Phase 11 adds independent scoring.
-- **Bill readers:** tested with made-up files only, never a real AWS bill.
+- **Bill readers:** all six formats were built from official documentation and tested with made-up files only. None has seen a real bill.
 - **Speed:** our own steps take under 0.1 seconds, and document search about 1 second. Almost all waiting is Gemini, which took from 1 to 16 seconds per call on the free key.
 - **Free key:** it is not suitable for real bills.

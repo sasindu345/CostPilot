@@ -9,6 +9,7 @@ import { SpendingChart } from "@/components/charts/spending-chart";
 import { TopServices } from "@/components/charts/top-services";
 import { ErrorPanel, LoadingPanel } from "@/components/data-states";
 import { PeriodSelect } from "@/components/period-select";
+import { ProviderSelect } from "@/components/provider-select";
 import {
   useComparison,
   useOverview,
@@ -17,7 +18,7 @@ import {
   type Filters,
   type Overview,
 } from "@/lib/analytics";
-import { formatMoney, formatMonth, formatPercent, providerName } from "@/lib/format";
+import { formatMoney, formatMonth, formatPercent } from "@/lib/format";
 
 const DEFAULT_MONTHS = 6;
 const SELECT_STYLE =
@@ -148,22 +149,8 @@ export function AnalyticsPage() {
             <option value="effective">Effective cost</option>
           </select>
         </label>
-        {overview && overview.providers.length > 1 && (
-          <label className="text-sm text-muted">
-            <span className="sr-only">Provider</span>
-            <select
-              value={provider ?? ""}
-              onChange={(event) => setProvider(event.target.value || undefined)}
-              className={SELECT_STYLE}
-            >
-              <option value="">All clouds</option>
-              {overview.providers.map((name) => (
-                <option key={name} value={name}>
-                  {providerName(name)}
-                </option>
-              ))}
-            </select>
-          </label>
+        {overview && (
+          <ProviderSelect providers={overview.providers} value={provider} onChange={setProvider} />
         )}
         {overview && overview.currencies.length > 1 && (
           <label className="text-sm text-muted">

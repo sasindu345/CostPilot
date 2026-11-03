@@ -8,6 +8,7 @@ import { SpendingChart } from "@/components/charts/spending-chart";
 import { TopServices } from "@/components/charts/top-services";
 import { ErrorPanel, LoadingPanel } from "@/components/data-states";
 import { PeriodSelect } from "@/components/period-select";
+import { ProviderSelect } from "@/components/provider-select";
 import { useOverview } from "@/lib/analytics";
 import { formatMonth } from "@/lib/format";
 
@@ -20,7 +21,14 @@ const DEFAULT_MONTHS = 6;
 
 export function OverviewPage() {
   const [months, setMonths] = useState(DEFAULT_MONTHS);
-  const { data: overview, error, isPending, refetch } = useOverview({ months });
+  const [provider, setProvider] = useState<string>();
+  const [providers, setProviders] = useState<string[]>([]);
+  const { data: overview, error, isPending, refetch } = useOverview({ months, provider });
+  // Remember every cloud seen, so the list stays complete while one cloud is selected.
+  const seen = overview?.providers ?? [];
+  if (seen.some((name) => !providers.includes(name))) {
+    setProviders([...new Set([...providers, ...seen])]);
+  }
 
   return (
     <section>
@@ -29,7 +37,12 @@ export function OverviewPage() {
           <h1 className="text-3xl font-bold">Welcome to CostPilot</h1>
           <p className="mt-1 text-muted">Your AI-powered cloud cost management workspace.</p>
         </div>
-        {overview && <PeriodSelect value={months} onChange={setMonths} />}
+        {overview && (
+          <div className="flex flex-wrap gap-3">
+            <ProviderSelect providers={providers} value={provider} onChange={setProvider} />
+            <PeriodSelect value={months} onChange={setMonths} />
+          </div>
+        )}
       </div>
 
       {isPending && <LoadingPanel label="Loading your spending…" />}

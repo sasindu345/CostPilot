@@ -1,0 +1,4 @@
+lineItem/referenceNo,lineItem/tenantId,lineItem/intervalUsageStart,lineItem/intervalUsageEnd,product/service,product/compartmentId,product/region,product/resourceId,usage/billedQuantity,cost/productSku,product/description,cost/myCost,cost/currencyCode,cost/skuUnitDescription,lineItem/isCorrection,tags/Oracle-Tags.CreatedBy
+r1,tenant-1,2026-10-01T00:00Z,2026-10-01T01:00Z,COMPUTE,comp-1,us-ashburn-1,ocid1.instance.oc1.xyz,2,B93113,Compute - Standard - E4 - OCPU,0.05,USD,OCPU Per Hour,false,ann
+r2,tenant-1,2026-10-01T00:00Z,2026-10-01T01:00Z,OBJECT_STORAGE,comp-1,us-ashburn-1,ocid1.bucket.oc1.xyz,50,B91628,Object Storage - Storage,1.275,USD,Gigabyte Storage Capacity Per Month,false,
+r3,tenant-1,2026-10-02T00:00Z,2026-10-02T01:00Z,COMPUTE,comp-1,us-ashburn-1,ocid1.instance.oc1.xyz,0,B93113,Compute - Standard - E4 - OCPU,-0.01,USD,OCPU Per Hour,true,

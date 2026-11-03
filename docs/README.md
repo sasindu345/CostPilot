@@ -44,6 +44,7 @@ Each note explains one big decision and why we made it.
 
 - [Getting started](guides/getting-started.md)
 - [Keycloak beginner's guide](guides/keycloak-beginners-guide.md)
+- [Getting a bill from each cloud](guides/cloud-bills.md)
 
 ## Background
 

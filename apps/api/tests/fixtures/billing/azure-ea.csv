@@ -1,0 +1,6 @@
+BillingAccountId,SubscriptionId,Date,MeterCategory,MeterSubCategory,MeterName,ResourceLocation,ResourceId,ChargeType,Quantity,UnitOfMeasure,CostInBillingCurrency,BillingCurrency,paygCostInBillingCurrency,Tags
+ba-1,sub-1,10/01/2026,Virtual Machines,Dv5 Series,D2 v5,westeurope,/subscriptions/sub-1/vm-1,Usage,24,1 Hour,12.50,EUR,15.00,"""env"": ""prod"""
+ba-1,sub-1,10/02/2026,Virtual Machines,Dv5 Series,D2 v5,westeurope,/subscriptions/sub-1/vm-1,Usage,24,1 Hour,12.50,EUR,15.00,
+ba-1,sub-1,10/01/2026,Storage,Hot Block Blob,LRS Data Stored,westeurope,/subscriptions/sub-1/st-1,Usage,100,1 GB/Month,1.8000000001,EUR,,
+ba-1,sub-1,10/15/2026,Virtual Machines,Reservation,D2 v5 1 Year,westeurope,,Purchase,1,1,300.00,EUR,,
+ba-1,sub-1,10/20/2026,Virtual Machines,Dv5 Series,D2 v5,westeurope,/subscriptions/sub-1/vm-1,Refund,0,1 Hour,-2.50,EUR,,

@@ -109,7 +109,13 @@ def build_recommendation_service(settings: Settings, database: Database) -> Reco
         analytics=build_analytics_service(settings, database),
         min_monthly_cost=settings.recommendation_min_monthly_cost,
         steady_ratio=settings.recommendation_steady_ratio,
-        docs_urls={"aws": settings.aws_docs_url},
+        docs_urls={
+            "aws": settings.aws_docs_url,
+            "azure": settings.azure_docs_url,
+            "gcp": settings.gcp_docs_url,
+            "oci": settings.oci_docs_url,
+            "digitalocean": settings.digitalocean_docs_url,
+        },
     )
 
 

@@ -42,3 +42,9 @@ The Anomaly and Optimization agents beat the baseline and stay. The Knowledge Ag
 Recommendations are built on request and not saved, because they use no AI and cost nothing to rebuild.
 
 The first hybrid run also needed a change to the answer rules: a number's sentence must name its service.
+
+## Knowledge Agent re-test in Phase 9
+
+Six harder documentation questions, most comparing clouds, scored 6 of 6 both with and without the Knowledge Agent. With it on, each question used about 0.8 more AI calls, 450 more input tokens and 0.6 more seconds. It stays off by default.
+
+The questions check for key words, so they may miss smaller quality differences. A review of answers by a person, or an LLM judge in Phase 11, could show a difference these tests cannot.

@@ -17,7 +17,7 @@ async def main() -> int:
     questions = read_questions(settings.knowledge_questions_path)
     hits = 0
     for item in questions:
-        result = await search.search(item.question, item.provider)
+        result = await search.search(item.question, [item.provider])
         found = {passage.source_id for passage in result.passages}
         is_hit = bool(found & set(item.expected))
         hits += is_hit

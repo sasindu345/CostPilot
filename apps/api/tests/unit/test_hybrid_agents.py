@@ -143,12 +143,21 @@ async def test_no_documents_means_no_document_agents():
 
 
 async def test_a_question_naming_a_cloud_searches_that_cloud():
-    model = FakeModel(route=Route.KNOWLEDGE, provider="azure")
+    model = FakeModel(route=Route.KNOWLEDGE, providers=["azure"])
     knowledge = FakeKnowledge(SearchResult([]))
 
     await run(service(model, knowledge=knowledge), "How do Azure reservations work?")
 
-    assert knowledge.seen[0][1] == "azure"
+    assert knowledge.seen[0][1] == ["azure"]
+
+
+async def test_a_question_comparing_clouds_searches_all_of_them_at_once():
+    model = FakeModel(route=Route.KNOWLEDGE, providers=["aws", "azure", "gcp"])
+    knowledge = FakeKnowledge(SearchResult([]))
+
+    await run(service(model, knowledge=knowledge), "How do Spot VMs differ across clouds?")
+
+    assert knowledge.seen == [("How do Spot VMs differ across clouds?", ["aws", "azure", "gcp"])]
 
 
 async def test_the_ai_call_limit_is_never_passed():

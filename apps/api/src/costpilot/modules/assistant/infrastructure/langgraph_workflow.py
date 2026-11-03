@@ -87,7 +87,7 @@ class LangGraphEvidenceWorkflow:
             return {"documents": [], "search_limits": []}
         with state["meter"].step(RETRIEVE):
             documents, limits = await state["tools"].search_documents(
-                state["question"], plan.provider
+                state["question"], plan.providers
             )
         return {"documents": documents, "search_limits": limits}
 

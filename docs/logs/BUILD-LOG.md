@@ -2,6 +2,41 @@
 
 A dated record of what was built. Newest entries go at the top.
 
+## 3 Nov 2026: Phase 9, other clouds
+
+**Built**
+
+- Readers for Azure cost details, Google Cloud billing export, Oracle cost reports and DigitalOcean invoices
+- FOCUS files from Azure, Google Cloud and Oracle, including the newer `ServiceProviderName` column
+- 18 official documentation pages from the four new clouds, so search covers 36 pages
+- Recommendation rules for Azure, Google Cloud and Oracle
+- A cloud filter on Overview and Analytics, shown when bills come from more than one cloud
+- A question can name several clouds, and one search covers them all
+- A guide to getting a bill from each cloud, with a BigQuery query for Google Cloud
+
+**Checked before building**
+
+- Column names came from official Azure, Google Cloud, Oracle and DigitalOcean documentation and API specs
+- The FOCUS spec source showed version 1.3 replaced `ProviderName` with `ServiceProviderName`
+
+**Bugs and risks found**
+
+- Documentation pages carried menus, breadcrumbs, a note "For AI agents", and nested Oracle sections repeated up to seven times. All were removed, and AWS pages stayed the same
+- Passing one cloud name where a list was expected silently matched nothing. It now raises an error
+- The cloud and period menus had unclear accessible names. They now have proper labels
+
+**Tested on 3 Nov 2026**
+
+- Hand-worked totals for every reader: Azure €324.30, Google Cloud $19.35, Oracle $1.315 and DigitalOcean $977.27
+- `make eval-search`: 18 of 18. `make eval-assistant`: 15 of 15. `make eval-knowledge`: 6 of 6 with or without the Knowledge Agent
+- 359 backend tests, 34 frontend tests, and `make e2e` 12 of 12, including an Azure bill beside AWS
+
+**Known limits**
+
+- No reader has seen a real bill from its cloud
+- Different currencies are never added, so a two-cloud view shows one currency at a time
+- DigitalOcean has no recommendation rules yet
+
 ## 2 Nov 2026: Phase 8, hybrid agents
 
 **Built**

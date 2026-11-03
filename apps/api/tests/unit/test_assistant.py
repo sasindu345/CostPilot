@@ -132,8 +132,8 @@ class FakeKnowledge:
         )
         self.seen = []
 
-    async def search(self, question, provider):
-        self.seen.append((question, provider))
+    async def search(self, question, providers):
+        self.seen.append((question, list(providers)))
         return self.result
 
 
@@ -153,11 +153,11 @@ class FakeModel:
         error=None,
         retry=None,
         findings=(),
-        provider=None,
+        providers=(),
     ):
         self.route = route
         self.findings = findings
-        self.provider = provider
+        self.providers = list(providers)
         self.specialist_calls = []
         self.chunks = chunks
         self.retry = retry
@@ -168,7 +168,7 @@ class FakeModel:
         if self.error == "route":
             raise ModelUnavailableError
         return RoutePlan(
-            self.route if isinstance(self.route, list) else [self.route], self.provider
+            self.route if isinstance(self.route, list) else [self.route], self.providers
         )
 
     async def find_findings(self, instructions, prompt, meter):
@@ -384,7 +384,7 @@ async def test_optimization_questions_use_documents_and_list_their_sources():
 
     events = await run(service(model, knowledge=knowledge, store=store), "How can I save?")
 
-    assert knowledge.seen == [("How can I save?", "aws")]
+    assert knowledge.seen == [("How can I save?", ["aws"])]
     assert "S3 lifecycle" in model.specialist_calls[0][1]
     assert events[-1].sources[0].url == "https://docs.test/s3"
     assert store.saved[-1][2][0].url == "https://docs.test/s3"

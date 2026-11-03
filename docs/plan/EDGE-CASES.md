@@ -29,3 +29,11 @@ The Phase column shows where each one was or will be built. Items for Phase 6 an
 | Source page redirects off a trusted site | Refused | 5 |
 | A specialist agent fails, or the AI call limit is reached | The answer still goes out using Python facts | 8 |
 | Summary-only file with a cost increase | The Anomaly Agent skips AI and says the cause cannot be traced | 8 |
+| Azure dates in month/day/year order | Read in that order, so 10/15/2026 is 15 October | 9 |
+| Google Cloud credits nested in each row | Added up by the export query, and saved as their own credit records | 9 |
+| Oracle correction rows | Kept as adjustments | 9 |
+| DigitalOcean descriptions with IP addresses or names | Stored as the resource, which never reaches the AI | 9 |
+| A question comparing several clouds | One search covers all the clouds it names | 9 |
+| The AI names a cloud that does not exist | Dropped before search | 9 |
+| Bills from two clouds | A cloud filter appears on Overview and Analytics | 9 |
+

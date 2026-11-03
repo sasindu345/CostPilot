@@ -49,7 +49,9 @@ export function UploadPanel() {
       >
         <Upload aria-hidden className="size-8 text-brand" />
         <p className="font-medium">Drag a billing file here</p>
-        <p className="text-sm text-muted">AWS .csv or .csv.gz files</p>
+        <p className="text-sm text-muted">
+          AWS, Azure, Google Cloud, Oracle, DigitalOcean or FOCUS files (.csv or .csv.gz)
+        </p>
         <input
           ref={inputRef}
           type="file"

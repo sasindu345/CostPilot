@@ -35,7 +35,7 @@ class RoutePlan:
     """The supervisor's decision: which specialists to run, and for which cloud."""
 
     routes: list[Route]
-    provider: str | None = None
+    providers: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)

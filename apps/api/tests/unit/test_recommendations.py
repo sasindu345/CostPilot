@@ -3,8 +3,16 @@
 from datetime import date
 from decimal import Decimal
 
+import pytest
+
 from costpilot.modules.analytics.contracts import ServiceMonthCost, UsageChange
-from costpilot.modules.recommendations.domain.profiles import AWS, ProviderProfile
+from costpilot.modules.recommendations.domain.profiles import (
+    AWS,
+    AZURE,
+    GCP,
+    PROFILES,
+    ProviderProfile,
+)
 from costpilot.modules.recommendations.domain.rules import RuleInput, find_recommendations
 
 OCT = date(2026, 10, 1)
@@ -74,3 +82,26 @@ def test_a_cloud_with_no_rules_gets_no_advice():
     )
 
     assert find_recommendations(ProviderProfile("azure"), data) == []
+
+
+@pytest.mark.parametrize(
+    ("profile", "service", "rule"),
+    [
+        (AZURE, "Virtual Machines", "azure-vm-reservations"),
+        (GCP, "Compute Engine", "gcp-committed-use"),
+    ],
+)
+def test_other_clouds_suggest_their_own_commitments(profile, service, rule):
+    data = RuleInput(
+        costs(service, "50", "50", "50"), [], OCT, "USD", Decimal(5), Decimal("1.25"), DOCS
+    )
+
+    found = find_recommendations(profile, data)
+
+    assert rule in ids(found)
+    assert all(item.monthly_saving is None for item in found)
+    assert found[0].provider == profile.provider
+
+
+def test_every_cloud_has_a_profile():
+    assert set(PROFILES) == {"aws", "azure", "gcp", "oci", "digitalocean"}
