@@ -90,6 +90,8 @@ data "aws_iam_openid_connect_provider" "github" {
 
 locals {
   github_provider_arn = var.create_github_oidc_provider ? aws_iam_openid_connect_provider.github[0].arn : data.aws_iam_openid_connect_provider.github[0].arn
+  github_repo_parts   = split("/", var.github_repository)
+  github_oidc_subject = "repo:${local.github_repo_parts[0]}@${var.github_owner_id}/${local.github_repo_parts[1]}@${var.github_repository_id}:environment:${var.github_environment}"
 }
 
 data "aws_iam_policy_document" "deploy_trust" {
@@ -108,7 +110,7 @@ data "aws_iam_policy_document" "deploy_trust" {
     condition {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:${var.github_repository}:environment:${var.github_environment}"]
+      values   = [local.github_oidc_subject]
     }
   }
 }

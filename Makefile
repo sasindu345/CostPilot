@@ -84,6 +84,7 @@ infra-check: ## Check the Terraform files and server scripts
 	terraform -chdir=infra/terraform fmt -check
 	terraform -chdir=infra/terraform init -backend=false -input=false > /dev/null
 	terraform -chdir=infra/terraform validate
+	terraform -chdir=infra/terraform test
 	docker run --rm -v "$$PWD:/mnt" -w /mnt koalaman/shellcheck:v0.11.0 infra/production/*.sh infra/postgres/*.sh
 
 monitoring: ## Start everything with traces and metrics, and Grafana on GRAFANA_PORT

@@ -174,7 +174,7 @@ flowchart TB
     github[GitHub Actions] -->|tested images| ec2
 ```
 
-There is no SSH port. GitHub deploys through AWS Systems Manager, with no stored AWS keys. See the [deployment guide](docs/guides/deployment.md) and [decision 0011](docs/decisions/0011-deployment-design.md).
+There is no SSH port. GitHub deploys through AWS Systems Manager, with no stored AWS keys. Terraform needs the GitHub owner and repository IDs to trust the deploy job. See the [deployment guide](docs/guides/deployment.md) and [decision 0011](docs/decisions/0011-deployment-design.md).
 
 ## Tech stack
 

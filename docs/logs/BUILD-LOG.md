@@ -2,6 +2,12 @@
 
 A dated record of what was built. Newest entries go at the top.
 
+## 3 Nov 2026: Fix GitHub deploy login
+
+- GitHub now gives this repository an immutable login subject with numeric owner and repository IDs. The AWS deploy role trusted the old name-only subject, so the deploy job stopped before uploading files.
+- Terraform now builds the trusted subject from those IDs. The live role was updated, and a full Terraform plan showed no remaining changes.
+- Added a Terraform regression test to the infrastructure check and CI. The first live deploy and server memory check are still pending.
+
 ## 3 Nov 2026: AWS infrastructure created
 
 - Terraform created 23 resources in `ap-south-1`: a `t3.small` server at `43.205.14.236`, its fixed address, network rules, the private bucket, both roles and the GitHub login. The server finished first-boot setup: Docker, Compose v5.7.0, 2 GB swap and security updates

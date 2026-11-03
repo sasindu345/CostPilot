@@ -61,6 +61,26 @@ variable "github_repository" {
   type        = string
 }
 
+variable "github_owner_id" {
+  description = "Stable numeric ID of the GitHub repository owner, used in OIDC tokens."
+  type        = string
+
+  validation {
+    condition     = can(regex("^[0-9]+$", var.github_owner_id))
+    error_message = "github_owner_id must contain only digits."
+  }
+}
+
+variable "github_repository_id" {
+  description = "Stable numeric ID of the GitHub repository, used in OIDC tokens."
+  type        = string
+
+  validation {
+    condition     = can(regex("^[0-9]+$", var.github_repository_id))
+    error_message = "github_repository_id must contain only digits."
+  }
+}
+
 variable "github_environment" {
   description = "GitHub environment the deploy job runs in. Only that job can deploy."
   type        = string

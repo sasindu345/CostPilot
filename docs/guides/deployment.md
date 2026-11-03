@@ -85,6 +85,9 @@ Edit `terraform.tfvars`:
 
 - `bucket_name`: lower case, numbers and dashes only, such as `costpilot-<account-id>`. No underscores.
 - `github_repository`: `owner/name`, such as `sasindu345/CostPilot`. Not the full URL.
+- `github_owner_id` and `github_repository_id`: GitHub's numeric IDs. They keep the deploy role tied to the same owner and repository even if a name is reused. Get them with `gh api repos/OWNER/REPO --jq .owner.id` and `gh api repos/OWNER/REPO --jq .id`. Replace `OWNER/REPO` with your `github_repository` value.
+
+GitHub includes these IDs in the short-lived login token for newer repositories. The AWS role checks that token and the `production` environment before a deploy can start.
 
 ```bash
 terraform init
@@ -162,6 +165,8 @@ Merge to `main`. CI tests and scans everything, publishes the images to GHCR, an
 4. The workflow checks `https://<name>.duckdns.org/api/health`
 
 To deploy `main` again by hand: **Actions → Deploy → Run workflow** on `main`.
+
+If the deploy job stops at `Not authorized to perform sts:AssumeRoleWithWebIdentity`, compare the AWS role's trusted `sub` value with GitHub's OIDC subject settings. Newer repositories include the numeric owner and repository IDs. Fill `github_owner_id` and `github_repository_id` in `terraform.tfvars`, run `terraform plan` and `terraform apply` from `infra/terraform`, then run the Deploy workflow again.
 
 ## Everyday tasks
 

@@ -16,7 +16,7 @@ This is the one place to see what is done and what remains. Update it at the end
 | 7 | [Trust and measurement](phase-07-trust-and-measurement.md) | Every answer shows its evidence, and quality can be measured | ✅ |
 | 8 | [Hybrid agents](phase-08-hybrid-agents.md) | Deeper answers from specialist agents, proven against a baseline | ✅ |
 | 9 | [Other clouds](phase-09-other-clouds.md) | Azure, Google Cloud, Oracle, DigitalOcean | ✅ |
-| 10 | [Live deployment](phase-10-live-deployment.md) | Running on the internet with HTTPS | 🔄 Code done and rehearsed. Waiting on AWS permissions, see the deployment guide step 2 |
+| 10 | [Live deployment](phase-10-live-deployment.md) | Running on the internet with HTTPS | 🔄 Server and AWS role are ready. Waiting on a successful first deploy and memory check |
 | 11 | [Monitoring, quality and finish](phase-11-monitoring-quality-and-finish.md) | Dashboards, measured AI quality, final docs | ✅ Human check of reference answers still to do |
 
 ## Limits to keep in mind
@@ -55,7 +55,6 @@ Code cannot do these for you.
 | Before real bills | Turn on billing for your Gemini key and set `GEMINI_TIER=paid`. See `docs/guides/getting-started.md` |
 | To check the bill readers | Upload a real bill from any cloud you use. See `docs/guides/cloud-bills.md`. Remove account IDs if you share them |
 | Now | **Replace the AWS access key that was pasted into a chat.** See the deployment guide, "If an access key is ever exposed" |
-| Phase 10 | Add the `CostPilotDeployer` permissions to your AWS user (deployment guide step 2). `t3.small` is confirmed free on your account |
 | Phase 10 | Create a free Qdrant Cloud cluster and run `make reindex` against it. Add `QDRANT_URL` and `QDRANT_API_KEY` to GitHub secrets |
 | Phase 10 | Choose a free DuckDNS name and point it at the server |
 | Phase 10 | Choose a real email service for Keycloak, as Mailpit is only for testing |
