@@ -29,7 +29,9 @@ KEYCLOAK_REALM=costpilot
 KEYCLOAK_CLIENT_ID=costpilot-api
 KEYCLOAK_CLIENT_SECRET=
 KEYCLOAK_PUBLIC_URL=https://<name>.duckdns.org/auth
-# Your email service. Brevo's free plan is one option. See docs/guides/deployment.md.
+# Email is optional for the first deploy. Add these later to enable email verification
+# and password-reset messages. Brevo and Gmail app passwords both work.
+KEYCLOAK_VERIFY_EMAIL=false
 KEYCLOAK_SMTP_HOST=
 KEYCLOAK_SMTP_PORT=587
 KEYCLOAK_SMTP_FROM=
