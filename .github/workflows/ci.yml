@@ -91,10 +91,10 @@ jobs:
           terraform fmt -check -recursive infra/terraform
           terraform -chdir=infra/terraform init -backend=false -input=false
           terraform -chdir=infra/terraform validate
+      # The Checkov action runs a very old Checkov, so we pin a current version ourselves.
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
       - name: Scan Terraform, Dockerfiles and workflows for security problems
-        uses: bridgecrewio/checkov-action@99bb2caf247dfd9f03cf984373bc6043d4e32ebf # v12.1347.0
-        with:
-          config_file: .checkov.yaml
+        run: uvx --python 3.12 checkov@3.4.3 --config-file .checkov.yaml
       - name: Check the server scripts
         run: shellcheck infra/production/*.sh infra/postgres/*.sh
       - name: Check the production Compose file
