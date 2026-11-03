@@ -1,8 +1,8 @@
 # Phase 10: Live deployment
 
 **You will see:** CostPilot running on the internet with HTTPS.
-- [ ] Confirm `t3.small` is free for your account. **Waiting on you:** one command in `docs/guides/deployment.md`, step 1
-- [ ] Set up AWS budget alerts first, so there are no surprise bills. **Written** in `infra/terraform/budget.tf`. **Waiting on you** to apply it, step 2
+- [x] Confirm `t3.small` is free for your account. Confirmed on 3 Nov 2026 in `ap-south-1`
+- [ ] Set up AWS budget alerts first, so there are no surprise bills. **Written** in `infra/terraform/budget.tf`. Your AWS user may not create budgets, so either add the permissions in step 2 or create a zero-spend budget in the Billing console
 - [x] Terraform: EC2, network rules, private S3 bucket, narrow permissions. No SSH port: Systems Manager instead
 - [x] Checkov and Trivy scans in the pipeline. Checkov also scans Dockerfiles and workflows. Shellcheck checks the server scripts
 - [x] Production Compose with memory limits and swap

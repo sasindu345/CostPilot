@@ -1,10 +1,10 @@
-from urllib.parse import urlencode
+from urllib.parse import quote, urlencode
 
 import httpx2
 import jwt
 
 from costpilot.modules.identity.application.auth_service import pkce_challenge
-from costpilot.modules.identity.domain.errors import LoginFailedError
+from costpilot.modules.identity.domain.errors import IdentityProviderError, LoginFailedError
 from costpilot.modules.identity.domain.models import LoginChallenge, VerifiedIdentity
 
 OIDC_PATH = "protocol/openid-connect"
@@ -25,6 +25,7 @@ class KeycloakProvider:
     ) -> None:
         self._public_realm_url = f"{public_url}/realms/{realm}"
         self._internal_realm_url = f"{internal_url}/realms/{realm}"
+        self._admin_users_url = f"{internal_url}/admin/realms/{realm}/users"
         self._client_id = client_id
         self._client_secret = client_secret
         self._redirect_uri = redirect_uri
@@ -100,3 +101,25 @@ class KeycloakProvider:
             )
         except (jwt.InvalidTokenError, KeyError) as error:
             raise LoginFailedError from error
+
+    async def delete_user(self, subject: str) -> None:
+        """Uses the client's own service account, which may only manage users in this realm."""
+        try:
+            async with httpx2.AsyncClient() as client:
+                token_response = await client.post(
+                    f"{self._internal_realm_url}/{OIDC_PATH}/token",
+                    data={
+                        "grant_type": "client_credentials",
+                        "client_id": self._client_id,
+                        "client_secret": self._client_secret,
+                    },
+                )
+                token_response.raise_for_status()
+                response = await client.delete(
+                    f"{self._admin_users_url}/{quote(subject, safe='')}",
+                    headers={"Authorization": f"Bearer {token_response.json()['access_token']}"},
+                )
+        except (httpx2.HTTPError, KeyError) as error:
+            raise IdentityProviderError from error
+        if response.status_code not in (httpx2.codes.NO_CONTENT, httpx2.codes.NOT_FOUND):
+            raise IdentityProviderError(f"Keycloak answered {response.status_code}")

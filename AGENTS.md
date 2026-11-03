@@ -130,3 +130,7 @@ Do all of these before saying a phase is done:
 | `make sample` | Creates made-up bills in `samples/output/` |
 | `make backup-check` | Proves a database backup restores in full |
 | `make infra-check` | Checks the Terraform files and server scripts |
+| `make monitoring` | Starts everything with traces, metrics and Grafana |
+| `make eval-quality` | Grades answers against reference answers, with a second model as judge |
+| `make load-test` | Many users open the dashboards at once. Uses no AI |
+| `make screenshots` | Saves README screenshots of the running app |

@@ -1,4 +1,6 @@
-from collections.abc import AsyncIterator, Sequence
+import time
+from collections.abc import AsyncIterator, Iterator, Sequence
+from contextlib import contextmanager
 
 import httpx
 import structlog
@@ -6,6 +8,8 @@ from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, System
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_google_genai._common import GoogleGenerativeAIError
 from langchain_google_genai.chat_models import GoogleAPIError
+from opentelemetry import metrics, trace
+from opentelemetry.trace import Status, StatusCode
 from pydantic import BaseModel, SecretStr
 
 from costpilot.modules.assistant.domain.errors import ModelUnavailableError
@@ -39,6 +43,43 @@ def clean_routes(routes: list[Route]) -> list[Route]:
     """Off-topic only stands alone, and no choice at all falls back to showing the costs."""
     useful = [route for route in routes if route is not Route.OUT_OF_SCOPE]
     return useful or routes or [Route.COST]
+
+
+tracer = trace.get_tracer("costpilot.assistant")
+otel_meter = metrics.get_meter("costpilot.assistant")
+AI_CALLS = otel_meter.create_counter("costpilot.ai.calls", description="Gemini calls by step")
+AI_TOKENS = otel_meter.create_counter("costpilot.ai.tokens", description="Gemini tokens used")
+AI_DURATION = otel_meter.create_histogram(
+    "costpilot.ai.duration", unit="s", description="Time for one Gemini call"
+)
+
+
+@contextmanager
+def observed_call(step: str) -> Iterator[None]:
+    """One span and three metrics for each Gemini call. Prompts are never recorded.
+
+    The span is not made current, because the answer streams through a generator, and a
+    current span cannot safely stay open across its pauses.
+    """
+    started = time.perf_counter()
+    span = tracer.start_span(f"gemini.{step}")
+    outcome = "ok"
+    try:
+        yield
+    except BaseException:
+        outcome = "failed"
+        span.set_status(Status(StatusCode.ERROR))
+        raise
+    finally:
+        attributes = {"step": step, "outcome": outcome}
+        AI_CALLS.add(1, attributes)
+        AI_DURATION.record(time.perf_counter() - started, attributes)
+        span.end()
+
+
+def count_tokens(input_tokens: int, output_tokens: int) -> None:
+    AI_TOKENS.add(input_tokens, {"direction": "input"})
+    AI_TOKENS.add(output_tokens, {"direction": "output"})
 
 
 class GeminiChatModel:
@@ -98,7 +139,8 @@ class GeminiChatModel:
         structured = client.with_structured_output(schema, include_raw=True)
         for attempt in range(1, ATTEMPTS + 1):
             try:
-                result = await structured.ainvoke(messages)
+                with observed_call(step):
+                    result = await structured.ainvoke(messages)
                 break
             except MODEL_FAILURES as error:
                 self._log_failure(step, attempt, error)
@@ -125,14 +167,16 @@ class GeminiChatModel:
             has_started = False
             input_tokens = output_tokens = 0
             try:
-                async for chunk in self._answers.astream(messages):
-                    usage = chunk.usage_metadata or {}
-                    input_tokens += usage.get("input_tokens", 0)
-                    output_tokens += usage.get("output_tokens", 0)
-                    if text := chunk.text:
-                        has_started = True
-                        yield text
+                with observed_call("answer"):
+                    async for chunk in self._answers.astream(messages):
+                        usage = chunk.usage_metadata or {}
+                        input_tokens += usage.get("input_tokens", 0)
+                        output_tokens += usage.get("output_tokens", 0)
+                        if text := chunk.text:
+                            has_started = True
+                            yield text
                 meter.add_ai_call(input_tokens, output_tokens)
+                count_tokens(input_tokens, output_tokens)
                 return
             except MODEL_FAILURES as error:
                 self._log_failure("answer", attempt, error)
@@ -143,6 +187,7 @@ class GeminiChatModel:
     def _record_usage(self, meter: AnswerMeter, message: object) -> None:
         usage = getattr(message, "usage_metadata", None) or {}
         meter.add_ai_call(usage.get("input_tokens", 0), usage.get("output_tokens", 0))
+        count_tokens(usage.get("input_tokens", 0), usage.get("output_tokens", 0))
 
     def _log_failure(self, step: str, attempt: int, error: Exception) -> None:
         logger.warning(

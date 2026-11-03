@@ -1,6 +1,7 @@
 from typing import Any
 from uuid import UUID
 
+from opentelemetry import metrics
 from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.sql.expression import bindparam
@@ -11,6 +12,12 @@ INSERT_EVENT = text(
     "INSERT INTO audit_events (workspace_id, user_id, action, details) "
     "VALUES (:workspace_id, :user_id, :action, :details)"
 ).bindparams(bindparam("details", type_=JSONB))
+
+
+# Every audited action is also counted, so dashboards show uploads, sign-ins and answer grades.
+EVENTS = metrics.get_meter("costpilot.audit").create_counter(
+    "costpilot.events", description="Audited actions, such as uploads and answers"
+)
 
 
 class PostgresAuditLog:
@@ -30,3 +37,7 @@ class PostgresAuditLog:
                     "details": details,
                 },
             )
+        attributes = {"action": action}
+        if isinstance(grade := details.get("grade"), str):
+            attributes["grade"] = grade
+        EVENTS.add(1, attributes)

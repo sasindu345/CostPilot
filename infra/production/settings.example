@@ -65,6 +65,17 @@ GEMINI_TIER=free
 GEMINI_ANSWER_MODEL=gemini-3.5-flash-lite
 GEMINI_ROUTER_MODEL=gemini-3.5-flash-lite
 GEMINI_EMBEDDING_MODEL=gemini-embedding-2
+GEMINI_JUDGE_MODEL=gemini-3.5-flash-lite
+
+# ---- Monitoring: Grafana Cloud ----
+# From Grafana Cloud > OpenTelemetry > Configure. Leave empty to switch monitoring off.
+OTEL_EXPORTER_OTLP_ENDPOINT=
+# Looks like: Authorization=Basic%20<base64 of instance-id:token>
+OTEL_EXPORTER_OTLP_HEADERS=
+# Keep 1 in 5 traces. Tracing every request made the slowest 5% about 100 ms slower under load.
+# Metrics are always complete.
+OTEL_TRACES_SAMPLER=parentbased_traceidratio
+OTEL_TRACES_SAMPLER_ARG=0.2
 
 # ---- Pulling images from GHCR while the repository is private ----
 # A GitHub token with only the read:packages permission. Kept away from the app.

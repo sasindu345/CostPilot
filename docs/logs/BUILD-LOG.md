@@ -2,6 +2,46 @@
 
 A dated record of what was built. Newest entries go at the top.
 
+## 3 Nov 2026: Phase 11, monitoring, quality and finish
+
+**Built**
+
+- OpenTelemetry traces and metrics for the API, the worker, every agent step, every Gemini call, and the web app. Off unless an OTLP address is set
+- `make monitoring`: Grafana, Prometheus and Tempo in one local container, with a CostPilot dashboard built by `scripts/build_dashboard.py`
+- Download my data: every workspace record as one JSON file, with money kept exact
+- Delete my account: removes the workspace, bills, chats, stored files and the Keycloak login. You confirm by typing your email
+- A nightly clean-up: audit events after 365 days, chats after 180 days, failed jobs after 30 days, and expired sessions
+- `make eval-quality`: a second Gemini model grades answers against 12 reference answers
+- `make load-test`: 25 users on the dashboards at once, with k6
+- A Content Security Policy and other security headers for the web app
+- `make screenshots`, the security review, the monitoring guide and the demo walkthrough
+
+**Bugs found**
+
+- The grader caught a false answer: "Which month cost the most?" said October, but it was September. No wrong number was typed, so the number checks could not see it. Code now names the highest and lowest months
+- Request metrics were labelled by full address, so each document made a new series. They now use the route pattern
+- After deleting an account the page stayed on the app. It now goes to sign-in
+- Tracing every request made the slowest 5% about 100 ms slower under load. Production keeps 1 in 5 traces
+
+**Tested on 3 Nov 2026**
+
+- 380 backend tests, 36 frontend tests, and 13 of 13 browser journeys, with the security policy on
+- A trace of one answer: supervisor 2.07 s (almost all Gemini), cost specialist 9 ms, final answer 1.66 s
+- `make eval-quality`: 10 of 12, then 9 of 12 after the fix. The month question went from 1 to 5. Of the three later failures, two were the grader marking down extra true detail
+- `make load-test`: about 57 requests a second and 0 errors in every setup. The slowest 5% took 360 ms without tracing and 412 ms with production sampling
+- `pip-audit` and `pnpm audit`: no known vulnerabilities
+
+**Phase 10 follow-up**
+
+- Your AWS user can use EC2 and S3, but not IAM, Systems Manager or Budgets. Terraform plans 23 resources but cannot create the two roles. `infra/terraform/deployer-policy.json` lists the permissions to add
+- The budget is now optional, and the server image is found through EC2 rather than Systems Manager
+- GitHub now has the `production` environment, plus the `AWS_REGION`, `S3_BUCKET` and `PARAMETER_PATH` variables
+
+**Not yet done**
+
+- The 12 reference answers are not human-checked yet
+- Production monitoring needs a Grafana Cloud account
+
 ## 3 Nov 2026: Phase 10, live deployment (code)
 
 **Built**

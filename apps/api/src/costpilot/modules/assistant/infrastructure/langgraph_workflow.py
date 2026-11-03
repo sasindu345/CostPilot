@@ -5,10 +5,12 @@ Documents are fetched once, before the specialists start. Python does the calcul
 an AI specialist only runs where reasoning adds something.
 """
 
+from collections.abc import Awaitable, Callable
 from operator import add
 from typing import Annotated, TypedDict
 
 from langgraph.graph import END, START, StateGraph
+from opentelemetry import trace
 
 from costpilot.modules.assistant.application.ports import ChatModel
 from costpilot.modules.assistant.application.specialists import (
@@ -47,6 +49,21 @@ class State(TypedDict, total=False):
     evidence: Evidence
 
 
+tracer = trace.get_tracer("costpilot.assistant")
+
+
+def traced(
+    name: str, step: Callable[[State], Awaitable[State]]
+) -> Callable[[State], Awaitable[State]]:
+    """Each agent step becomes one span, so a trace shows which agents ran and for how long."""
+
+    async def run(state: State) -> State:
+        with tracer.start_as_current_span(f"agent.{name}"):
+            return await step(state)
+
+    return run
+
+
 class LangGraphEvidenceWorkflow:
     def __init__(self, model: ChatModel, agents: SpecialistAgents) -> None:
         self._model = model
@@ -54,21 +71,31 @@ class LangGraphEvidenceWorkflow:
         self._graph = self._build()
 
     async def gather(self, question: str, tools: WorkspaceTools, meter: AnswerMeter) -> Evidence:
-        state = await self._graph.ainvoke(
-            {"question": question, "tools": tools, "meter": meter, "found": []}
-        )
+        with tracer.start_as_current_span("assistant.gather_evidence") as span:
+            state = await self._graph.ainvoke(
+                {"question": question, "tools": tools, "meter": meter, "found": []}
+            )
+            span.set_attribute("costpilot.routes", [r.value for r in state["plan"].routes])
         return state["evidence"]
 
     def _build(self):
         graph = StateGraph(State)
-        graph.add_node(SUPERVISOR, self._supervise)
-        graph.add_node(RETRIEVE, self._retrieve)
-        graph.add_node(SPECIALISTS[Route.COST], self._cost)
-        graph.add_node(SPECIALISTS[Route.ANOMALY], self._anomaly)
-        graph.add_node(SPECIALISTS[Route.OPTIMIZATION], self._optimize)
-        graph.add_node(SPECIALISTS[Route.KNOWLEDGE], self._knowledge)
-        graph.add_node(SPECIALISTS[Route.OUT_OF_SCOPE], self._decline)
-        graph.add_node(JOIN, self._join)
+        graph.add_node(SUPERVISOR, traced(SUPERVISOR, self._supervise))
+        graph.add_node(RETRIEVE, traced(RETRIEVE, self._retrieve))
+        graph.add_node(SPECIALISTS[Route.COST], traced(SPECIALISTS[Route.COST], self._cost))
+        graph.add_node(
+            SPECIALISTS[Route.ANOMALY], traced(SPECIALISTS[Route.ANOMALY], self._anomaly)
+        )
+        graph.add_node(
+            SPECIALISTS[Route.OPTIMIZATION], traced(SPECIALISTS[Route.OPTIMIZATION], self._optimize)
+        )
+        graph.add_node(
+            SPECIALISTS[Route.KNOWLEDGE], traced(SPECIALISTS[Route.KNOWLEDGE], self._knowledge)
+        )
+        graph.add_node(
+            SPECIALISTS[Route.OUT_OF_SCOPE], traced(SPECIALISTS[Route.OUT_OF_SCOPE], self._decline)
+        )
+        graph.add_node(JOIN, traced(JOIN, self._join))
         graph.add_edge(START, SUPERVISOR)
         graph.add_edge(SUPERVISOR, RETRIEVE)
         graph.add_conditional_edges(RETRIEVE, self._choose_specialists, list(SPECIALISTS.values()))

@@ -19,6 +19,7 @@ Start with the roadmap to see where the project is today.
 - [Security](architecture/security.md)
 - [Multi-cloud](architecture/multi-cloud.md)
 - [Technical verification](architecture/technical-verification.md)
+- [Security review and load test](architecture/security-review.md)
 
 ## Decisions
 
@@ -35,6 +36,7 @@ Each note explains one big decision and why we made it.
 - [0009: Use gemini-3.5-flash-lite for answers](decisions/0009-faster-gemini-model.md)
 - [0010: Build hybrid agents after the trust layer](decisions/0010-hybrid-agents-after-trust-layer.md)
 - [0011: How CostPilot is deployed](decisions/0011-deployment-design.md)
+- [0012: Grade answers with our own small grader](decisions/0012-own-answer-grader.md)
 
 ## Design
 
@@ -47,6 +49,8 @@ Each note explains one big decision and why we made it.
 - [Keycloak beginner's guide](guides/keycloak-beginners-guide.md)
 - [Getting a bill from each cloud](guides/cloud-bills.md)
 - [Putting CostPilot online](guides/deployment.md)
+- [Monitoring](guides/monitoring.md)
+- [Demo walkthrough](guides/demo.md)
 
 ## Background
 

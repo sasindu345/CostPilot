@@ -1,6 +1,7 @@
 """Create or update .env from .env.example. Safe to run again: it never changes a value you set.
 
-Also makes production settings: sync_env.py infra/production/settings.example infra/production/settings
+Also makes production settings:
+    sync_env.py infra/production/settings.example infra/production/settings
 """
 
 import base64

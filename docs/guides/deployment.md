@@ -30,6 +30,8 @@ flowchart LR
 | **Caddy** | The front door. It gets a free HTTPS certificate and sends each path to the right service |
 | **DuckDNS** | A free web address that points at your server |
 
+**Server size.** `t3.small` (2 vCPUs, 2 GB) is enough: everything used about 1.07 GB at rest in the rehearsal. `c7i-flex.large` (4 GB) also counts as free-plan, but it uses your credits about four times faster. Change `instance_type` only if real memory use runs high.
+
 **One address for everything**
 
 | Path | Goes to |
@@ -55,14 +57,38 @@ aws ec2 describe-instance-types --filters Name=free-tier-eligible,Values=true \
 
 If `t3.small` is not listed, stop and decide before going further. It would cost money.
 
-## Step 2: Budget alert first, then the server
+## Step 2: Give your AWS user the permissions it needs
+
+Terraform runs as your AWS CLI user. Besides EC2 and S3, it must be able to create two roles, the GitHub login, and settings in Parameter Store. A user with only EC2 and S3 rights cannot finish.
+
+Sign in to the AWS console as the account owner, then:
+
+1. Open **IAM → Users → your user → Add permissions → Create inline policy → JSON**.
+2. Paste `infra/terraform/deployer-policy.json`. Replace `<ACCOUNT_ID>` with your 12-digit account ID and `<REGION>` with your region, such as `ap-south-1`.
+3. Name it `CostPilotDeployer` and save.
+
+The policy only reaches resources whose names start with `costpilot`.
+
+If you cannot add `budgets:*`, set `create_budget = false` in `terraform.tfvars`. Then add the alert yourself in **Billing → Budgets → Create budget → Zero spend budget**.
+
+## Step 3: Budget alert first, then the server
+
+Type these one at a time. zsh does not treat `#` as a comment when you type it, so do not copy comments.
 
 ```bash
 cd infra/terraform
-cp terraform.tfvars.example terraform.tfvars   # then fill it in
+cp terraform.tfvars.example terraform.tfvars
+```
+
+Edit `terraform.tfvars`:
+
+- `bucket_name`: lower case, numbers and dashes only, such as `costpilot-<account-id>`. No underscores.
+- `github_repository`: `owner/name`, such as `sasindu345/CostPilot`. Not the full URL.
+
+```bash
 terraform init
-terraform apply -target=aws_budgets_budget.monthly   # the alert, on its own, first
-terraform apply                                       # everything else
+terraform apply -target=aws_budgets_budget.monthly
+terraform apply
 ```
 
 Read the plan Terraform shows before typing `yes`. It creates:
@@ -78,12 +104,12 @@ Read the plan Terraform shows before typing `yes`. It creates:
 
 > **Keep `terraform.tfstate` safe.** It is how Terraform remembers what it made. It is ignored by Git, so copy it somewhere safe.
 
-## Step 3: Web address
+## Step 4: Web address
 
 1. Sign in at https://www.duckdns.org and add a name, such as `costpilot`.
 2. Set its IP to `terraform output public_ip`.
 
-## Step 4: Qdrant Cloud
+## Step 5: Qdrant Cloud
 
 1. Create a free cluster at https://cloud.qdrant.io and copy its URL and API key.
 2. Fill the search index from your laptop:
@@ -92,11 +118,11 @@ Read the plan Terraform shows before typing `yes`. It creates:
    ```
 3. In GitHub, add `QDRANT_URL` and `QDRANT_API_KEY` as repository secrets. The weekly job uses them to keep the free cluster awake.
 
-## Step 5: An email service
+## Step 6: An email service
 
 Keycloak sends sign-up and password emails. Mailpit only catches them on your laptop. Any SMTP service works. Brevo and Amazon SES both have free allowances. Check their current limits before choosing. You need its host, port, user and password.
 
-## Step 6: Production settings
+## Step 7: Production settings
 
 ```bash
 python3 scripts/sync_env.py infra/production/settings.example infra/production/settings
@@ -110,10 +136,10 @@ infra/production/put-settings.sh infra/production/settings
 
 For `registry/GHCR_TOKEN`, make a classic GitHub token with only `read:packages`. The server uses it to pull images while the repository is private. It is never given to the app.
 
-## Step 7: Connect GitHub
+## Step 8: Connect GitHub
 
 1. In the repository settings, add an **environment** called `production`. You can require your own approval before each deploy.
-2. Add these **variables** (not secrets, they are not sensitive):
+2. Add these **variables** (not secrets, they are not sensitive). With the GitHub CLI, for example: `gh variable set AWS_INSTANCE_ID --body "$(terraform output -raw instance_id)"`.
 
 | Variable | Value |
 |---|---|
@@ -125,7 +151,7 @@ For `registry/GHCR_TOKEN`, make a classic GitHub token with only `read:packages`
 
 Until `AWS_DEPLOY_ROLE_ARN` is set, the Deploy workflow skips itself.
 
-## Step 8: Deploy
+## Step 9: Deploy
 
 Merge to `main`. CI tests and scans everything, publishes the images to GHCR, and then the **Deploy** workflow:
 
@@ -179,6 +205,15 @@ systemctl start costpilot-backup.service       # back up now
 | Qdrant Cloud, DuckDNS, Let's Encrypt, GHCR | Free |
 
 When the free credits end, the budget alert tells you before real charges grow.
+
+## If an access key is ever exposed
+
+An access key that appears in a chat, a screenshot or a file must be treated as public.
+
+1. **IAM → Users → your user → Security credentials → Access keys.** Choose **Create access key**.
+2. Run `aws configure` with the new key, and check `aws sts get-caller-identity` works.
+3. Back on the old key, choose **Deactivate**, then **Delete**.
+4. Look in **CloudTrail → Event history** for anything you did not do.
 
 ## Taking it down
 

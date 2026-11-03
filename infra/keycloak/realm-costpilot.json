@@ -22,6 +22,16 @@
     "password": "${KEYCLOAK_SMTP_PASSWORD}",
     "starttls": "${KEYCLOAK_SMTP_STARTTLS}"
   },
+  "users": [
+    {
+      "username": "service-account-${KEYCLOAK_CLIENT_ID}",
+      "enabled": true,
+      "serviceAccountClientId": "${KEYCLOAK_CLIENT_ID}",
+      "clientRoles": {
+        "realm-management": ["manage-users"]
+      }
+    }
+  ],
   "clients": [
     {
       "clientId": "${KEYCLOAK_CLIENT_ID}",
@@ -31,6 +41,7 @@
       "secret": "${KEYCLOAK_CLIENT_SECRET}",
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
       "redirectUris": ["${APP_PUBLIC_URL}/api/auth/callback"],
       "webOrigins": [],
       "attributes": {

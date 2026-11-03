@@ -4,7 +4,7 @@ from fastapi import APIRouter, Request, Response, status
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
-from costpilot.modules.identity.api.dependencies import AppSettings, Auth, SignedInUser
+from costpilot.modules.identity.api.dependencies import Account, AppSettings, Auth, SignedInUser
 
 router = APIRouter()
 
@@ -22,6 +22,10 @@ class MeResponse(BaseModel):
 
 class LogoutResponse(BaseModel):
     logout_url: str
+
+
+class DeleteAccountRequest(BaseModel):
+    confirm_email: str
 
 
 @router.get("/auth/login")
@@ -87,3 +91,32 @@ def me(user: SignedInUser, auth: Auth, settings: AppSettings) -> MeResponse:
         account_url=auth.account_url(),
         max_upload_mb=settings.max_upload_mb,
     )
+
+
+@router.get(
+    "/account/export",
+    response_class=Response,
+    responses={200: {"content": {"application/json": {}}, "description": "All your data"}},
+)
+async def export_account(user: SignedInUser, account: Account) -> Response:
+    """Download every record in your workspace as one JSON file."""
+    content = await account.export(user)
+    return Response(
+        content,
+        media_type="application/json",
+        headers={
+            "Content-Disposition": 'attachment; filename="costpilot-export.json"',
+            "Cache-Control": "no-store",
+        },
+    )
+
+
+@router.delete("/account", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_account(
+    body: DeleteAccountRequest, user: SignedInUser, account: Account, settings: AppSettings
+) -> Response:
+    """Delete your account, your workspace, your bills and your login. This cannot be undone."""
+    await account.delete(user, body.confirm_email)
+    response = Response(status_code=status.HTTP_204_NO_CONTENT)
+    response.delete_cookie(settings.session_cookie_name)
+    return response

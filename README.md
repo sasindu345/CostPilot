@@ -2,9 +2,11 @@
 
 **An AI assistant that explains your cloud bill in plain English, with numbers you can trust.**
 
-![CostPilot overview design](docs/design/overview-mockup.png)
+![CostPilot Overview page, running with the made-up sample bill](docs/images/overview.png)
 
-> **Status:** Phases 0 to 9 are built: five clouds, hybrid AI agents and a trust layer. The live deployment code is ready and waits on AWS setup. The design above is the target, not the current app. See the [roadmap](docs/plan/ROADMAP.md) for what is built and what remains.
+> **Status:** All 12 phases are built and tested on a laptop: five clouds, hybrid AI agents, a trust layer, monitoring, data export and deletion. Going live on AWS waits on one permission change in the AWS account. See the [roadmap](docs/plan/ROADMAP.md).
+>
+> Every screenshot here is the real running app, using a made-up bill.
 
 ## The problem
 
@@ -34,8 +36,35 @@ CostPilot gives you one place to upload bills, see your spending and ask questio
 | **Documents** | Upload, track, reprocess and delete bills |
 | **Analytics** | Compare periods, explore services and find unusual spending |
 | **AI Assistant** | Ask questions about your bills and cloud cost best practice |
+| **Settings** | Download all your data as JSON, or delete your account |
+| **Monitoring** | Traces and metrics through OpenTelemetry, with a Grafana dashboard |
 
 **Clouds:** AWS, Azure, Google Cloud, Oracle Cloud and DigitalOcean, plus any FOCUS file. See the [cloud bills guide](docs/guides/cloud-bills.md).
+
+## Screenshots
+
+| | |
+|---|---|
+| ![Sign-in page, styled to match the app](docs/images/sign-in.png) | ![Documents page with a processed bill](docs/images/documents.png) |
+| **Sign in.** Keycloak's page, in CostPilot's colours | **Documents.** Upload, status, reprocess and delete |
+| ![Analytics page comparing September and October](docs/images/analytics.png) | ![AI assistant answer with its evidence](docs/images/assistant.png) |
+| **Analytics.** Trends, top services and month-by-month comparison | **AI assistant.** Every figure comes from code. The answer shows its grade, facts and AI calls |
+| ![Settings page with data download and account deletion](docs/images/settings.png) | ![Grafana dashboard with API and AI metrics](docs/images/grafana.png) |
+| **Settings.** Download your data, or delete your account | **Monitoring.** Requests, errors, Gemini use and answer grades |
+
+A five-minute tour: [demo walkthrough](docs/guides/demo.md).
+
+## Measured results
+
+| What | Result | How to repeat it |
+|---|---|---|
+| Tests | 380 backend, 36 frontend, 13 browser journeys | `make check`, `make e2e` |
+| Documentation search | 18 of 18 questions found the right page | `make eval-search` |
+| Assistant, standard questions | 15 of 15 | `make eval-assistant` |
+| Hard questions, with and without AI specialists | 10 of 10 against 6 of 10 | `make eval-agents` |
+| Answers graded against reference answers | 9 of 12. The grader also found and helped fix a real bug | `make eval-quality` |
+| Load test, 25 users at once on a laptop | 57 requests a second, 0 errors | `make load-test` |
+| Backup and restore | Every table restored with the same row counts | `make backup-check` |
 
 ## System overview
 
@@ -178,6 +207,7 @@ make e2e     # Test the full journeys in Chrome
 | API docs | http://localhost:8010/api/docs |
 | Keycloak | http://localhost:8090 |
 | Test email inbox | http://localhost:8025 |
+| Grafana (after `make monitoring`) | http://localhost:3011 |
 
 ## Project structure
 
@@ -186,7 +216,7 @@ apps/
   api/        FastAPI backend, split into modules
   web/        Next.js frontend, split into features
 docs/         Plans, architecture, decisions, guides and build log
-infra/        Server and database setup
+infra/        Terraform, production setup, Keycloak, monitoring and load test
 samples/      Generator for made-up bills
 scripts/      Project checks and setup
 ```
@@ -197,4 +227,7 @@ scripts/      Project checks and setup
 - [Roadmap and progress](docs/plan/ROADMAP.md)
 - [Build log](docs/logs/BUILD-LOG.md)
 - [Technical verification](docs/architecture/technical-verification.md)
+- [Security review and load test](docs/architecture/security-review.md)
+- [Putting it online](docs/guides/deployment.md) and [monitoring](docs/guides/monitoring.md)
+- [Demo walkthrough](docs/guides/demo.md)
 - [Project rules](AGENTS.md)

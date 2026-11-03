@@ -547,3 +547,19 @@ async def test_another_users_conversation_is_refused():
         await service(store=store).prepare_question(USER, uuid4(), "Hi")
     with pytest.raises(ConversationNotFoundError):
         await service(store=store).messages(USER, uuid4())
+
+
+def test_code_names_the_highest_and_lowest_months():
+    facts = FactList()
+    facts.add_overview(overview(), months=6)
+
+    values = {fact.label: fact.value for fact in facts.facts}
+    assert values["Highest-cost month: September 2026"] == "270.40 USD"
+    assert values["Lowest-cost month: October 2026"] == "248.60 USD"
+
+
+def test_a_partial_month_is_never_called_the_lowest():
+    facts = FactList()
+    facts.add_overview(overview(partial=True), months=6)
+
+    assert not [fact for fact in facts.facts if fact.label.startswith(("Highest", "Lowest"))]

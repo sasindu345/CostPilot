@@ -42,3 +42,28 @@ class IdentityRepository(Protocol):
     ) -> tuple[CurrentUser, str] | None: ...
 
     async def delete_session(self, token_hash: bytes) -> None: ...
+
+
+class AccountDirectory(Protocol):
+    """The login service's list of people."""
+
+    async def delete_user(self, subject: str) -> None:
+        """Remove the person from Keycloak. Already gone counts as done."""
+
+
+class AccountRepository(Protocol):
+    async def export_workspace(self, user: CurrentUser) -> str:
+        """Every record in the user's workspace, as JSON text. Money keeps its exact digits."""
+
+    async def find_subject(self, user: CurrentUser) -> str: ...
+
+    async def delete_account(self, user: CurrentUser) -> None:
+        """Delete the user, and their workspace if nobody else is in it."""
+
+
+class WorkspaceFiles(Protocol):
+    """Uploaded bill files, which live outside the database."""
+
+    async def workspace_file_keys(self, user: CurrentUser) -> list[str]: ...
+
+    async def delete_files(self, keys: list[str]) -> None: ...

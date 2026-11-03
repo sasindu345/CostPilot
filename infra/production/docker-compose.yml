@@ -134,6 +134,11 @@ services:
   web:
     image: ${IMAGE_PREFIX}-web:${IMAGE_TAG}
     restart: unless-stopped
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
+      OTEL_TRACES_SAMPLER: ${OTEL_TRACES_SAMPLER:-}
+      OTEL_TRACES_SAMPLER_ARG: ${OTEL_TRACES_SAMPLER_ARG:-}
     mem_limit: 192m
     logging: *logging
     depends_on:

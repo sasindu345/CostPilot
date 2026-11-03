@@ -17,8 +17,17 @@ data "aws_subnets" "default" {
 }
 
 # The latest Amazon Linux 2023, looked up from AWS rather than written down.
-data "aws_ssm_parameter" "amazon_linux" {
-  name = "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
+data "aws_ami" "amazon_linux" {
+  most_recent = true
+  owners      = ["amazon"]
+  filter {
+    name   = "name"
+    values = ["al2023-ami-2023.*-kernel-*-x86_64"]
+  }
+  filter {
+    name   = "state"
+    values = ["available"]
+  }
 }
 
 resource "aws_security_group" "web" {
@@ -59,7 +68,7 @@ resource "aws_vpc_security_group_egress_rule" "all" {
 
 resource "aws_instance" "app" {
   #checkov:skip=CKV_AWS_126:Detailed monitoring costs money. Basic 5-minute monitoring is free
-  ami                    = data.aws_ssm_parameter.amazon_linux.value
+  ami                    = data.aws_ami.amazon_linux.id
   instance_type          = var.instance_type
   subnet_id              = sort(data.aws_subnets.default.ids)[0]
   vpc_security_group_ids = [aws_security_group.web.id]

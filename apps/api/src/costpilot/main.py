@@ -7,6 +7,7 @@ from fastapi import APIRouter, FastAPI
 
 from costpilot.composition import (
     MEGABYTE,
+    build_account_service,
     build_analytics_service,
     build_assistant_service,
     build_auth_service,
@@ -23,12 +24,16 @@ from costpilot.shared.database import Database
 from costpilot.shared.errors import register_error_handlers
 from costpilot.shared.limits import MaxBodySizeMiddleware
 from costpilot.shared.logging import configure_logging
+from costpilot.shared.telemetry import configure_telemetry, instrument_app, instrument_database
 
 
 def create_app() -> FastAPI:
     settings = get_settings()
     configure_logging(settings)
     database = Database(settings.app_database_url)
+    telemetry_on = configure_telemetry(settings, "costpilot-api")
+    if telemetry_on:
+        instrument_database(database.engine)
 
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
@@ -45,6 +50,7 @@ def create_app() -> FastAPI:
     app.state.settings = settings
     app.state.auth = build_auth_service(settings, database)
     app.state.documents = build_document_service(settings, database)
+    app.state.account = build_account_service(settings, database, app.state.documents)
     app.state.analytics = build_analytics_service(settings, database)
     app.state.recommendations = build_recommendation_service(settings, database)
     app.state.assistant = build_assistant_service(settings, database)
@@ -54,6 +60,8 @@ def create_app() -> FastAPI:
         max_bytes=(settings.max_upload_mb + 1) * MEGABYTE,
     )
     register_error_handlers(app)
+    if telemetry_on:
+        instrument_app(app)
 
     router = APIRouter(prefix=settings.api_prefix)
 

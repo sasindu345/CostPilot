@@ -38,6 +38,8 @@ const TESTED_ROUTES = [
   "POST /api/assistant/conversations",
   "GET /api/assistant/conversations/{conversation_id}/messages",
   "POST /api/assistant/conversations/{conversation_id}/messages",
+  "GET /api/account/export",
+  "DELETE /api/account",
 ];
 
 test.describe("without signing in", () => {
@@ -77,9 +79,11 @@ test.describe("without signing in", () => {
       request.post("/api/assistant/conversations"),
       request.get(`/api/assistant/conversations/${id}/messages`),
       request.post(`/api/assistant/conversations/${id}/messages`, { data: { question: "Hi" } }),
+      request.get("/api/account/export"),
+      request.delete("/api/account", { data: { confirm_email: "someone@example.test" } }),
     ]);
 
-    expect(responses.map((response) => response.status())).toEqual(Array(17).fill(401));
+    expect(responses.map((response) => response.status())).toEqual(Array(19).fill(401));
     expect((await (await request.get("/api/me")).json()).error.code).toBe("not_authenticated");
   });
 

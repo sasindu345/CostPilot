@@ -19,7 +19,10 @@ from costpilot.modules.assistant.infrastructure.postgres_store import (
     PostgresConversationStore,
     PostgresUsageLimiter,
 )
+from costpilot.modules.audit.application.retention_service import RetentionService
+from costpilot.modules.audit.domain.retention import RetentionPolicy
 from costpilot.modules.audit.infrastructure.postgres_audit_log import PostgresAuditLog
+from costpilot.modules.audit.infrastructure.postgres_retention import PostgresRetentionStore
 from costpilot.modules.billing.application.import_service import BillImportService
 from costpilot.modules.billing.infrastructure.postgres_store import PostgresBillingStore
 from costpilot.modules.documents.application.document_service import DocumentService
@@ -30,6 +33,7 @@ from costpilot.modules.documents.infrastructure.postgres_repository import (
     PostgresDocumentRepository,
 )
 from costpilot.modules.documents.infrastructure.s3_storage import S3FileStorage
+from costpilot.modules.identity.application.account_service import AccountService
 from costpilot.modules.identity.application.auth_service import AuthService
 from costpilot.modules.identity.infrastructure.fernet_secret_box import FernetSecretBox
 from costpilot.modules.identity.infrastructure.keycloak_provider import KeycloakProvider
@@ -51,8 +55,8 @@ from costpilot.shared.database import Database
 MEGABYTE = 1024 * 1024
 
 
-def build_auth_service(settings: Settings, database: Database) -> AuthService:
-    provider = KeycloakProvider(
+def build_keycloak_provider(settings: Settings) -> KeycloakProvider:
+    return KeycloakProvider(
         public_url=settings.keycloak_public_url,
         internal_url=settings.keycloak_internal_url,
         realm=settings.keycloak_realm,
@@ -61,13 +65,38 @@ def build_auth_service(settings: Settings, database: Database) -> AuthService:
         redirect_uri=f"{settings.app_public_url}{settings.api_prefix}/auth/callback",
         post_logout_redirect_uri=settings.app_public_url,
     )
+
+
+def build_auth_service(settings: Settings, database: Database) -> AuthService:
     return AuthService(
-        provider=provider,
+        provider=build_keycloak_provider(settings),
         repository=PostgresIdentityRepository(database),
         secret_box=FernetSecretBox(settings.session_encryption_key.get_secret_value()),
         audit_log=PostgresAuditLog(database),
         session_lifetime=timedelta(hours=settings.session_lifetime_hours),
         login_lifetime_seconds=settings.login_lifetime_seconds,
+    )
+
+
+def build_account_service(
+    settings: Settings, database: Database, documents: DocumentService
+) -> AccountService:
+    return AccountService(
+        repository=PostgresIdentityRepository(database),
+        files=documents,
+        directory=build_keycloak_provider(settings),
+        audit_log=PostgresAuditLog(database),
+    )
+
+
+def build_retention_service(settings: Settings, database: Database) -> RetentionService:
+    return RetentionService(
+        PostgresRetentionStore(database),
+        RetentionPolicy(
+            audit_days=settings.retention_audit_days,
+            conversation_days=settings.retention_conversation_days,
+            failed_job_days=settings.retention_failed_job_days,
+        ),
     )
 
 

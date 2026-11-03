@@ -21,6 +21,7 @@ INSERT_DOCUMENT = text(
 INSERT_JOB = text(
     "INSERT INTO jobs (id, document_id, workspace_id) VALUES (:id, :document_id, :workspace_id)"
 )
+LIST_STORAGE_KEYS = text("SELECT storage_key FROM documents")
 DELETE_DOCUMENT = text("DELETE FROM documents WHERE id = :id")
 QUEUE_AGAIN = text(
     "UPDATE documents SET status = 'queued', error_message = NULL, row_count = NULL, "
@@ -116,6 +117,10 @@ class PostgresDocumentRepository:
         async with self._database.transaction(workspace_id=workspace_id) as db:
             rows = (await db.execute(LIST_DOCUMENTS, {"limit": limit})).all()
             return [_to_document(row) for row in rows]
+
+    async def list_storage_keys(self, workspace_id: UUID) -> list[str]:
+        async with self._database.transaction(workspace_id=workspace_id) as db:
+            return list((await db.execute(LIST_STORAGE_KEYS)).scalars())
 
     async def get(self, workspace_id: UUID, document_id: UUID) -> Document | None:
         async with self._database.transaction(workspace_id=workspace_id) as db:

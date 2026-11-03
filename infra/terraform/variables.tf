@@ -78,6 +78,12 @@ variable "alert_email" {
   type        = string
 }
 
+variable "create_budget" {
+  description = "Set to false if your AWS user may not create budgets. Then add the alert in the Billing console."
+  type        = bool
+  default     = true
+}
+
 variable "monthly_budget_usd" {
   description = "Alert when real charges, after free credits, pass this amount in a month."
   type        = number

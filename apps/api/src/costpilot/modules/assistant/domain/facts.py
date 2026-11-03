@@ -99,10 +99,24 @@ class FactList:
         for point in overview.trend:
             if point.cost is not None:
                 self.add(f"Cost in {month_name(point.month)}", money(point.cost, currency))
+        self._add_extremes(overview)
         for service in overview.top_services:
             name = safe_label(service.name)
             self.add(f"{name} cost in {latest}", money(service.cost, currency), name)
             self.add(f"{name} share of {latest}", percent(service.share_percent), name)
+
+    def _add_extremes(self, overview: Overview) -> None:
+        """Code picks the highest and lowest months, because the AI once ranked them wrongly."""
+        months = [p for p in overview.trend if p.cost is not None]
+        if overview.latest_is_partial:
+            months = [p for p in months if p.month != overview.latest_month]
+        if len(months) < 2:
+            return
+        highest = max(months, key=lambda p: p.cost)
+        lowest = min(months, key=lambda p: p.cost)
+        currency = overview.currency
+        self.add(f"Highest-cost month: {month_name(highest.month)}", money(highest.cost, currency))
+        self.add(f"Lowest-cost month: {month_name(lowest.month)}", money(lowest.cost, currency))
 
     def add_unusual(self, items: Iterable[UnusualCost], currency: str) -> None:
         for item in items:

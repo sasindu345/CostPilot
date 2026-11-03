@@ -56,6 +56,7 @@ class Settings(BaseSettings):
     gemini_embedding_model: str
     gemini_answer_model: str
     gemini_router_model: str
+    gemini_judge_model: str
     gemini_tier: Literal["free", "paid"] = "free"
     gemini_timeout_seconds: float = 30
     gemini_retries: int = 2
@@ -105,6 +106,12 @@ class Settings(BaseSettings):
     job_max_attempts: int = 3
     job_retry_seconds: int = 30
     job_stale_minutes: int = 15
+    otel_exporter_otlp_endpoint: str = ""
+    otel_metric_interval_seconds: int = 30
+    retention_audit_days: int = 365
+    retention_conversation_days: int = 180
+    retention_failed_job_days: int = 30
+    retention_interval_hours: float = 24
 
     @model_validator(mode="after")
     def _check_production(self) -> "Settings":

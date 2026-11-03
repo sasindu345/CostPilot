@@ -32,6 +32,7 @@ TEST_DEFAULTS = {
     "GEMINI_EMBEDDING_MODEL": "test-model",
     "GEMINI_ANSWER_MODEL": "test-model",
     "GEMINI_ROUTER_MODEL": "test-model",
+    "GEMINI_JUDGE_MODEL": "test-model",
     "STORAGE_BACKEND": "local",
     "STORAGE_LOCAL_PATH": "/tmp/costpilot-test-uploads",
 }
