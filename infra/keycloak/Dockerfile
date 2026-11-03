@@ -8,6 +8,12 @@ ENV KC_DB=postgres \
 COPY themes/costpilot /opt/keycloak/themes/costpilot
 # The login page uses the same colours as the app, from the one token file.
 COPY --from=styles tokens.css /opt/keycloak/themes/costpilot/login/resources/css/shared/tokens.css
+# Keycloak 26.8.1 ships Guava 33.6.0, which has a known denial-of-service bug (CVE-2026-102554).
+# Swap in the fixed 33.7.2 until Keycloak ships it (keycloak/keycloak#54110). The file keeps its
+# old name, because Keycloak's build step lists its libraries by file name.
+ADD --chown=1000:0 --checksum=sha256:b530942257fb935f8b2cfaa5f8eb5bd59c555fd8e8d01b8ce98912e077ea606c \
+  https://repo1.maven.org/maven2/com/google/guava/guava/33.7.2-jre/guava-33.7.2-jre.jar \
+  /opt/keycloak/lib/lib/main/com.google.guava.guava-33.6.0-jre.jar
 RUN /opt/keycloak/bin/kc.sh build
 
 FROM quay.io/keycloak/keycloak:26.8.1
