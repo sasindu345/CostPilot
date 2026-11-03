@@ -16,6 +16,9 @@ from costpilot.modules.assistant.domain.prompts import ROUTER_INSTRUCTIONS
 
 logger = structlog.get_logger()
 
+# The supervisor's answer is checked, so a made-up cloud name cannot reach the search filter.
+KNOWN_CLOUDS = {"aws", "azure", "gcp", "oci", "digitalocean"}
+
 REASON_LENGTH = 200
 # An idle connection can go stale, and a second try opens a fresh one.
 ATTEMPTS = 2
@@ -25,7 +28,7 @@ MODEL_FAILURES = (GoogleGenerativeAIError, GoogleAPIError, httpx.HTTPError)
 
 class RouteChoice(BaseModel):
     routes: list[Route]
-    provider: str | None = None
+    providers: list[str] = []
 
 
 class FindingList(BaseModel):
@@ -72,7 +75,8 @@ class GeminiChatModel:
         messages = [SystemMessage(ROUTER_INSTRUCTIONS), HumanMessage(question)]
         choice = await self._structured(self._router, RouteChoice, messages, "route", meter)
         routes = list(dict.fromkeys(choice.routes)) if choice else []
-        return RoutePlan(clean_routes(routes), choice.provider if choice else None)
+        named = [name.lower() for name in choice.providers] if choice else []
+        return RoutePlan(clean_routes(routes), [name for name in named if name in KNOWN_CLOUDS])
 
     async def find_findings(
         self, instructions: str, prompt: str, meter: AnswerMeter

@@ -1,0 +1,158 @@
+{
+  "summary": {
+    "measured_on": "2026-11-03",
+    "answer_model": "gemini-3.5-flash-lite",
+    "ai_specialists": [
+      "anomaly",
+      "optimization",
+      "knowledge"
+    ],
+    "questions": 6,
+    "passed": 6,
+    "used_template": 0,
+    "average_ai_calls": 3,
+    "average_input_tokens": 2570,
+    "average_output_tokens": 264,
+    "average_ms": 5251
+  },
+  "results": [
+    {
+      "question": "How do Spot VMs differ between AWS, Azure and Google Cloud?",
+      "answer": "Spot VMs differ across clouds in how they handle preemption and warnings:\n\n* Azure Spot Virtual Machines provide notice before eviction, according to Azure Spot Virtual Machines.\n* AWS provides a warning before a Spot Instance is interrupted.\n* Google Cloud Spot VMs may be stopped or deleted preemptively.",
+      "passed": true,
+      "failed": [],
+      "grade": "A",
+      "routes": [
+        "knowledge"
+      ],
+      "used_template": false,
+      "metrics": {
+        "step_ms": {
+          "supervisor": 1657,
+          "write_answer": 1065,
+          "knowledge_agent": 1702,
+          "retrieve_documents": 917
+        },
+        "ai_calls": 3,
+        "total_ms": 5359,
+        "input_tokens": 2316,
+        "output_tokens": 275
+      }
+    },
+    {
+      "question": "Compare Azure Reservations with Google Cloud committed use discounts",
+      "answer": "Azure reservations and Google Cloud committed use discounts both offer ways to save money through commitments.\n\n* According to What are Azure Reservations, Azure reservations help save money by committing to plans for multiple products.\n* According to Committed use discounts, Google Cloud offers committed use discounts in return for purchasing committed use contracts.\n* According to Azure savings plans for compute, Azure also offers savings plans which work differently than reservations by using a dollar-per-hour spend commitment.",
+      "passed": true,
+      "failed": [],
+      "grade": "A",
+      "routes": [
+        "knowledge"
+      ],
+      "used_template": false,
+      "metrics": {
+        "step_ms": {
+          "supervisor": 1228,
+          "write_answer": 1042,
+          "knowledge_agent": 1506,
+          "retrieve_documents": 954
+        },
+        "ai_calls": 3,
+        "total_ms": 4749,
+        "input_tokens": 2241,
+        "output_tokens": 277
+      }
+    },
+    {
+      "question": "Which storage tier is cheapest for archives on Azure and on Google Cloud?",
+      "answer": "The archive tier is cheapest for archives on Azure, and archive storage is cheapest for archives on Google Cloud.\n\n* Azure Storage has an archive tier with the lowest storage costs, according to the Access tiers for blob data findings.\n* Google Cloud offers archive storage with the lowest storage costs for data kept entirely for backup or archiving purposes, according to the Storage classes findings.",
+      "passed": true,
+      "failed": [],
+      "grade": "A",
+      "routes": [
+        "knowledge"
+      ],
+      "used_template": false,
+      "metrics": {
+        "step_ms": {
+          "supervisor": 1023,
+          "write_answer": 860,
+          "knowledge_agent": 1948,
+          "retrieve_documents": 1034
+        },
+        "ai_calls": 3,
+        "total_ms": 4886,
+        "input_tokens": 2219,
+        "output_tokens": 217
+      }
+    },
+    {
+      "question": "What are Oracle preemptible instances, and when should I avoid them?",
+      "answer": "Oracle preemptible instances are short-term compute instances that behave like regular instances but can be reclaimed and terminated when capacity is needed elsewhere, as detailed in the Preemptible instances document. \n\nYou should avoid them for:\n* Long-running workloads, because they can be terminated at any time.\n* Workloads that require starting, stopping, or rebooting instances after creation.\n* Bare metal instances, burstable instances, capacity reservations, confidential computing, and dedicated virtual machine hosts.",
+      "passed": true,
+      "failed": [],
+      "grade": "A",
+      "routes": [
+        "knowledge"
+      ],
+      "used_template": false,
+      "metrics": {
+        "step_ms": {
+          "supervisor": 1077,
+          "write_answer": 1288,
+          "knowledge_agent": 1303,
+          "retrieve_documents": 796
+        },
+        "ai_calls": 3,
+        "total_ms": 4477,
+        "input_tokens": 3437,
+        "output_tokens": 140
+      }
+    },
+    {
+      "question": "How is DigitalOcean Spaces storage priced?",
+      "answer": "DigitalOcean Spaces storage is priced based on your subscription, with billing starting when you create your first bucket and ending when you destroy all your buckets, according to Spaces pricing.\n\n* The base price of a Spaces Standard Storage subscription includes multiple buckets (Spaces pricing).\n* Spaces Cold Storage is optimized for data that is accessed infrequently and retained for long periods (Spaces pricing).",
+      "passed": true,
+      "failed": [],
+      "grade": "A",
+      "routes": [
+        "knowledge"
+      ],
+      "used_template": false,
+      "metrics": {
+        "step_ms": {
+          "supervisor": 1340,
+          "write_answer": 929,
+          "knowledge_agent": 2088,
+          "retrieve_documents": 806
+        },
+        "ai_calls": 3,
+        "total_ms": 5181,
+        "input_tokens": 2168,
+        "output_tokens": 358
+      }
+    },
+    {
+      "question": "Should I use Savings Plans or Reserved Instances on AWS, and why?",
+      "answer": "AWS recommends using Savings Plans over Reserved Instances because they are the easiest and most flexible way to save money on compute costs and offer lower prices, according to the EC2 Reserved Instances findings. \n\nHere are the key differences:\n* Savings Plans provide flexibility to use instance configurations that best meet your needs, while Reserved Instances require you to commit to a specific instance configuration, as stated in the EC2 Reserved Instances findings.\n* Savings Plans require a commitment to a consistent usage amount measured in currency units per hour for Amazon EC2, as noted in the EC2 Reserved Instances findings.",
+      "passed": true,
+      "failed": [],
+      "grade": "A",
+      "routes": [
+        "knowledge"
+      ],
+      "used_template": false,
+      "metrics": {
+        "step_ms": {
+          "supervisor": 2696,
+          "write_answer": 1390,
+          "knowledge_agent": 1823,
+          "retrieve_documents": 924
+        },
+        "ai_calls": 3,
+        "total_ms": 6852,
+        "input_tokens": 3037,
+        "output_tokens": 315
+      }
+    }
+  ]
+}

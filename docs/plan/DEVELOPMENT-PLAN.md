@@ -349,12 +349,12 @@ Every phase ends with the same steps:
 
 ### Phase 9 – Other clouds
 **You will see:** a bill from each cloud shows up in the same dashboard.
-- [ ] FOCUS reader tested with Azure, Google Cloud and Oracle samples
-- [ ] Native readers for Azure, Google Cloud and Oracle
-- [ ] DigitalOcean invoice reader
-- [ ] Provider filter in the dashboard
-- [ ] Documentation for each cloud added to Qdrant
-- [ ] Provider-specific recommendation rules
+- [x] FOCUS reader tested with Azure, Google Cloud and Oracle samples
+- [x] Native readers for Azure, Google Cloud and Oracle
+- [x] DigitalOcean invoice reader
+- [x] Provider filter in the dashboard
+- [x] Documentation for each cloud added to Qdrant
+- [x] Provider-specific recommendation rules
 
 ### Phase 10 – Live deployment
 **You will see:** CostPilot running on the internet with HTTPS.

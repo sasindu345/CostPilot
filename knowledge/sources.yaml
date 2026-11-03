@@ -91,3 +91,93 @@ sources:
     topic: management
     title: "Managing CloudTrail costs"
     url: https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-trail-manage-costs.html
+  - id: azure-reservations
+    provider: azure
+    topic: compute
+    title: "What are Azure Reservations"
+    url: https://learn.microsoft.com/en-us/azure/cost-management-billing/reservations/save-compute-costs-reservations
+  - id: azure-savings-plans
+    provider: azure
+    topic: compute
+    title: "Azure savings plans for compute"
+    url: https://learn.microsoft.com/en-us/azure/cost-management-billing/savings-plan/savings-plan-compute-overview
+  - id: azure-blob-access-tiers
+    provider: azure
+    topic: storage
+    title: "Access tiers for blob data"
+    url: https://learn.microsoft.com/en-us/azure/storage/blobs/access-tiers-overview
+  - id: azure-advisor-cost
+    provider: azure
+    topic: cost
+    title: "Azure Advisor cost recommendations"
+    url: https://learn.microsoft.com/en-us/azure/advisor/advisor-cost-recommendations
+  - id: azure-spot-vms
+    provider: azure
+    topic: compute
+    title: "Azure Spot Virtual Machines"
+    url: https://learn.microsoft.com/en-us/azure/virtual-machines/spot-vms
+  - id: gcp-committed-use
+    provider: gcp
+    topic: compute
+    title: "Committed use discounts"
+    url: https://docs.cloud.google.com/compute/docs/instances/committed-use-discounts-overview
+  - id: gcp-sustained-use
+    provider: gcp
+    topic: compute
+    title: "Sustained use discounts"
+    url: https://docs.cloud.google.com/compute/docs/sustained-use-discounts
+  - id: gcp-storage-classes
+    provider: gcp
+    topic: storage
+    title: "Storage classes"
+    url: https://docs.cloud.google.com/storage/docs/storage-classes
+  - id: gcp-storage-lifecycle
+    provider: gcp
+    topic: storage
+    title: "Object Lifecycle Management"
+    url: https://docs.cloud.google.com/storage/docs/lifecycle
+  - id: gcp-spot-vms
+    provider: gcp
+    topic: compute
+    title: "Spot VMs"
+    url: https://docs.cloud.google.com/compute/docs/instances/spot
+  - id: oci-storage-tiers
+    provider: oci
+    topic: storage
+    title: "Object Storage tiers"
+    url: https://docs.oracle.com/en-us/iaas/Content/Object/Concepts/understandingstoragetiers.htm
+  - id: oci-preemptible
+    provider: oci
+    topic: compute
+    title: "Preemptible instances"
+    url: https://docs.oracle.com/en-us/iaas/Content/Compute/Concepts/preemptible.htm
+  - id: oci-block-volume-performance
+    provider: oci
+    topic: storage
+    title: "Block Volume performance"
+    url: https://docs.oracle.com/en-us/iaas/Content/Block/Concepts/blockvolumeperformance.htm
+  - id: oci-budgets
+    provider: oci
+    topic: cost
+    title: "Budgets"
+    url: https://docs.oracle.com/en-us/iaas/Content/Billing/Concepts/budgetsoverview.htm
+  - id: do-droplet-pricing
+    provider: digitalocean
+    topic: compute
+    title: "Droplet pricing"
+    url: https://docs.digitalocean.com/products/droplets/details/pricing/
+  - id: do-spaces-pricing
+    provider: digitalocean
+    topic: storage
+    title: "Spaces pricing"
+    url: https://docs.digitalocean.com/products/spaces/details/pricing/
+  - id: do-volume-pricing
+    provider: digitalocean
+    topic: storage
+    title: "Volume pricing"
+    url: https://docs.digitalocean.com/products/volumes/details/pricing/
+  - id: do-billing
+    provider: digitalocean
+    topic: cost
+    title: "DigitalOcean billing"
+    url: https://docs.digitalocean.com/platform/billing/

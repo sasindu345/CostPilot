@@ -1,0 +1,154 @@
+{
+  "summary": {
+    "measured_on": "2026-11-03",
+    "answer_model": "gemini-3.5-flash-lite",
+    "ai_specialists": [
+      "anomaly",
+      "optimization"
+    ],
+    "questions": 6,
+    "passed": 6,
+    "used_template": 0,
+    "average_ai_calls": 2.17,
+    "average_input_tokens": 2125,
+    "average_output_tokens": 176,
+    "average_ms": 4630
+  },
+  "results": [
+    {
+      "question": "How do Spot VMs differ between AWS, Azure and Google Cloud?",
+      "answer": "Spot instances across AWS, Azure, and Google Cloud all use unused or excess capacity to offer lower prices, but they have different names, interruption notices, and specific behaviors:\n\n* **AWS (EC2 Spot Instances):** Uses spare capacity that can be requested as one-time or persistent. Amazon EC2 provides a two-minute interruption notice before stopping, terminating, or hibernating the instance, and also emits an instance rebalance recommendation when a Spot instance is at an elevated risk of interruption, as described in EC2 Spot Instances.\n* **Azure (Azure Spot Virtual Machines):** Uses unused capacity that can be evicted at any point when Azure needs the capacity back. Azure provides a thirty-second notice before eviction, and these virtual machines offer no high availability guarantees and no service level agreement, as outlined in Azure Spot Virtual Machines.\n* **Google Cloud (Spot VMs):** Uses excess Compute Engine capacity that may be preemptively stopped or deleted to reclaim resources. Depending on the specified termination action, Compute Engine either stops or deletes the virtual machines at an uncertain preemption time, as explained in Spot VMs.",
+      "passed": true,
+      "failed": [],
+      "grade": "A",
+      "routes": [
+        "knowledge"
+      ],
+      "used_template": false,
+      "metrics": {
+        "step_ms": {
+          "supervisor": 1368,
+          "write_answer": 5176,
+          "retrieve_documents": 1105
+        },
+        "ai_calls": 2,
+        "total_ms": 7660,
+        "input_tokens": 1798,
+        "output_tokens": 268
+      }
+    },
+    {
+      "question": "Compare Azure Reservations with Google Cloud committed use discounts",
+      "answer": "Azure Reservations and Google Cloud committed use discounts both offer plans for a duration of one or three years to lower resource costs, as explained in What are Azure Reservations and Committed use discounts.\n\n* Azure Reservations apply a billing discount automatically to matching resources.\n* Google Cloud committed use discounts offer either resource-based commitments for specific resource usage or spend-based commitments for a minimum hourly spend.",
+      "passed": true,
+      "failed": [],
+      "grade": "A",
+      "routes": [
+        "knowledge"
+      ],
+      "used_template": false,
+      "metrics": {
+        "step_ms": {
+          "supervisor": 1277,
+          "write_answer": 1536,
+          "retrieve_documents": 877
+        },
+        "ai_calls": 2,
+        "total_ms": 3706,
+        "input_tokens": 1722,
+        "output_tokens": 114
+      }
+    },
+    {
+      "question": "Which storage tier is cheapest for archives on Azure and on Google Cloud?",
+      "answer": "Based on the provided documents, here is the cheapest storage tier for archives:\n\n* For Azure, the archive tier is the cheapest option as it offers the lowest storage cost, as described in Access tiers for blob data.\n* For Google Cloud, Archive storage provides the lowest storage costs, as described in Storage classes.",
+      "passed": true,
+      "failed": [],
+      "grade": "A",
+      "routes": [
+        "knowledge"
+      ],
+      "used_template": false,
+      "metrics": {
+        "step_ms": {
+          "supervisor": 1058,
+          "write_answer": 1325,
+          "retrieve_documents": 823
+        },
+        "ai_calls": 2,
+        "total_ms": 3220,
+        "input_tokens": 1908,
+        "output_tokens": 80
+      }
+    },
+    {
+      "question": "What are Oracle preemptible instances, and when should I avoid them?",
+      "answer": "Oracle preemptible instances are short-term compute instances that behave like regular instances but can be reclaimed and terminated when their capacity is needed elsewhere, as detailed in the Preemptible instances documents. \n\nBased on the Preemptible instances documents, you should avoid them for:\n* Long-running workloads, because instances can be terminated at any time.\n* Workloads that cannot withstand interruptions or are not fault-tolerant.\n* Bare metal instances, burstable instances, capacity reservations, confidential computing, and dedicated virtual machine hosts.",
+      "passed": true,
+      "failed": [],
+      "grade": "A",
+      "routes": [
+        "knowledge"
+      ],
+      "used_template": false,
+      "metrics": {
+        "step_ms": {
+          "supervisor": 1173,
+          "write_answer": 1625,
+          "retrieve_documents": 929
+        },
+        "ai_calls": 2,
+        "total_ms": 3741,
+        "input_tokens": 1845,
+        "output_tokens": 117
+      }
+    },
+    {
+      "question": "How is DigitalOcean Spaces storage priced?",
+      "answer": "DigitalOcean Spaces storage pricing depends on the storage tier you use, as outlined in the Spaces pricing document:\n\n* **Spaces Standard Storage:** Includes a base subscription that covers an initial storage amount, with additional storage billed beyond that allotment. If you cancel your subscription by deleting all buckets, your bill is prorated hourly.\n* **Spaces Cold Storage:** Billed per storage amount stored and per amount retrieved, optimized for data accessed infrequently.\n* **Content Delivery Network (CDN) and Bandwidth:** The built-in Content Delivery Network is included at no additional cost, and subscriptions include a shared outbound data transfer allowance, with additional outbound transfer billed per amount transferred. Inbound bandwidth to Spaces is free.",
+      "passed": true,
+      "failed": [],
+      "grade": "A",
+      "routes": [
+        "knowledge"
+      ],
+      "used_template": false,
+      "metrics": {
+        "step_ms": {
+          "supervisor": 1177,
+          "write_answer": 1984,
+          "retrieve_documents": 1260
+        },
+        "ai_calls": 2,
+        "total_ms": 4435,
+        "input_tokens": 1719,
+        "output_tokens": 174
+      }
+    },
+    {
+      "question": "Should I use Savings Plans or Reserved Instances on AWS, and why?",
+      "answer": "You should use Savings Plans for AmazonEC2.\n\n* According to EC2 Reserved Instances and the document EC2 Reserved Instances, Savings Plans are recommended over Reserved Instances because they are the easiest and most flexible way to save money on compute costs and offer lower prices.\n* Savings Plans provide flexibility to use instance configurations that best meet your needs by committing to a consistent usage amount, whereas Reserved Instances require a commitment to a specific instance configuration.",
+      "passed": true,
+      "failed": [],
+      "grade": "A",
+      "routes": [
+        "knowledge",
+        "optimization"
+      ],
+      "used_template": false,
+      "metrics": {
+        "step_ms": {
+          "supervisor": 1264,
+          "write_answer": 1268,
+          "optimization_agent": 1557,
+          "retrieve_documents": 865,
+          "optimization_specialist": 46
+        },
+        "ai_calls": 3,
+        "total_ms": 5019,
+        "input_tokens": 3760,
+        "output_tokens": 303
+      }
+    }
+  ]
+}

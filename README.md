@@ -4,7 +4,7 @@
 
 ![CostPilot overview design](docs/design/overview-mockup.png)
 
-> **Status:** Phases 0 to 8 are built, including hybrid AI agents and a trust layer. Support for other clouds comes next. The design above is the target, not the current app. See the [roadmap](docs/plan/ROADMAP.md) for what is built and what remains.
+> **Status:** Phases 0 to 9 are built: five clouds, hybrid AI agents and a trust layer. Live deployment comes next. The design above is the target, not the current app. See the [roadmap](docs/plan/ROADMAP.md) for what is built and what remains.
 
 ## The problem
 
@@ -35,7 +35,7 @@ CostPilot gives you one place to upload bills, see your spending and ask questio
 | **Analytics** | Compare periods, explore services and find unusual spending |
 | **AI Assistant** | Ask questions about your bills and cloud cost best practice |
 
-**Clouds:** AWS first, then Azure, Google Cloud, Oracle Cloud and DigitalOcean.
+**Clouds:** AWS, Azure, Google Cloud, Oracle Cloud and DigitalOcean, plus any FOCUS file. See the [cloud bills guide](docs/guides/cloud-bills.md).
 
 ## System overview
 

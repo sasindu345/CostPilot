@@ -1,0 +1,2 @@
+BilledCost,EffectiveCost,ListCost,ChargePeriodStart,ChargePeriodEnd,ChargeCategory,ServiceName,ServiceCategory,BillingCurrency,ProviderName,BillingAccountId,SubAccountId,RegionId,ResourceId,SkuId,ConsumedQuantity,ConsumedUnit,Tags
+10.00,8.00,12.00,2026-10-01T00:00:00Z,2026-10-02T00:00:00Z,Usage,Virtual Machines,Compute,USD,Microsoft,ba,sub,eastus,vm-1,sku-1,24,Hours,"{""env"":""prod""}"

@@ -115,4 +115,77 @@ AWS = ProviderProfile(
     ),
 )
 
-PROFILES = {AWS.provider: AWS}
+AZURE = ProviderProfile(
+    provider="azure",
+    steady_rules=(
+        SteadyServiceRule(
+            id="azure-vm-reservations",
+            title="Consider Azure Reservations for steady virtual machines",
+            reason="Your virtual machine cost has been steady, which suits a reservation.",
+            services=("Virtual Machines",),
+            source_title="What are Azure Reservations",
+            source_path="/cost-management-billing/reservations/save-compute-costs-reservations",
+        ),
+    ),
+    review_rules=(
+        ServiceReviewRule(
+            id="azure-blob-access-tiers",
+            title="Review blob storage access tiers",
+            reason="Cool and cold tiers cost less for data you rarely read.",
+            services=("Storage",),
+            source_title="Access tiers for blob data",
+            source_path="/storage/blobs/access-tiers-overview",
+        ),
+    ),
+)
+
+GCP = ProviderProfile(
+    provider="gcp",
+    steady_rules=(
+        SteadyServiceRule(
+            id="gcp-committed-use",
+            title="Consider committed use discounts for steady Compute Engine use",
+            reason="Your Compute Engine cost has been steady, which suits a commitment.",
+            services=("Compute Engine",),
+            source_title="Committed use discounts",
+            source_path="/compute/docs/instances/committed-use-discounts-overview",
+        ),
+    ),
+    review_rules=(
+        ServiceReviewRule(
+            id="gcp-storage-classes",
+            title="Review Cloud Storage classes",
+            reason="Nearline, Coldline and Archive cost less for data you rarely read.",
+            services=("Cloud Storage",),
+            source_title="Storage classes",
+            source_path="/storage/docs/storage-classes",
+        ),
+    ),
+)
+
+OCI = ProviderProfile(
+    provider="oci",
+    review_rules=(
+        ServiceReviewRule(
+            id="oci-storage-tiers",
+            title="Review Object Storage tiers",
+            reason="Infrequent Access and Archive tiers cost less for data you rarely read.",
+            services=("OBJECT_STORAGE",),
+            source_title="Object Storage tiers",
+            source_path="/Content/Object/Concepts/understandingstoragetiers.htm",
+        ),
+        ServiceReviewRule(
+            id="oci-preemptible",
+            title="Consider preemptible instances for work that can be stopped",
+            reason="Preemptible instances cost less, but Oracle can stop them at any time.",
+            services=("COMPUTE",),
+            source_title="Preemptible instances",
+            source_path="/Content/Compute/Concepts/preemptible.htm",
+        ),
+    ),
+)
+
+# DigitalOcean has no commitment discounts, and no cost advice we can cite yet, so no rules.
+DIGITALOCEAN = ProviderProfile(provider="digitalocean")
+
+PROFILES = {profile.provider: profile for profile in (AWS, AZURE, GCP, OCI, DIGITALOCEAN)}

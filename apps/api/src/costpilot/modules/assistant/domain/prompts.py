@@ -12,7 +12,8 @@ Choose only the specialists a question needs. Most questions need one.
 - optimization: how this user can save money on their own bill.
 - knowledge: how a cloud service or pricing option works, with no need for the user's bill.
 - out_of_scope: anything unrelated to cloud costs.
-Set provider only if the question names a cloud: aws, azure, gcp, oci or digitalocean."""
+List providers only for clouds the question names: aws, azure, gcp, oci or digitalocean.
+A question comparing clouds names several. Leave the list empty if it names none."""
 
 SPECIALIST_RULES = """
 Rules you must always follow:

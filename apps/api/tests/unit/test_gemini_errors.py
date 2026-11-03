@@ -12,7 +12,10 @@ from pydantic import SecretStr
 from costpilot.main import create_app
 from costpilot.modules.assistant.domain.errors import ModelUnavailableError
 from costpilot.modules.assistant.domain.metrics import AnswerMeter
-from costpilot.modules.assistant.infrastructure.gemini_chat_model import GeminiChatModel
+from costpilot.modules.assistant.infrastructure.gemini_chat_model import (
+    GeminiChatModel,
+    RouteChoice,
+)
 from costpilot.modules.knowledge.domain.errors import KnowledgeUnavailableError
 from costpilot.modules.knowledge.infrastructure.gemini_embedder import GeminiEmbedder
 from costpilot.shared.config import get_settings
@@ -152,3 +155,23 @@ def test_the_app_starts_without_a_gemini_key(monkeypatch):
         get_settings.cache_clear()
 
     assert response.status_code == 200
+
+
+class RouterReply:
+    def __init__(self, choice):
+        self.choice = choice
+
+    def with_structured_output(self, schema, include_raw):
+        return self
+
+    async def ainvoke(self, messages):
+        return {"parsed": self.choice, "raw": SimpleNamespace(usage_metadata=None)}
+
+
+async def test_made_up_cloud_names_from_the_supervisor_are_dropped():
+    model = chat_model()
+    model._router = RouterReply(RouteChoice(routes=["knowledge"], providers=["AZURE", "mars"]))
+
+    plan = await model.choose_routes("question", AnswerMeter())
+
+    assert plan.providers == ["azure"]

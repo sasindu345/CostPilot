@@ -9,6 +9,7 @@ from qdrant_client.models import (
     FieldCondition,
     Filter,
     FilterSelector,
+    MatchAny,
     MatchValue,
     PayloadSchemaType,
     PointStruct,
@@ -89,13 +90,15 @@ class QdrantVectorIndex:
         )
 
     async def search(
-        self, vector: Sequence[float], provider: str, limit: int, min_score: float
+        self, vector: Sequence[float], providers: Sequence[str], limit: int, min_score: float
     ) -> list[Passage]:
         try:
             response = await self._client.query_points(
                 self._collection,
                 query=list(vector),
-                query_filter=_matches("provider", provider),
+                query_filter=Filter(
+                    must=[FieldCondition(key="provider", match=MatchAny(any=list(providers)))]
+                ),
                 limit=limit,
                 score_threshold=min_score,
                 with_payload=True,

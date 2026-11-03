@@ -25,6 +25,7 @@ from costpilot.modules.knowledge.infrastructure.html_page_loader import (
 from costpilot.modules.knowledge.infrastructure.langchain_splitter import LangChainTextSplitter
 from costpilot.modules.knowledge.infrastructure.qdrant_index import QdrantVectorIndex
 from costpilot.modules.knowledge.infrastructure.yaml_files import read_questions, read_sources
+from costpilot.shared.config import get_settings
 
 HOSTS = ("docs.example.test",)
 DIMENSIONS = 64
@@ -97,7 +98,7 @@ async def test_search_finds_the_right_document(embedder, index):
     await indexer(pages, embedder, index).run([source("s3"), source("ebs")])
 
     result = await searcher(embedder, index).search(
-        "cheaper storage for rarely read objects", "aws"
+        "cheaper storage for rarely read objects", ["aws"]
     )
 
     assert result.is_available
@@ -122,7 +123,7 @@ async def test_a_changed_page_replaces_its_old_text(embedder, index):
 
     report = await indexer({"s3": EBS_TEXT}, embedder, index).run([source("s3")])
 
-    result = await searcher(embedder, index).search("gp3 volumes", "aws")
+    result = await searcher(embedder, index).search("gp3 volumes", ["aws"])
     assert report.indexed == ["s3"]
     assert len(result.passages) == 1
     assert "gp3" in result.passages[0].text
@@ -136,7 +137,7 @@ async def test_a_source_taken_off_the_list_is_removed(embedder, index):
     report = await indexer({"s3": S3_TEXT}, embedder, index).run([source("s3")])
 
     assert report.removed == ["ebs"]
-    assert (await searcher(embedder, index).search("gp3 volumes", "aws")).passages == []
+    assert (await searcher(embedder, index).search("gp3 volumes", ["aws"])).passages == []
 
 
 async def test_one_bad_page_does_not_stop_the_others(embedder, index):
@@ -151,33 +152,49 @@ async def test_one_bad_page_does_not_stop_the_others(embedder, index):
 async def test_advice_for_one_cloud_is_never_given_for_another(embedder, index):
     await indexer({"s3": S3_TEXT}, embedder, index).run([source("s3", provider="aws")])
 
-    result = await searcher(embedder, index).search("cheaper storage classes", "azure")
+    result = await searcher(embedder, index).search("cheaper storage classes", ["azure"])
 
     assert result.is_available
     assert result.passages == []
 
 
+async def test_one_search_covers_several_clouds(embedder, index):
+    await indexer({"s3": S3_TEXT, "blob": EBS_TEXT}, embedder, index).run(
+        [source("s3", provider="aws"), source("blob", provider="azure")]
+    )
+
+    result = await searcher(embedder, index).search("cheaper storage volumes", ["aws", "azure"])
+
+    assert {passage.provider for passage in result.passages} == {"aws", "azure"}
+    assert embedder.documents_embedded == 2
+
+
+async def test_a_single_cloud_name_must_be_given_as_a_list(embedder, index):
+    with pytest.raises(TypeError, match="list"):
+        await searcher(embedder, index).search("anything", "aws")
+
+
 async def test_weak_matches_are_dropped(embedder, index):
     await indexer({"s3": S3_TEXT}, embedder, index).run([source("s3")])
 
-    result = await searcher(embedder, index, min_score=0.9).search("cheaper storage", "aws")
+    result = await searcher(embedder, index, min_score=0.9).search("cheaper storage", ["aws"])
 
     assert result.passages == []
 
 
 async def test_search_being_down_is_reported_not_raised(embedder):
     class BrokenIndex:
-        async def search(self, vector, provider, limit, min_score):
+        async def search(self, vector, providers, limit, min_score):
             raise KnowledgeUnavailableError("down")
 
-    result = await searcher(embedder, BrokenIndex()).search("anything", "aws")
+    result = await searcher(embedder, BrokenIndex()).search("anything", ["aws"])
 
     assert result.is_available is False
     assert result.passages == []
 
 
 async def test_a_missing_collection_is_reported_as_unavailable(embedder, index):
-    result = await searcher(embedder, index).search("anything", "aws")
+    result = await searcher(embedder, index).search("anything", ["aws"])
 
     assert result.is_available is False
 
@@ -207,6 +224,28 @@ def test_readable_text_keeps_the_article_and_drops_the_rest():
     <footer>Footer</footer></body></html>"""
 
     assert readable_text(html) == "Lifecycle\nMove objects."
+
+
+def test_readable_text_joins_an_article_split_into_blocks():
+    html = """<main><div class="content">Title</div><nav>Menu</nav>
+    <div class="content">First part.</div><div class="content">Second part.</div></main>"""
+
+    assert readable_text(html) == "Title\nFirst part.\nSecond part."
+
+
+def test_readable_text_drops_notes_written_for_ai_tools():
+    html = (
+        "<main><div><p><strong>For AI agents:</strong> see the index</p></div>"
+        "<p>Pricing.</p></main>"
+    )
+
+    assert readable_text(html) == "Pricing."
+
+
+def test_readable_text_does_not_repeat_nested_articles():
+    html = "<article>Outer.<article>Inner.</article></article>"
+
+    assert readable_text(html) == "Outer.\nInner."
 
 
 def loader(handler):
@@ -255,8 +294,14 @@ def test_splitter_keeps_chunks_within_size():
 def test_the_real_source_list_is_valid():
     sources = read_sources(str(KNOWLEDGE_FOLDER / "sources.yaml"))
 
-    check_sources(sources, ("docs.aws.amazon.com",))
-    assert len(sources) >= 15
+    check_sources(sources, get_settings().knowledge_allowed_hosts)
+    assert {source.provider for source in sources} == {
+        "aws",
+        "azure",
+        "gcp",
+        "oci",
+        "digitalocean",
+    }
 
 
 def test_every_test_question_points_at_a_real_source():

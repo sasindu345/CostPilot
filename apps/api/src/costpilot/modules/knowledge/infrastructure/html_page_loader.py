@@ -8,7 +8,11 @@ from costpilot.modules.knowledge.domain.errors import (
 from costpilot.modules.knowledge.domain.models import Source
 from costpilot.modules.knowledge.domain.sources import check_trusted_url
 
-MAIN_CONTENT = ("#main-content", "main", "article")
+# Checked in order. Each cloud's docs keep the article in a different place. Azure splits it into
+# several blocks, so every match of a selector is kept, but a match inside another is skipped.
+MAIN_CONTENT = (".devsite-article-body", "#main-content", "main div.content", "main", "article")
+# Some sites add notes for AI tools. They are page furniture, not documentation.
+NOTE_STARTS = ("For AI agents",)
 NOISE = ("script", "style", "nav", "header", "footer", "aside", "noscript")
 MIN_TEXT_LENGTH = 200
 
@@ -16,10 +20,20 @@ MIN_TEXT_LENGTH = 200
 def readable_text(html: str) -> str:
     """Keep the page's main text, and drop menus and page furniture."""
     soup = BeautifulSoup(html, "html.parser")
-    root = next(filter(None, map(soup.select_one, MAIN_CONTENT)), soup.body or soup)
-    for element in root.find_all(NOISE):
-        element.decompose()
-    lines = (line.strip() for line in root.get_text("\n").splitlines())
+    matches = next(filter(None, (soup.select(selector) for selector in MAIN_CONTENT)), None)
+    roots = [
+        m for m in matches or [] if not any(o is not m and m in o.descendants for o in matches)
+    ]
+    lines: list[str] = []
+    for root in roots or [soup.body or soup]:
+        for element in root.find_all(NOISE):
+            element.decompose()
+        for note in root.find_all(
+            string=lambda text: text and text.strip().startswith(NOTE_STARTS)
+        ):
+            if note.parent is not None and note.parent.parent is not None:
+                note.parent.parent.decompose()
+        lines += (line.strip() for line in root.get_text("\n").splitlines())
     return "\n".join(line for line in lines if line)
 
 

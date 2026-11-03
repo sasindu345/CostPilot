@@ -1,7 +1,11 @@
+import path from "node:path";
+
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
 import { signUp } from "./helpers";
+
+const AZURE_BILL = path.join(__dirname, "../../api/tests/fixtures/billing/azure-ea.csv");
 
 async function expectNoAccessibilityProblems(page: Page) {
   const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
@@ -9,6 +13,8 @@ async function expectNoAccessibilityProblems(page: Page) {
 }
 
 test("a new user sees correct figures from sample data", async ({ page, request }) => {
+  // Two bills are uploaded and processed, so this test needs more than the default time.
+  test.setTimeout(120_000);
   await signUp(page, request);
 
   await test.step("an empty account explains what to do", async () => {
@@ -29,8 +35,20 @@ test("a new user sees correct figures from sample data", async ({ page, request 
     await expectNoAccessibilityProblems(page);
   });
 
+  await test.step("a bill from another cloud adds a cloud filter", async () => {
+    await page.goto("/documents");
+    await page.getByLabel("Choose a billing file").setInputFiles(AZURE_BILL);
+    const azureRow = page.getByRole("listitem").filter({ hasText: "azure-ea.csv" });
+    await expect(azureRow.getByText("Processed", { exact: true })).toBeVisible();
+    await page.goto("/");
+    await page.getByRole("combobox", { name: "Cloud" }).selectOption("azure");
+    await expect(page.getByText("€324.30").first()).toBeVisible();
+    await page.getByRole("combobox", { name: "Cloud" }).selectOption("");
+    await expect(page.getByText("$1,245.60")).toBeVisible();
+  });
+
   await test.step("the period filter changes the total", async () => {
-    await page.getByLabel("Period").selectOption("3");
+    await page.getByRole("combobox", { name: "Period" }).selectOption("3");
     await expect(page.getByText("$719.00")).toBeVisible();
   });
 

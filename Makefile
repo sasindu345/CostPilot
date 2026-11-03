@@ -1,9 +1,10 @@
 -include .env
 
 STANDARD_EVAL = ../../knowledge/assistant-questions.yaml src/costpilot/modules/documents/infrastructure/sample-aws-bill.csv ../../knowledge/assistant-baseline.json
+KNOWLEDGE_EVAL = ../../knowledge/assistant-knowledge-questions.yaml tests/fixtures/billing/eval-bill.csv
 HARD_EVAL = ../../knowledge/assistant-hard-questions.yaml tests/fixtures/billing/eval-bill.csv
 
-.PHONY: help setup up down logs dev-api dev-web migrate e2e types reindex eval-search eval-assistant eval-agents check test sample
+.PHONY: help setup up down logs dev-api dev-web migrate e2e types reindex eval-search eval-assistant eval-agents eval-knowledge check test sample
 
 help: ## Show this list
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  make %-10s %s\n", $$1, $$2}'
@@ -55,6 +56,11 @@ eval-agents: ## Compare the hard questions with and without AI specialists
 	cd apps/api && uv run pytest tests/integration/test_row_level_security.py
 	cd apps/api && POSTGRES_DB=costpilot_test ASSISTANT_AI_SPECIALISTS='[]' uv run python scripts/eval_assistant.py $(HARD_EVAL) ../../knowledge/eval-without-agents.json
 	cd apps/api && POSTGRES_DB=costpilot_test uv run python scripts/eval_assistant.py $(HARD_EVAL) ../../knowledge/eval-with-agents.json
+
+eval-knowledge: ## Compare documentation questions with and without the Knowledge Agent
+	cd apps/api && uv run pytest tests/integration/test_row_level_security.py
+	cd apps/api && POSTGRES_DB=costpilot_test ASSISTANT_AI_SPECIALISTS='["anomaly","optimization"]' uv run python scripts/eval_assistant.py $(KNOWLEDGE_EVAL) ../../knowledge/eval-knowledge-off.json
+	cd apps/api && POSTGRES_DB=costpilot_test ASSISTANT_AI_SPECIALISTS='["anomaly","optimization","knowledge"]' uv run python scripts/eval_assistant.py $(KNOWLEDGE_EVAL) ../../knowledge/eval-knowledge-on.json
 
 types: ## Update the frontend's API types from the backend
 	cd apps/api && uv run python scripts/export_openapi.py ../web/openapi.json

@@ -1,0 +1,18 @@
+# Harder documentation questions, many comparing clouds. They decide if the Knowledge Agent earns
+# its AI call. Run with `make eval-knowledge`.
+questions:
+  - question: "How do Spot VMs differ between AWS, Azure and Google Cloud?"
+    include: ["Azure", "Google"]
+    exclude: ["no documents"]
+  - question: "Compare Azure Reservations with Google Cloud committed use discounts"
+    include: ["reserv", "commit"]
+  - question: "Which storage tier is cheapest for archives on Azure and on Google Cloud?"
+    include: ["Archive"]
+  - question: "What are Oracle preemptible instances, and when should I avoid them?"
+    include: ["preemptible"]
+    sources: ["Preemptible instances"]
+  - question: "How is DigitalOcean Spaces storage priced?"
+    include: ["Spaces"]
+    sources: ["Spaces pricing"]
+  - question: "Should I use Savings Plans or Reserved Instances on AWS, and why?"
+    include: ["Savings Plans", "Reserved"]

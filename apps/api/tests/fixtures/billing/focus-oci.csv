@@ -1,0 +1,2 @@
+BilledCost,EffectiveCost,ChargePeriodStart,ChargePeriodEnd,ChargeCategory,ServiceName,ServiceCategory,BillingCurrency,ProviderName
+2.00,2.00,2026-10-01T00:00:00Z,2026-10-01T01:00:00Z,Usage,Compute,Compute,USD,Oracle

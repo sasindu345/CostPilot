@@ -10,12 +10,16 @@ Everything after the reader never knows which cloud a bill came from. That cover
 
 ## Support plan
 
-| Cloud | Files | Phase |
+| Cloud | Files | Reader |
 |---|---|---|
-| AWS | Cost Explorer CSV, CUR old and new columns, FOCUS | 3 |
-| Azure, Google Cloud, Oracle | FOCUS export, using the shared reader | 9 |
-| Azure, Google Cloud, Oracle | Native report formats | 9 |
-| DigitalOcean | Invoice CSV. It has no FOCUS export, so it needs its own reader | 9 |
+| Any | FOCUS 1.0 to 1.3, using `ProviderName` or `ServiceProviderName` | `focus.py` |
+| AWS | Cost Explorer CSV, CUR old and new columns | `aws_cost_explorer.py`, `aws_cur.py` |
+| Azure | Cost details export, EA, MCA and pay-as-you-go | `azure_cost_details.py` |
+| Google Cloud | Standard billing export, flattened from BigQuery | `gcp_billing_export.py` |
+| Oracle | Cost report, Oracle's own format | `oci_cost_report.py` |
+| DigitalOcean | Invoice CSV. It has no FOCUS export | `digitalocean_invoice.py` |
+
+How to get each file: [cloud bills guide](../guides/cloud-bills.md).
 
 ## Adding a new format
 

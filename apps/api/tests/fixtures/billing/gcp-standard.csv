@@ -1,0 +1,4 @@
+billing_account_id,service.description,sku.description,usage_start_time,usage_end_time,project.id,location.region,cost,currency,usage.amount,usage.unit,cost_type,cost_at_list,credits_total
+01ABCD,Compute Engine,N2 Instance Core running in Americas,2026-10-01 00:00:00 UTC,2026-10-01 01:00:00 UTC,proj-a,us-central1,20.00,USD,3600,seconds,regular,20.00,-5.00
+01ABCD,Cloud Storage,Standard Storage US Multi-region,2026-10-01 00:00:00 UTC,2026-10-02 00:00:00 UTC,proj-a,us,3.25,USD,10,gibibyte month,regular,3.25,0
+01ABCD,Compute Engine,Tax,2026-10-01 00:00:00 UTC,2026-10-31 23:59:59 UTC,proj-a,,1.10,USD,,,tax,,

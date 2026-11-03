@@ -45,6 +45,10 @@ class Settings(BaseSettings):
     aws_region: str = ""
 
     aws_docs_url: str
+    azure_docs_url: str
+    gcp_docs_url: str
+    oci_docs_url: str
+    digitalocean_docs_url: str
     qdrant_url: str
     qdrant_api_key: SecretStr = SecretStr("")
     gemini_api_key: SecretStr = SecretStr("")
@@ -64,7 +68,13 @@ class Settings(BaseSettings):
     knowledge_sources_path: str = "../../knowledge/sources.yaml"
     knowledge_questions_path: str = "../../knowledge/search-questions.yaml"
     knowledge_collection: str = "cloud_docs"
-    knowledge_allowed_hosts: tuple[str, ...] = ("docs.aws.amazon.com",)
+    knowledge_allowed_hosts: tuple[str, ...] = (
+        "docs.aws.amazon.com",
+        "learn.microsoft.com",
+        "docs.cloud.google.com",
+        "docs.oracle.com",
+        "docs.digitalocean.com",
+    )
     knowledge_max_page_bytes: int = 5_000_000
     knowledge_timeout_seconds: float = 20
     embedding_dimensions: int = 768

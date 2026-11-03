@@ -31,3 +31,27 @@ questions:
   - question: "How do I reduce CloudTrail costs?"
     provider: aws
     expected: [aws-cloudtrail-costs]
+  - question: "How do Azure Reservations save money?"
+    provider: azure
+    expected: [azure-reservations, azure-savings-plans]
+  - question: "Which Azure blob tier is cheapest for data I rarely read?"
+    provider: azure
+    expected: [azure-blob-access-tiers]
+  - question: "How do committed use discounts work on Google Cloud?"
+    provider: gcp
+    expected: [gcp-committed-use]
+  - question: "Which Cloud Storage class is cheapest for archives?"
+    provider: gcp
+    expected: [gcp-storage-classes, gcp-storage-lifecycle]
+  - question: "Can I run interruptible work for less on Oracle Cloud?"
+    provider: oci
+    expected: [oci-preemptible]
+  - question: "Which Oracle Object Storage tier is cheapest?"
+    provider: oci
+    expected: [oci-storage-tiers]
+  - question: "How much does a DigitalOcean Droplet cost?"
+    provider: digitalocean
+    expected: [do-droplet-pricing]
+  - question: "How is DigitalOcean Spaces storage priced?"
+    provider: digitalocean
+    expected: [do-spaces-pricing]

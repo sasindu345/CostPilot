@@ -38,5 +38,5 @@ class VectorIndex(Protocol):
     async def remove_source(self, source_id: str) -> None: ...
 
     async def search(
-        self, vector: Sequence[float], provider: str, limit: int, min_score: float
+        self, vector: Sequence[float], providers: Sequence[str], limit: int, min_score: float
     ) -> list[Passage]: ...

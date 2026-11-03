@@ -38,7 +38,8 @@ class RecommendationService:
         found: list[Recommendation] = []
         for provider in overview.providers:
             profile = PROFILES.get(provider)
-            if profile is None:
+            docs_url = self._docs_urls.get(provider)
+            if profile is None or docs_url is None:
                 continue
             scoped = Filters(months=HISTORY_MONTHS, provider=provider)
             data = RuleInput(
@@ -50,7 +51,7 @@ class RecommendationService:
                 currency=overview.currency,
                 min_monthly_cost=self._min_monthly_cost,
                 steady_ratio=self._steady_ratio,
-                docs_url=self._docs_urls[provider],
+                docs_url=docs_url,
             )
             found += find_recommendations(profile, data)
         return found
