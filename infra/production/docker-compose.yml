@@ -83,13 +83,16 @@ services:
       KEYCLOAK_REALM: ${KEYCLOAK_REALM:?set in Parameter Store}
       KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:?set in Parameter Store}
       KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:?set in Parameter Store}
-      KEYCLOAK_SMTP_HOST: ${KEYCLOAK_SMTP_HOST:?set in Parameter Store}
-      KEYCLOAK_SMTP_PORT: ${KEYCLOAK_SMTP_PORT:?set in Parameter Store}
-      KEYCLOAK_SMTP_FROM: ${KEYCLOAK_SMTP_FROM:?set in Parameter Store}
-      KEYCLOAK_SMTP_AUTH: ${KEYCLOAK_SMTP_AUTH:?set in Parameter Store}
-      KEYCLOAK_SMTP_STARTTLS: ${KEYCLOAK_SMTP_STARTTLS:?set in Parameter Store}
-      KEYCLOAK_SMTP_USER: ${KEYCLOAK_SMTP_USER}
-      KEYCLOAK_SMTP_PASSWORD: ${KEYCLOAK_SMTP_PASSWORD}
+      # Email is optional during the first deploy. These safe values let Keycloak
+      # start without SMTP; no email is sent until a real provider is configured.
+      KEYCLOAK_VERIFY_EMAIL: ${KEYCLOAK_VERIFY_EMAIL:-false}
+      KEYCLOAK_SMTP_HOST: ${KEYCLOAK_SMTP_HOST:-localhost}
+      KEYCLOAK_SMTP_PORT: ${KEYCLOAK_SMTP_PORT:-25}
+      KEYCLOAK_SMTP_FROM: ${KEYCLOAK_SMTP_FROM:-no-reply@localhost}
+      KEYCLOAK_SMTP_AUTH: ${KEYCLOAK_SMTP_AUTH:-false}
+      KEYCLOAK_SMTP_STARTTLS: ${KEYCLOAK_SMTP_STARTTLS:-false}
+      KEYCLOAK_SMTP_USER: ${KEYCLOAK_SMTP_USER:-}
+      KEYCLOAK_SMTP_PASSWORD: ${KEYCLOAK_SMTP_PASSWORD:-}
       APP_PUBLIC_URL: ${APP_PUBLIC_URL:?set in Parameter Store}
     ports:
       - 127.0.0.1:${KEYCLOAK_ADMIN_PORT}:8080

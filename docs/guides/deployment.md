@@ -122,9 +122,13 @@ Read the plan Terraform shows before typing `yes`. It creates:
    ```
 3. In GitHub, add `QDRANT_URL` and `QDRANT_API_KEY` as repository secrets. The weekly job uses them to keep the free cluster awake.
 
-## Step 6: An email service
+## Step 6: An email service (optional for the first deploy)
 
-Keycloak sends sign-up and password emails. Mailpit only catches them on your laptop. Any SMTP service works. Brevo and Amazon SES both have free allowances. Check their current limits before choosing. You need its host, port, user and password.
+You can deploy and use CostPilot before setting up email. In that mode, email verification is off and password-reset messages are unavailable.
+
+When you are ready, any SMTP service works. Brevo and Amazon SES have free allowances. Gmail also works for a personal test: use `smtp.gmail.com`, port `587`, your full Gmail address as the SMTP user, and a Google **app password** as the SMTP password. Do not use your normal Gmail password. Turn on two-step verification first, then create an app password in your Google Account security settings.
+
+Set `KEYCLOAK_VERIFY_EMAIL=true` along with the SMTP host, port, sender, authentication, TLS, user, and password. Mailpit only catches email on your laptop.
 
 ## Step 7: Production settings
 

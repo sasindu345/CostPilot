@@ -101,8 +101,9 @@ jobs:
       - name: Check the production Compose file
         working-directory: infra/production
         run: |
-          # Fill every empty example value, so only real mistakes in the file fail this check.
-          sed -E '/^[a-z]+\//d; s/^([A-Z_]+)=$/\1=check/' settings.example > .env
+          # SMTP is deliberately absent here: a first production deploy must not
+          # be blocked while email delivery is configured later.
+          sed -E '/^[a-z]+\//d; s/^([A-Z_]+)=$/\1=check/; /^KEYCLOAK_SMTP_/d; /^KEYCLOAK_VERIFY_EMAIL=/d' settings.example > .env
           IMAGE_PREFIX=ghcr.io/example/costpilot IMAGE_TAG=check docker compose config --quiet
 
   images:
